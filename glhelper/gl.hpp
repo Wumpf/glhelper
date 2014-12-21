@@ -1,6 +1,6 @@
 #pragma once
 
-#include "config.hpp"
+#include <glhelperconfig.hpp>
 #include <type_traits>
 
 namespace gl

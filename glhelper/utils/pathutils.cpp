@@ -1,5 +1,5 @@
 #include "pathutils.hpp"
-#include "../config.hpp"
+#include <glhelperconfig.hpp>
 
 namespace PathUtils
 {
