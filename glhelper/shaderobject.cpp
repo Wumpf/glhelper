@@ -79,7 +79,7 @@ namespace gl
 		std::ifstream file(shaderFilename.c_str());
 		if (file.bad() || file.fail())
 		{
-			LOG_ERROR("Unable to open shader file " + shaderFilename);
+			GLHELPER_LOG_ERROR("Unable to open shader file " + shaderFilename);
 			return "";
 		}
 
@@ -149,20 +149,20 @@ namespace gl
 			size_t quotMarksFirst = sourceCode.find("\"", includePos);
 			if (quotMarksFirst == std::string::npos)
 			{
-				LOG_ERROR("Invalid #include directive in shader file " + shaderFilename + ". Expected \"");
+				GLHELPER_LOG_ERROR("Invalid #include directive in shader file " + shaderFilename + ". Expected \"");
 				break;
 			}
 			size_t quotMarksLast = sourceCode.find("\"", quotMarksFirst + 1);
 			if (quotMarksFirst == std::string::npos)
 			{
-				LOG_ERROR("Invalid #include directive in shader file " + shaderFilename + ". Expected \"");
+				GLHELPER_LOG_ERROR("Invalid #include directive in shader file " + shaderFilename + ". Expected \"");
 				break;
 			}
 
 			size_t stringLength = quotMarksLast - quotMarksFirst - 1;
 			if (stringLength == 0)
 			{
-				LOG_ERROR("Invalid #include directive in shader file " + shaderFilename + ". Quotation marks empty!");
+				GLHELPER_LOG_ERROR("Invalid #include directive in shader file " + shaderFilename + ". Quotation marks empty!");
 				break;
 			}
 
@@ -515,7 +515,7 @@ namespace gl
 		auto storageBufferInfoIterator = GetShaderStorageBufferInfo().find(_SSBOName);
 		if(storageBufferInfoIterator == GetShaderStorageBufferInfo().end())
 		{
-			LOG_ERROR("Shader \"" + GetName() + "\" doesn't contain a storage buffer meta block info with the name \"" + _SSBOName + "\"!");
+			GLHELPER_LOG_ERROR("Shader \"" + GetName() + "\" doesn't contain a storage buffer meta block info with the name \"" + _SSBOName + "\"!");
 			return Result::FAILURE;
 		}
 		_ssbo.BindBuffer( storageBufferInfoIterator->second.iBufferBinding );
@@ -591,11 +591,11 @@ namespace gl
 
 		if (infoLog.size() > 0)
 		{
-			LOG_ERROR("ShaderObject \"" + m_name + " \": Shader " + sShaderName + " compiled.Output:"); // Not necessarily an error - depends on driver.
-			LOG_ERROR(infoLog);
+			GLHELPER_LOG_ERROR("ShaderObject \"" + m_name + " \": Shader " + sShaderName + " compiled.Output:"); // Not necessarily an error - depends on driver.
+			GLHELPER_LOG_ERROR(infoLog);
 		}
 		else
-			LOG_INFO("ShaderObject \"" + m_name + " \": Shader " + sShaderName + " compiled successfully");
+			GLHELPER_LOG_INFO("ShaderObject \"" + m_name + " \": Shader " + sShaderName + " compiled successfully");
 #endif
 	}
 
@@ -614,11 +614,11 @@ namespace gl
 
 		if (infoLog.size() > 0)
 		{
-			LOG_ERROR("Program \"" + m_name + " \" linked. Output:"); // Not necessarily an error - depends on driver.
-			LOG_ERROR(infoLog);
+			GLHELPER_LOG_ERROR("Program \"" + m_name + " \" linked. Output:"); // Not necessarily an error - depends on driver.
+			GLHELPER_LOG_ERROR(infoLog);
 		}
 		else
-			LOG_INFO("Program \"" + m_name + " \" linked successfully");
+			GLHELPER_LOG_INFO("Program \"" + m_name + " \" linked successfully");
 #endif
 	}
 

@@ -42,7 +42,7 @@ namespace gl
 				description = "Unknown error code.";
 				break;
 			}
-			LOG_ERROR(std::string("OpenGL Error during ") + openGLFunctionName + ": " + errorString + "(" + description + ")");
+			GLHELPER_LOG_ERROR(std::string("OpenGL Error during ") + openGLFunctionName + ": " + errorString + "(" + description + ")");
 			return Result::FAILURE;
 		}
 
@@ -55,7 +55,7 @@ namespace gl
 			return true;
 		else
 		{
-			LOG_ERROR(std::string("OpenGL operation ") + openGLFunctionName + " is not available, the function is nullptr!");
+			GLHELPER_LOG_ERROR(std::string("OpenGL operation ") + openGLFunctionName + " is not available, the function is nullptr!");
 			return false;
 		}
 	};
@@ -113,11 +113,11 @@ namespace gl
 		
 		std::string logMessage = debSource + ": " + debType + "(" + debSev + ") " + std::to_string(_id) + ": " + _message;
 		if (_type == GL_DEBUG_TYPE_ERROR || _type == GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR)
-			LOG_ERROR(logMessage);
+			GLHELPER_LOG_ERROR(logMessage);
 		else if (_type == GL_DEBUG_TYPE_PERFORMANCE)
-			LOG_INFO(logMessage);
+			GLHELPER_LOG_INFO(logMessage);
 		else
-			LOG_WARNING(logMessage);
+			GLHELPER_LOG_WARNING(logMessage);
 	}
 
 	void ActivateGLDebugOutput(DebugSeverity level)

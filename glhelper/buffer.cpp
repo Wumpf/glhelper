@@ -77,7 +77,7 @@ namespace gl
     void* Buffer::Map( std::uint32_t _offset, std::uint32_t _numBytes )
     {
         if (m_glMapAccess == 0)
-            LOG_ERROR( "The buffer was not created with READ or WRITE flag. Unable to map memory!" );
+            GLHELPER_LOG_ERROR( "The buffer was not created with READ or WRITE flag. Unable to map memory!" );
 		else
 		{
 			if (m_mappedData != nullptr)
@@ -86,7 +86,7 @@ namespace gl
 					return static_cast<char*>(m_mappedData) + _offset;
 				else
 				{
-					LOG_WARNING("Buffer was already mapped, but within incompatible range. Performing Buffer::Unmap ...");
+					GLHELPER_LOG_WARNING("Buffer was already mapped, but within incompatible range. Performing Buffer::Unmap ...");
 					Unmap();
 				}
 			}
@@ -111,13 +111,13 @@ namespace gl
 	{
 		if (m_mappedData == nullptr)
 		{
-			LOG_WARNING("Buffer is not mapped, ignoring unmap operation!");
+			GLHELPER_LOG_WARNING("Buffer is not mapped, ignoring unmap operation!");
 		}
 
 		// Persistent mapped buffers need no unmapping
 		else if (any(m_usageFlags & Usage::MAP_PERSISTENT))
 		{
-			LOG_WARNING("Buffer has MAP_PERSISTENT flag and no EXPLICIT_FLUSH flag, unmaps are withouat any effect!");
+			GLHELPER_LOG_WARNING("Buffer has MAP_PERSISTENT flag and no EXPLICIT_FLUSH flag, unmaps are withouat any effect!");
 		}
 		else
 		{
@@ -156,9 +156,9 @@ namespace gl
 	void Buffer::Set(const void* _data, std::uint32_t _numBytes, std::uint32_t _offset)
     {
 		if (any(m_usageFlags & Usage::SUB_DATA_UPDATE))
-			LOG_ERROR("The buffer was not created with the SUB_DATA_UPDATE flag. Unable to set memory!");
+			GLHELPER_LOG_ERROR("The buffer was not created with the SUB_DATA_UPDATE flag. Unable to set memory!");
 		else if (m_mappedData != NULL && (static_cast<GLenum>(m_usageFlags & Usage::MAP_PERSISTENT)))
-			LOG_ERROR("Unable to set memory for currently mapped buffer that was created without the PERSISTENT flag.");
+			GLHELPER_LOG_ERROR("Unable to set memory for currently mapped buffer that was created without the PERSISTENT flag.");
 		else {
 			if(glNamedBufferSubData)
 				GL_CALL(glNamedBufferSubData, m_bufferObject, _offset, _numBytes, _data);
@@ -172,9 +172,9 @@ namespace gl
 	void Buffer::Get(void* _data, std::uint32_t _offset, std::uint32_t _numBytes)
     {
 		if (any(m_usageFlags & Usage::SUB_DATA_UPDATE))
-			LOG_ERROR("The buffer was not created with the SUB_DATA_UPDATE flag. Unable to get memory!");
+			GLHELPER_LOG_ERROR("The buffer was not created with the SUB_DATA_UPDATE flag. Unable to get memory!");
 		else if (m_mappedData != NULL && (static_cast<GLenum>(m_usageFlags & Usage::MAP_PERSISTENT)))
-			LOG_ERROR("Unable to get memory for currently mapped buffer that was created without the PERSISTENT flag.");
+			GLHELPER_LOG_ERROR("Unable to get memory for currently mapped buffer that was created without the PERSISTENT flag.");
 		else {
 			if(glGetNamedBufferSubData)
 				GL_CALL(glGetNamedBufferSubData, m_bufferObject, _offset, _numBytes, _data);

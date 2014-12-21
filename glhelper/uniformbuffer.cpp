@@ -21,7 +21,7 @@ namespace gl
 	{
 		if (static_cast<std::uint32_t>(_buffer->GetUsageFlags() & Buffer::Usage::MAP_WRITE))
 		{
-			LOG_ERROR("Uniform buffer need at least Buffer::Usage::WRITE!");
+			GLHELPER_LOG_ERROR("Uniform buffer need at least Buffer::Usage::WRITE!");
 			return gl::Result::FAILURE;
 		}
 		else
@@ -36,7 +36,7 @@ namespace gl
 	{
 		if (static_cast<std::uint32_t>(_bufferUsage & Buffer::Usage::MAP_WRITE) == 0)
 		{
-			LOG_ERROR("Uniform buffer need at least Buffer::Usage::WRITE!");
+			GLHELPER_LOG_ERROR("Uniform buffer need at least Buffer::Usage::WRITE!");
 			return gl::Result::FAILURE;
 		}
 		else
@@ -52,7 +52,7 @@ namespace gl
 		auto uniformBufferInfoIterator = _shader.GetUniformBufferInfo().find(_bufferName);
 		if (uniformBufferInfoIterator == _shader.GetUniformBufferInfo().end())
 		{
-			LOG_ERROR("Shader \"" + _shader.GetName() + "\" doesn't contain a uniform buffer meta block info with the name \"" + _bufferName + "\"!");
+			GLHELPER_LOG_ERROR("Shader \"" + _shader.GetName() + "\" doesn't contain a uniform buffer meta block info with the name \"" + _bufferName + "\"!");
 			return gl::Result::FAILURE;
 		}
 
@@ -74,7 +74,7 @@ namespace gl
 			auto uniformBufferInfoIterator = (*shaderObjectIt)->GetUniformBufferInfo().find(bufferName);
 			if (uniformBufferInfoIterator == (*shaderObjectIt)->GetUniformBufferInfo().end())
 			{
-				LOG_WARNING("ShaderObject \"" + (*shaderObjectIt)->GetName() + "\" in list for uniform buffer \"" + bufferName + "\" initialization doesn't contain the needed meta data! Skiping..");
+				GLHELPER_LOG_WARNING("ShaderObject \"" + (*shaderObjectIt)->GetName() + "\" in list for uniform buffer \"" + bufferName + "\" initialization doesn't contain the needed meta data! Skiping..");
 				continue;
 			}
 
@@ -90,7 +90,7 @@ namespace gl
 			// Sanity check.
 			if (uniformBufferInfoIterator->second.iBufferDataSizeByte != m_buffer->GetSize())
 			{
-				LOG_WARNING("ShaderObject \"" << (*shaderObjectIt)->GetName() << "\" in list for uniform buffer \"" << bufferName << "\" initialization gives size " <<
+				GLHELPER_LOG_WARNING("ShaderObject \"" << (*shaderObjectIt)->GetName() << "\" in list for uniform buffer \"" << bufferName << "\" initialization gives size " <<
 						uniformBufferInfoIterator->second.iBufferDataSizeByte << ", first shader gave size " << m_buffer->GetSize() << "! Skiping..");
 				continue;
 			}
@@ -105,7 +105,7 @@ namespace gl
 					const gl::UniformVariableInfo* otherVar = &varIt->second;
 					if (memcmp(ownVar, otherVar, sizeof(gl::UniformVariableInfo)) != 0)
 					{
-						LOG_ERROR("ShaderObject \"" + (*shaderObjectIt)->GetName() + "\" in list for uniform buffer \"" + bufferName + "\" has a description of variable \"" +
+						GLHELPER_LOG_ERROR("ShaderObject \"" + (*shaderObjectIt)->GetName() + "\" in list for uniform buffer \"" + bufferName + "\" has a description of variable \"" +
 							varIt->first + "\" that doesn't match with the ones before!");
 					}
 				}

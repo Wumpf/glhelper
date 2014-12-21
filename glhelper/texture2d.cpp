@@ -54,7 +54,7 @@ namespace gl
 		stbi_uc* textureData = stbi_load(_filename.c_str(), &texSizeX, &texSizeY, &numComps, 4);
 		if (!textureData)
 		{
-			LOG_ERROR("Error loading texture \"" + _filename + "\".");
+			GLHELPER_LOG_ERROR("Error loading texture \"" + _filename + "\".");
 			return nullptr;
 		}
 
