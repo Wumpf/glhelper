@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="shaderdatametainfo.inl" />
+    <None Include="uniformbuffer.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="shaderobject.cpp" />
+    <ClCompile Include="shaderstoragebuffer.cpp" />
+    <ClCompile Include="texture.cpp" />
+    <ClCompile Include="texture2d.cpp" />
+    <ClCompile Include="texturebuffer.cpp" />
+    <ClCompile Include="textureformats.cpp" />
+    <ClCompile Include="uniformbuffer.cpp" />
+    <ClCompile Include="buffer.cpp" />
+    <ClCompile Include="framebufferobject.cpp" />
+    <ClCompile Include="gl.cpp" />
+    <ClCompile Include="samplerobject.cpp" />
+    <ClCompile Include="screenalignedtriangle.cpp" />
+    <ClCompile Include="utils\pathutils.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="shaderobject.hpp" />
+    <ClInclude Include="shaderstoragebuffer.hpp" />
+    <ClInclude Include="texture.hpp" />
+    <ClInclude Include="texture2d.hpp" />
+    <ClInclude Include="texturebuffer.hpp" />
+    <ClInclude Include="textureformats.hpp" />
+    <ClInclude Include="uniformbuffer.hpp" />
+    <ClInclude Include="buffer.hpp" />
+    <ClInclude Include="framebufferobject.hpp" />
+    <ClInclude Include="gl.hpp" />
+    <ClInclude Include="samplerobject.hpp" />
+    <ClInclude Include="screenalignedtriangle.hpp" />
+    <ClInclude Include="shaderdatametainfo.hpp" />
+    <ClInclude Include="config.hpp" />
+    <ClInclude Include="flagoperators.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\pathutils.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="utils">
+      <UniqueIdentifier>{f1619770-9ea2-4404-9269-118b700f7067}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
