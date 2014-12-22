@@ -23,16 +23,14 @@ namespace gl
 
 
 		/// Binds buffer if not already bound.
+		/// \attention Bindings are shared with texture!
 		void BindBuffer(GLuint _locationIndex) const;
 
         /// Get the internal bound buffer resource.
         std::shared_ptr<Buffer> GetBuffer() const   { return m_buffer; }
 
 	private:
-		BufferId m_textureObject;
+		TextureId m_textureHandle;
         std::shared_ptr<Buffer> m_buffer;
-
-		/// Currently bound TBOs - number is arbitrary!
-		static const TextureBufferView* s_boundTBOs[16];
 	};
 }

@@ -18,15 +18,8 @@ namespace gl
 		GLHELPER_ASSERT(static_cast<uint32_t>(m_usageFlags & Usage::MAP_COHERENT) == 0 || static_cast<uint32_t>(m_usageFlags & Usage::MAP_PERSISTENT) > 0,
 			   "MAP_COHERENT only valid in combination with PERSISTENT");
 
-		if(glCreateBuffers)
-		{
-			GL_CALL(glCreateBuffers, 1, &m_bufferObject);
-			GL_CALL(glNamedBufferStorage, m_bufferObject, _sizeInBytes, _data, static_cast<GLbitfield>(_usageFlags));
-		} else {
-			GL_CALL(glGenBuffers, 1, &m_bufferObject);
-			GL_CALL(glBindBuffer, GL_SHADER_STORAGE_BUFFER, m_bufferObject);
-			GL_CALL(glBufferStorage, GL_SHADER_STORAGE_BUFFER, _sizeInBytes, _data, static_cast<GLbitfield>(_usageFlags));
-		}
+		GL_CALL(glCreateBuffers, 1, &m_bufferObject);
+		GL_CALL(glNamedBufferStorage, m_bufferObject, _sizeInBytes, _data, static_cast<GLbitfield>(_usageFlags));
 
 		if (any(m_usageFlags & Usage::MAP_READ))
 			m_glMapAccess = static_cast<uint32_t>(m_usageFlags & Usage::MAP_WRITE) > 0 ? GL_READ_WRITE : GL_READ_ONLY;
@@ -53,12 +46,8 @@ namespace gl
 		{
 			if (m_mappedData)
 			{
-				if(glUnmapNamedBuffer)
-					GL_CALL(glUnmapNamedBuffer, m_bufferObject);
-				else {
-					GL_CALL(glBindBuffer, GL_SHADER_STORAGE_BUFFER, m_bufferObject);
-					GL_CALL(glUnmapBuffer, GL_SHADER_STORAGE_BUFFER);
-				}
+				GL_CALL(glUnmapNamedBuffer, m_bufferObject);
+
 				m_mappedData = nullptr;
 			}
 			GL_CALL(glDeleteBuffers, 1, &m_bufferObject);
@@ -93,12 +82,8 @@ namespace gl
 
 			if (m_mappedData == nullptr) // (still) already mapped?
 			{
-				if(glMapNamedBufferRange)
-					m_mappedData = GL_RET_CALL(glMapNamedBufferRange, m_bufferObject, _offset, _numBytes, static_cast<GLbitfield>(m_usageFlags & ~Usage::SUB_DATA_UPDATE));
-				else {
-					GL_CALL(glBindBuffer, GL_SHADER_STORAGE_BUFFER, m_bufferObject);
-					m_mappedData = GL_RET_CALL(glMapBufferRange, GL_SHADER_STORAGE_BUFFER, _offset, _numBytes, static_cast<GLbitfield>(m_usageFlags & ~Usage::SUB_DATA_UPDATE));
-				}
+				m_mappedData = GL_RET_CALL(glMapNamedBufferRange, m_bufferObject, _offset, _numBytes, static_cast<GLbitfield>(m_usageFlags & ~Usage::SUB_DATA_UPDATE));
+
 				m_mappedDataOffset = _offset;
 				m_mappedDataSize = _numBytes;
 			}
@@ -121,12 +106,8 @@ namespace gl
 		}
 		else
 		{
-			if(glUnmapNamedBuffer)
-				GL_CALL(glUnmapNamedBuffer, m_bufferObject);
-			else {
-				GL_CALL(glBindBuffer, GL_SHADER_STORAGE_BUFFER, m_bufferObject);
-				GL_CALL(glUnmapBuffer, GL_SHADER_STORAGE_BUFFER);
-			}
+			GL_CALL(glUnmapNamedBuffer, m_bufferObject);
+
 			m_mappedData = nullptr;
 			m_mappedDataOffset = 0;
 			m_mappedDataSize = 0;
@@ -143,12 +124,7 @@ namespace gl
 		if (any(m_usageFlags & Usage::EXPLICIT_FLUSH))
 		{
 			// Flush only the part which was used.
-			if(glFlushMappedNamedBufferRange)
-				GL_CALL(glFlushMappedNamedBufferRange, m_bufferObject, _offset, _numBytes);
-			else {
-				GL_CALL(glBindBuffer, GL_SHADER_STORAGE_BUFFER, m_bufferObject);
-				GL_CALL(glFlushMappedBufferRange, GL_SHADER_STORAGE_BUFFER, _offset, _numBytes);
-			}
+			GL_CALL(glFlushMappedNamedBufferRange, m_bufferObject, _offset, _numBytes);
 		}
 	}
 
@@ -160,12 +136,7 @@ namespace gl
 		else if (m_mappedData != NULL && (static_cast<GLenum>(m_usageFlags & Usage::MAP_PERSISTENT)))
 			GLHELPER_LOG_ERROR("Unable to set memory for currently mapped buffer that was created without the PERSISTENT flag.");
 		else {
-			if(glNamedBufferSubData)
-				GL_CALL(glNamedBufferSubData, m_bufferObject, _offset, _numBytes, _data);
-			else {
-				GL_CALL(glBindBuffer, GL_SHADER_STORAGE_BUFFER, m_bufferObject);
-				GL_CALL(glBufferSubData, GL_SHADER_STORAGE_BUFFER, _offset, _numBytes, _data);
-			}
+			GL_CALL(glNamedBufferSubData, m_bufferObject, _offset, _numBytes, _data);
 		}
     }
 
@@ -175,13 +146,7 @@ namespace gl
 			GLHELPER_LOG_ERROR("The buffer was not created with the SUB_DATA_UPDATE flag. Unable to get memory!");
 		else if (m_mappedData != NULL && (static_cast<GLenum>(m_usageFlags & Usage::MAP_PERSISTENT)))
 			GLHELPER_LOG_ERROR("Unable to get memory for currently mapped buffer that was created without the PERSISTENT flag.");
-		else {
-			if(glGetNamedBufferSubData)
-				GL_CALL(glGetNamedBufferSubData, m_bufferObject, _offset, _numBytes, _data);
-			else {
-				GL_CALL(glBindBuffer, GL_SHADER_STORAGE_BUFFER, m_bufferObject);
-				GL_CALL(glGetBufferSubData, GL_SHADER_STORAGE_BUFFER, _offset, _numBytes, _data);
-			}
-		}
+		else
+			GL_CALL(glGetNamedBufferSubData, m_bufferObject, _offset, _numBytes, _data);
     }
 }

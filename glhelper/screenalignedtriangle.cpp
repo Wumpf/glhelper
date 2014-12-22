@@ -18,15 +18,8 @@ namespace gl
 		screenTriangle[2].position[0] = -1.0f;
 		screenTriangle[2].position[1] = 3.0f;
 
-		if(glCreateBuffers)
-		{
-			GL_CALL(glCreateBuffers, 1, &vbo);
-			GL_CALL(glNamedBufferStorage, vbo, sizeof(screenTriangle), screenTriangle, 0);
-		} else {
-			GL_CALL(glGenBuffers, 1, &vbo);
-			GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, vbo);
-			GL_CALL(glBufferStorage, GL_ARRAY_BUFFER, sizeof(screenTriangle), screenTriangle, 0);
-		}
+		GL_CALL(glCreateBuffers, 1, &vbo);
+		GL_CALL(glNamedBufferStorage, vbo, sizeof(screenTriangle), screenTriangle, 0);
 	}
 
 
@@ -37,7 +30,7 @@ namespace gl
 
 	void ScreenAlignedTriangle::Draw()
 	{
-		GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, vbo);
+		GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, vbo); // Todo use bindVertexBuffer in combination with vao
 		GL_CALL(glVertexAttribPointer, 0, 2, GL_FLOAT, GL_FALSE, static_cast<GLsizei>(sizeof(float) * 2), nullptr);
 		GL_CALL(glEnableVertexAttribArray, 0);
 

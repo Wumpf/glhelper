@@ -12,36 +12,18 @@ namespace gl
 	Texture2D::Texture2D(std::uint32_t width, std::uint32_t height, TextureFormat format, std::int32_t numMipLevels, std::uint32_t numMSAASamples) :
 		Texture(width, height, 1, format, numMipLevels, numMSAASamples)
 	{
-		if(glCreateTextures)
-		{
-			GL_CALL(glCreateTextures, GL_TEXTURE_2D, 1, &m_textureHandle);
-			if (m_numMSAASamples == 0)
-				GL_CALL(glTextureStorage2D, m_textureHandle, m_numMipLevels, gl::TextureFormatToGLSizedInternal[static_cast<unsigned int>(format)], m_width, m_height);
-			else
-				GL_CALL(glTextureStorage2DMultisample, m_textureHandle, m_numMSAASamples, gl::TextureFormatToGLSizedInternal[static_cast<unsigned int>(format)], m_width, m_height, GL_FALSE);
-		} else
-		{
-			GL_CALL(glGenTextures, 1, &m_textureHandle);
-			Bind(0);
-			if (m_numMSAASamples == 0)
-				GL_CALL(glTexStorage2D, GL_TEXTURE_2D, m_numMipLevels, gl::TextureFormatToGLSizedInternal[static_cast<unsigned int>(format)], m_width, m_height);
-			else
-				GL_CALL(glTexStorage2DMultisample, GL_TEXTURE_2D, m_numMSAASamples, gl::TextureFormatToGLSizedInternal[static_cast<unsigned int>(format)], m_width, m_height, GL_FALSE);
-		}
+		GL_CALL(glCreateTextures, GL_TEXTURE_2D, 1, &m_textureHandle);
+		if(m_numMSAASamples == 0)
+			GL_CALL(glTextureStorage2D, m_textureHandle, m_numMipLevels, gl::TextureFormatToGLSizedInternal[static_cast<unsigned int>(format)], m_width, m_height);
+		else
+			GL_CALL(glTextureStorage2DMultisample, m_textureHandle, m_numMSAASamples, gl::TextureFormatToGLSizedInternal[static_cast<unsigned int>(format)], m_width, m_height, GL_FALSE);
 	}
 
 	Texture2D::Texture2D(std::uint32_t _width, std::uint32_t _height, TextureFormat _format, const void* _data, TextureSetDataFormat _dataFormat, TextureSetDataType _dataType, std::uint32_t _numMSAASamples) :
 		Texture2D(_width, _height, _format, 1, _numMSAASamples)
 	{
-		if(glTextureSubImage2D)
-		{
-			GL_CALL(glTextureSubImage2D, m_textureHandle, 0, 0, 0, m_width, m_height, 
-					static_cast<GLenum>(_dataFormat), static_cast<GLenum>(_dataType), _data);
-		} else {
-			Bind(0);
-			GL_CALL(glTexSubImage2D, GL_TEXTURE_2D, 0, 0, 0, m_width, m_height, 
-					static_cast<GLenum>(_dataFormat), static_cast<GLenum>(_dataType), _data);
-		}
+		GL_CALL(glTextureSubImage2D, m_textureHandle, 0, 0, 0, m_width, m_height,
+				static_cast<GLenum>(_dataFormat), static_cast<GLenum>(_dataType), _data);
 	}
 
 #ifdef TEXTURE2D_FROMFILE
@@ -73,17 +55,12 @@ namespace gl
 	{
 		GLHELPER_ASSERT(_mipLevel < m_numMipLevels, "MipLevel " + std::to_string(_mipLevel) + " does not exist, texture has only " + std::to_string(m_numMipLevels) + " MipMapLevels");
 
-		GL_CALL(glTextureSubImage2D, m_textureHandle, _mipLevel, 0, 0, m_width, m_height, 
-							static_cast<GLenum>(_dataFormat), static_cast<GLenum>(_dataType), _data);
+		GL_CALL(glTextureSubImage2D, m_textureHandle, _mipLevel, 0, 0, m_width, m_height,
+			static_cast<GLenum>(_dataFormat), static_cast<GLenum>(_dataType), _data);
 	}
 
 	void Texture2D::GenMipMaps()
 	{
-		if(glGenerateTextureMipmap)
-			GL_CALL(glGenerateTextureMipmap, m_textureHandle);
-		else {
-			Bind(0);
-			GL_CALL(glGenerateMipmap, GL_TEXTURE_2D);
-		}
+		GL_CALL(glGenerateTextureMipmap, m_textureHandle);
 	}
 }

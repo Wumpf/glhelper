@@ -13,10 +13,12 @@ namespace gl
 		virtual ~Texture();
 
 		/// Binds texture to the given slot.
+		///
+		/// Does nothing if texture was already bound.
 		void Bind(GLuint slot);
 
         /// Unbind texture
-        void ResetBinding(GLuint _slotIndex);
+        static void ResetBinding(GLuint _slotIndex);
 
 		/// Different possibilities to access an image.
 		enum class ImageAccess
@@ -55,10 +57,20 @@ namespace gl
 
 	protected:
 		static const unsigned int m_numTextureBindings = 32;
-		
+
+		friend class TextureBufferView;
+
+		/// Binds given texture to a slot.
+		///
+		/// Does nothing if texture was already bound.
+		/// \remarks Internally used for all textures and texturebuffer.
+		/// Usually you should use TextureXD::Bind or TextureBuffer::Bind
+		static void Bind(TextureId textureHandle, GLuint _slotIndex);
+
 		/// Currently bound textures - number is arbitrary!
+		/// Also used for texturebuffer since these bindings are the same for OpenGL.
 		/// Not used for image binding
-		static Texture* s_boundTextures[m_numTextureBindings];
+		static TextureId s_boundTextures[m_numTextureBindings];
 		
 
 		TextureId m_textureHandle;

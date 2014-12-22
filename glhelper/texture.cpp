@@ -2,8 +2,7 @@
 
 namespace gl
 {
-
-	Texture* Texture::s_boundTextures[Texture::m_numTextureBindings];
+	TextureId Texture::s_boundTextures[Texture::m_numTextureBindings];
 
 	Texture::Texture(std::uint32_t width, std::uint32_t height, std::uint32_t depth, TextureFormat format, std::int32_t numMipLevels, std::uint32_t numMSAASamples) :
 		m_width(width),
@@ -42,9 +41,9 @@ namespace gl
 			return iMipMapSetting;
 	}
 
-	void Texture::BindImage(GLuint slotIndex, Texture::ImageAccess access, TextureFormat format)
+	void Texture::BindImage(GLuint _slotIndex, Texture::ImageAccess access, TextureFormat format)
 	{
-		GL_CALL(glBindImageTexture, slotIndex, m_textureHandle, 0, GL_TRUE, 0, static_cast<GLenum>(access), gl::TextureFormatToGLSizedInternal[static_cast<unsigned int>(format)]);
+		GL_CALL(glBindImageTexture, _slotIndex, m_textureHandle, 0, GL_TRUE, 0, static_cast<GLenum>(access), gl::TextureFormatToGLSizedInternal[static_cast<unsigned int>(format)]);
 	}
 
 	void Texture::ResetImageBinding(GLuint _slotIndex)
@@ -55,11 +54,10 @@ namespace gl
     void Texture::ResetBinding(GLuint _slotIndex)
 	{
 		GLHELPER_ASSERT(_slotIndex < sizeof(s_boundTextures) / sizeof(Texture*), "Can't bind texture to slot " + std::to_string(_slotIndex) +". Maximum number of slots is " + std::to_string(sizeof(s_boundTextures) / sizeof(Texture*)));
-		if (s_boundTextures[_slotIndex] != nullptr)
+		if (s_boundTextures[_slotIndex] != 0)
 		{
-			GL_CALL(glActiveTexture, GL_TEXTURE0 + _slotIndex);
-			GL_CALL(glBindTexture, GetOpenGLTextureType(), 0);
-			s_boundTextures[_slotIndex] = nullptr;
+			GL_CALL(glBindTextureUnit, _slotIndex, 0);
+			s_boundTextures[_slotIndex] = 0;
 		}
 	}
 
@@ -70,25 +68,24 @@ namespace gl
 		GL_CALL(glClearTexImage, m_textureHandle, _mipLevel, gl::TextureFormatToGLBaseInternal[static_cast<unsigned int>(m_format)], GL_UNSIGNED_INT, nullptr);
 	}
 
-	void Texture::Bind(GLuint slotIndex)
+	void Texture::Bind(GLuint _slotIndex)
 	{
-		GLHELPER_ASSERT(slotIndex < sizeof(s_boundTextures) / sizeof(Texture*), "Can't bind texture to slot " + std::to_string(slotIndex) +". Maximum number of slots is " + std::to_string(sizeof(s_boundTextures) / sizeof(Texture*)));
-		if (s_boundTextures[slotIndex] != this)
+		Bind(m_textureHandle, _slotIndex);
+	}
+
+	void Texture::Bind(TextureId textureHandle, GLuint _slotIndex)
+	{
+		GLHELPER_ASSERT(_slotIndex < sizeof(s_boundTextures) / sizeof(void*), "Can't bind texture to slot " + std::to_string(_slotIndex) + ". Maximum number of slots is " + std::to_string(sizeof(s_boundTextures) / sizeof(Texture*)));
+		if(s_boundTextures[_slotIndex] != textureHandle)
 		{
-			GL_CALL(glActiveTexture, GL_TEXTURE0 + slotIndex);
-			GL_CALL(glBindTexture, GetOpenGLTextureType(), m_textureHandle);
-			s_boundTextures[slotIndex] = this;
+			GL_CALL(glBindTextureUnit, _slotIndex, textureHandle);
+			s_boundTextures[_slotIndex] = textureHandle;
 		}
 	}
 
 	void Texture::ReadImage(unsigned int _mipLevel, TextureReadFormat _format, TextureReadType _type, unsigned int _bufferSize, void* _buffer)
 	{
 		GLHELPER_ASSERT(m_numMipLevels > _mipLevel, "Miplevel " + std::to_string(_mipLevel) + " not available, texture has only " + std::to_string(m_numMipLevels) + " levels!");
-		if(glGetTextureImage)
-			GL_CALL(glGetTextureImage, m_textureHandle, _mipLevel, static_cast<GLenum>(_format), static_cast<GLenum>(_type), _bufferSize, _buffer);
-		else {
-			Bind(0);
-			GL_CALL(glGetTexImage, GetOpenGLTextureType(), _mipLevel, static_cast<GLenum>(_format), static_cast<GLenum>(_type), _buffer);
-		}
+		GL_CALL(glGetTextureImage, m_textureHandle, _mipLevel, static_cast<GLenum>(_format), static_cast<GLenum>(_type), _bufferSize, _buffer);
 	}
 }
