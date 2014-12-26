@@ -2,6 +2,7 @@
 
 #include "gl.hpp"
 #include <unordered_map>
+#include <cstdint>
 
 namespace gl
 {
