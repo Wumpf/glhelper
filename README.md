@@ -6,7 +6,7 @@ _No compromises!_ Assumes full avaibility of direct state access, texture/buffer
 
 This is **not** a complete API abstraction, rather a bunch of helper classes!
 
-Platfrom/Programming Language
+Platform/Programming Language
 --------
 * Makes heavy use of some C++11 stuff like enum class, initializer lists, variadic templates...
 * Should be platform independent but I only tested win x64 NVIDIA.  
