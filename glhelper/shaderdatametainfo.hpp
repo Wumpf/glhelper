@@ -1,7 +1,6 @@
 #pragma once
 
-#include <GL/GL.h>
-#include <cstdint>
+#include "gl.hpp"
 #include <unordered_map>
 
 namespace gl
