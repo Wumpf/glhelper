@@ -26,7 +26,7 @@ namespace gl
 				static_cast<GLenum>(_dataFormat), static_cast<GLenum>(_dataType), _data);
 	}
 
-#ifdef TEXTURE2D_FROMFILE
+#ifdef TEXTURE2D_FROMFILE_STBI
 	std::unique_ptr<Texture2D> Texture2D::LoadFromFile(const std::string& _filename, bool _generateMipMaps, bool _sRGB)
 	{
 		int texSizeX = -1;
