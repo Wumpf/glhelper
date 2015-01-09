@@ -28,6 +28,9 @@ Contents
   * Texture and Uniform Buffer view
   * Easy creation from shader reflection
   * Memorizes creation information and bindings (avoids redundant ones)
+* Vertex Array Object
+  * Comfortable abstraction for usage as vertex format declaration  
+    (possible using ARB_vertex_attrib_binding, which is Core in OpenGL 4.3)
 * Texture (2D)
   * Memorizes creation information and bindings (avoids redundant ones)
 * Sampler
