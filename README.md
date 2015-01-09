@@ -32,6 +32,7 @@ Contents
   * Memorizes creation information and bindings (avoids redundant ones)
 * Sampler
   * Simplified creation
+  * Reuse of already created sampler objects (all existing ones are hashed)
 * Framebuffer
   * Easy creation from multiple textures
 * Error handling & Check mechanism
