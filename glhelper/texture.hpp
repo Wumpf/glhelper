@@ -56,7 +56,7 @@ namespace gl
 		virtual GLenum GetOpenGLTextureType() = 0;
 
 	protected:
-		static const unsigned int m_numTextureBindings = 32;
+		static const unsigned int s_numTextureBindings = 256;
 
 		friend class TextureBufferView;
 
@@ -70,7 +70,7 @@ namespace gl
 		/// Currently bound textures - number is arbitrary!
 		/// Also used for texturebuffer since these bindings are the same for OpenGL.
 		/// Not used for image binding
-		static TextureId s_boundTextures[m_numTextureBindings];
+		static TextureId s_boundTextures[s_numTextureBindings];
 		
 
 		TextureId m_textureHandle;
