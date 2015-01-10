@@ -4,6 +4,9 @@
 
 namespace gl
 {
+	class Buffer;
+	class VertexArrayObject;
+
 	// class for rendering a screen aligned triangle
 	class ScreenAlignedTriangle
 	{
@@ -14,6 +17,7 @@ namespace gl
 		void Draw();
 
 	private:
-		BufferId vbo;
+		Buffer* m_vertexBuffer;
+		VertexArrayObject* m_vertexArrayObject;
 	};
 }
