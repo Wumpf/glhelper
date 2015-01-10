@@ -54,7 +54,7 @@ namespace gl
     void Texture::ResetBinding(GLuint _slotIndex)
 	{
 		GLHELPER_ASSERT(_slotIndex < sizeof(s_boundTextures) / sizeof(Texture*), "Can't bind texture to slot " + std::to_string(_slotIndex) + 
-							". Maximum number of slots in glhelper is " + std::to_string(sizeof(s_boundTextures) / sizeof(Texture*) + 
+							". Maximum number of slots in glhelper is " + (std::to_string(sizeof(s_boundTextures) / sizeof(Texture*)) + 
 							". For actual hardware restrictions see glGet GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS"));
 		if (s_boundTextures[_slotIndex] != 0)
 		{
