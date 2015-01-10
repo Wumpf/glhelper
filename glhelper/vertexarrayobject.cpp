@@ -38,8 +38,6 @@ namespace gl
 				GL_CALL(glVertexArrayAttribFormat, m_vao, attributeIndex, attribute.numComponents, static_cast<GLenum>(attribute.type), attribute.normalized, m_vertexStrides[attribute.vertexBufferBinding]);
 				m_vertexStrides[attribute.vertexBufferBinding] += attribute.numComponents * 4;
 			}
-
-			++attributeIndex;
 		}
 	}
 
