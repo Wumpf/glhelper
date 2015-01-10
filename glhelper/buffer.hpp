@@ -6,14 +6,14 @@
 
 namespace gl
 {
-    /// A buffer is a pure GPU sided storage.
-    /// \details Buffers are used in many ways in OpenGL. This class provides
-    ///     an interface to this raw memory blocks.
-    ///
-    ///     This buffer is always created immutable so it cannot be changed in
-    ///     its size, but read and written.
-    ///
-    ///     Currently you can use the TextureBufferView on buffers.
+    /// General abstraction for GPU sided memory buffers.
+	///
+	/// Can be used for UniformBuffer, TextureBuffer, ShaderStorageBuffer, VertexBuffer or IndexBuffer.
+	/// Some functionality for specific uses is provided directly (vertex-, indexbuffer), other via special view objects (ShaderStorageBuffer, TextureBuffer, UniformBuffer).
+	/// \see ShaderStorageBufferView, UniformBufferView, TextureBufferView
+	///
+	/// \todo Maps currently use creation-time defined mapping flag instead of user given flag.
+	/// \todo Add support for binding multiple vertex buffer at once (glBindVertexBuffers)
     class Buffer
     {
     public:
@@ -42,20 +42,13 @@ namespace gl
         };
 
         /// Create and allocate the buffer
-        Buffer( std::uint32_t _sizeInBytes, Usage _usageFlags, const void* _data = nullptr );
+		Buffer(GLsizeiptr _sizeInBytes, Usage _usageFlags, const void* _data = nullptr);
 
         ~Buffer();
 
-		/// Requires manual move implementation to invalidate the m_bufferObject id
-		/// before the destructor is called (the standard move deletes the resource
-		/// here)
-		Buffer( Buffer&& _rValue );
-
-        /// Clear this buffer
+        // Clear this buffer
         // Requires format data
         //void Clear(,,,);
-
-		// TODO: Maps currently use creation-time defined mapping flag instead of user given flag.
 
         /// Maps the whole buffer.
 		///
@@ -72,51 +65,82 @@ namespace gl
 		///		Returns mapped data pointer if desired buffer area was already mapped.
 		///		Unmaps buffer and writes warning to log if an incompatible area was already mapped.
 		/// \see Map
-        void* Map(std::uint32_t _offset, std::uint32_t _numBytes);
+		void* Map(GLintptr _offset, GLsizeiptr _numBytes);
 
 		/// Unmaps the buffer.
 		///
 		/// Writes a warning to the log and ignores call if:
-		/// * ... buffer was not mapped.
-		/// * ... buffer was created with MAP_PERSISTENT, since buffer can stay mapped virtually forever. 
+		/// * ..buffer was not mapped.
+		/// * ..buffer was created with MAP_PERSISTENT, since buffer can stay mapped virtually forever. 
 		/// (Later means that you have to take care of synchronizations yourself. 
 		/// Either via glMemoryBarrier(GL_CLIENT_MAPPED_BUFFER_BARRIER_BIT) or glFlushMappedBufferRange.)
         void Unmap();
 
-		/// Explicit flush as long as EXPLICIT_FLUSH flag is set. Otherwise this function
-		/// has no effect.
+		/// Explicit flush as long as EXPLICIT_FLUSH flag is set. Otherwise this function has no effect.
 		void Flush();
-
-		void Flush(std::uint32_t _offset, std::uint32_t _numBytes);
+		void Flush(GLintptr _offset, GLsizeiptr _numBytes);
 
 
         /// Use glBufferSubData to update a range in the buffer.
 		/// \remarks
 		///		The Map methods are usually faster.
 		/// \see Map, Set
-		void Set(const void* _data, std::uint32_t _numBytes, std::uint32_t _offset);
+		void Set(const void* _data, GLintptr _offset, GLsizeiptr _numBytes);
 
         /// Use glGetBufferSubData to update get a data range in the buffer.
 		/// \attention
 		///		Usage usually not recommend. Consider to use Map.
-		void Get(void* _data, std::uint32_t _offset, std::uint32_t _numBytes);
+		void Get(void* _data, GLintptr _offset, GLsizeiptr _numBytes);
 
 		Usage GetUsageFlags() const		{ return m_usageFlags; }
         BufferId GetBufferId() const    { return m_bufferObject; }
-        std::uint32_t GetSize() const   { return m_sizeInBytes; }
+		GLsizeiptr GetSize() const   { return m_sizeInBytes; }
+
+
+		/// Binds as vertex buffer on a given slot if not already bound with the same parameters.
+		///
+		/// Useful in combination with gl::VertexArrayObject.
+		/// Uses glBindVertexBuffer internally.
+		/// \param bindingIndex 
+		//		The index of the vertex buffer binding point to which to bind the buffer.
+		/// \param offset
+		///		The offset of the first element of the buffer.
+		/// \param stride
+		///		The distance between elements within the buffer.
+		void BindVertexBuffer(GLuint _bindingIndex, GLintptr _offset, GLsizeiptr _stride);
+
+		/// Binds as index buffer (vertex element array) if not already bound with the same parameters.
+		void BindIndexBuffer();
 
     private:
         BufferId m_bufferObject;
-        std::uint32_t m_sizeInBytes;
+		GLsizeiptr m_sizeInBytes;
         GLenum m_glMapAccess;   ///< READ_ONLY, WRITE_ONLY or READ_WRITE, and optionally GL_MAP_PERSISTENT_BIT.
         Usage m_usageFlags;			///< The newer glMapBufferRange requires the same bits as the construction
 
-		std::uint32_t m_mappedDataOffset;
-		std::uint32_t m_mappedDataSize;
+		GLsizeiptr m_mappedDataSize;
+		GLintptr m_mappedDataOffset;
 		void* m_mappedData;
 
-		// Non copy able
-		Buffer( const Buffer& );
-		void operator = ( const Buffer& );
+
+		/// Descriptor for a vertex buffer binding.
+		struct VertexBufferBinding
+		{
+			VertexBufferBinding() : buffer(nullptr), offset(0), stride(0) {}
+
+			/// The bound buffer object.
+			Buffer* buffer;
+			/// The offset of the first element of the buffer.
+			GLintptr offset;
+			/// The distance between elements within the buffer.
+			GLsizeiptr stride;
+		};
+		static const unsigned int s_numVertexBindings = 16;
+		static VertexBufferBinding s_boundVertexBuffer[s_numVertexBindings];
+		static Buffer* s_boundIndexBuffer;
+
+		// Non copyable
+		Buffer(const Buffer&);
+		void operator = (const Buffer&);
     };
 }

@@ -3,8 +3,10 @@
 
 namespace gl
 {
+	Buffer::VertexBufferBinding Buffer::s_boundVertexBuffer[s_numVertexBindings];
+	Buffer* Buffer::s_boundIndexBuffer = nullptr;
 
-    Buffer::Buffer( std::uint32_t _sizeInBytes, Usage _usageFlags, const void* _data ) :
+	Buffer::Buffer(GLsizeiptr _sizeInBytes, Usage _usageFlags, const void* _data) :
         m_sizeInBytes(_sizeInBytes),
 		m_glMapAccess(0),
 		m_usageFlags(_usageFlags),
@@ -54,16 +56,7 @@ namespace gl
 		}
     }
 
-	Buffer::Buffer( Buffer&& _rValue ) :
-		m_bufferObject(_rValue.m_bufferObject),
-		m_sizeInBytes(_rValue.m_sizeInBytes),
-		m_glMapAccess(_rValue.m_glMapAccess),
-		m_usageFlags(_rValue.m_usageFlags)
-	{
-		_rValue.m_bufferObject = 0xffffffff;
-	}
-
-    void* Buffer::Map( std::uint32_t _offset, std::uint32_t _numBytes )
+	void* Buffer::Map(GLintptr _offset, GLsizeiptr _numBytes)
     {
         if (m_glMapAccess == 0)
             GLHELPER_LOG_ERROR( "The buffer was not created with READ or WRITE flag. Unable to map memory!" );
@@ -119,7 +112,7 @@ namespace gl
 		Flush(m_mappedDataOffset, m_mappedDataSize);
 	}
 
-	void Buffer::Flush(std::uint32_t _offset, std::uint32_t _numBytes)
+	void Buffer::Flush(GLintptr _offset, GLsizeiptr _numBytes)
 	{
 		if (any(m_usageFlags & Usage::EXPLICIT_FLUSH))
 		{
@@ -129,7 +122,7 @@ namespace gl
 	}
 
 
-	void Buffer::Set(const void* _data, std::uint32_t _numBytes, std::uint32_t _offset)
+	void Buffer::Set(const void* _data, GLintptr _offset, GLsizeiptr _numBytes)
     {
 		if (any(m_usageFlags & Usage::SUB_DATA_UPDATE))
 			GLHELPER_LOG_ERROR("The buffer was not created with the SUB_DATA_UPDATE flag. Unable to set memory!");
@@ -140,7 +133,7 @@ namespace gl
 		}
     }
 
-	void Buffer::Get(void* _data, std::uint32_t _offset, std::uint32_t _numBytes)
+	void Buffer::Get(void* _data, GLintptr _offset, GLsizeiptr _numBytes)
     {
 		if (any(m_usageFlags & Usage::SUB_DATA_UPDATE))
 			GLHELPER_LOG_ERROR("The buffer was not created with the SUB_DATA_UPDATE flag. Unable to get memory!");
@@ -149,4 +142,28 @@ namespace gl
 		else
 			GL_CALL(glGetNamedBufferSubData, m_bufferObject, _offset, _numBytes, _data);
     }
+
+	void Buffer::BindVertexBuffer(GLuint _bindingIndex, GLintptr _offset, GLsizeiptr _stride)
+	{
+		GLHELPER_ASSERT(_bindingIndex < s_numVertexBindings, "Glhelper supports only " + std::to_string(s_numVertexBindings) + 
+						" bindings. See glGet with GL_MAX_VERTEX_ATTRIB_BINDINGS for hardware restrictions");
+		if (s_boundVertexBuffer[_bindingIndex].buffer != this ||
+			s_boundVertexBuffer[_bindingIndex].offset != _offset ||
+			s_boundVertexBuffer[_bindingIndex].stride != _stride)
+		{
+			GL_CALL(glBindVertexBuffer, _bindingIndex, m_bufferObject, _offset, _stride);
+			s_boundVertexBuffer[_bindingIndex].buffer = this;
+			s_boundVertexBuffer[_bindingIndex].offset = _offset;
+			s_boundVertexBuffer[_bindingIndex].stride = _stride;
+		}
+	}
+
+	void Buffer::BindIndexBuffer()
+	{
+		if (s_boundIndexBuffer != this)
+		{
+			GL_CALL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, m_bufferObject);
+			s_boundIndexBuffer = this;
+		}
+	}
 }
