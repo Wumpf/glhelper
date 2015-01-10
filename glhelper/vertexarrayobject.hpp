@@ -2,6 +2,7 @@
 
 #include "gl.hpp"
 #include <cstdint>
+#include <vector>
 
 namespace gl
 {
@@ -44,32 +45,53 @@ namespace gl
 			};
 
 			/// Construct attribute. For more details see variable documentation.
-			Attribute(Type type, std::uint8_t numComponents, std::uint8_t vertexBufferBinding = 0, bool normalized = false) :
-				type(type), numComponents(numComponents), vertexBufferBinding(vertexBufferBinding), normalized(normalized) {}
+			Attribute(Type _type, GLuint _numComponents, GLuint _vertexBufferBinding = 0, bool _normalized = false) :
+				type(_type), numComponents(_numComponents), vertexBufferBinding(_vertexBufferBinding), normalized(_normalized) {}
 
 			/// The type of a component.
 			Type type;
 			/// The number of values (see type) per vertex that are stored in the array.
-			std::uint8_t numComponents;
+			GLuint numComponents;
 			/// The index of the vertex buffer binding with which to associate the generic vertex attribute.
-			std::uint8_t vertexBufferBinding;
+			GLuint vertexBufferBinding;
 	
 			/// If true, converts to [0;1] for unsigned and to [-1;1] floating point by normalization.
 			/// Flag is ignored for floats and doubles.
 			bool normalized;
 		};
 
-		VertexArrayObject(const std::initializer_list<Attribute>& vertexAttributes);
+		/// Constructs a vertex array object from vertex attribute descriptors.
+		/// \param vertexAttributes List of vertex attributes. Attributes need to be in order as they are occur in the vertex buffer.
+		VertexArrayObject(const std::initializer_list<Attribute>& _vertexAttributes);
 		~VertexArrayObject();
 
 		/// Binds vertex array if not already bound.
 		void BindVertexArray();
 
 		/// Returns intern OpenGL vertex array object handle.
-		VertexArrayObjectId GetInternHandle() { return m_vao; }
+		VertexArrayObjectId GetInternHandle() const { return m_vao; }
+
+		/// Returns the vertex stride for a given vertex buffer slot.
+		///
+		/// Values were computed from the Vertex-Attribute info on creation.
+		/// \param vertexBufferSlotIndex 
+		/// \return Stride in bytes. Zero if there is no information about the given vertexBufferSlotIndex.
+		GLuint GetVertexStride(GLuint _vertexBufferSlotIndex = 0) const;
+
+		/// Returns vertex attribute description that was passed during construction.
+		const std::vector<Attribute>& GetVertexAttributeDesc() const { return m_vertexAttributes; }
 
 	private:
-		VertexArrayObjectId m_vao;
+		/// Currently bound vertex array.
 		static VertexArrayObject* s_boundVertexArray;
+
+		/// OpenGL handle.
+		VertexArrayObjectId m_vao;
+
+		/// Vertex attribute description.
+		std::vector<Attribute> m_vertexAttributes;
+
+		/// Vertex size per vertex buffer slot.
+		std::vector<GLuint> m_vertexStrides;
 	};
 }
