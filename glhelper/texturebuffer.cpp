@@ -20,9 +20,9 @@ namespace gl
 		return Init(_buffer, _format, 0, _buffer->GetSize());
 	}
 
-	Result TextureBufferView::Init(std::shared_ptr<Buffer> _buffer, TextureBufferFormat _format, std::uint32_t _offset, std::uint32_t _numBytes)
+	Result TextureBufferView::Init(std::shared_ptr<Buffer> _buffer, TextureBufferFormat _format, GLintptr _offset, GLsizeiptr _numBytes)
     {
-        m_buffer = _buffer;
+		m_buffer = _buffer;
 		GL_CALL(glTextureBufferRange, m_textureHandle, 
 				static_cast<GLenum>(_format), _buffer->GetBufferId(), _offset, _numBytes);
 

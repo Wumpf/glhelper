@@ -19,7 +19,7 @@ namespace gl
 			
         /// Bind the buffer data to this TextureBuffer.
 		Result Init(std::shared_ptr<Buffer> _buffer, TextureBufferFormat _format);
-		Result Init(std::shared_ptr<Buffer> _buffer, TextureBufferFormat _format, std::uint32_t _offset, std::uint32_t _numBytes);
+		Result Init(std::shared_ptr<Buffer> _buffer, TextureBufferFormat _format, GLintptr _offset, GLsizeiptr _numBytes);
 
 
 		/// Binds buffer if not already bound.

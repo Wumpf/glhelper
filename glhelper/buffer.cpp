@@ -143,7 +143,7 @@ namespace gl
 			GL_CALL(glGetNamedBufferSubData, m_bufferObject, _offset, _numBytes, _data);
     }
 
-	void Buffer::BindVertexBuffer(GLuint _bindingIndex, GLintptr _offset, GLsizeiptr _stride)
+	void Buffer::BindVertexBuffer(GLuint _bindingIndex, GLintptr _offset, GLsizei _stride)
 	{
 		GLHELPER_ASSERT(_bindingIndex < s_numVertexBindings, "Glhelper supports only " + std::to_string(s_numVertexBindings) + 
 						" bindings. See glGet with GL_MAX_VERTEX_ATTRIB_BINDINGS for hardware restrictions");

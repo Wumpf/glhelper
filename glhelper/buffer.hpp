@@ -107,7 +107,7 @@ namespace gl
 		///		The offset of the first element of the buffer.
 		/// \param stride
 		///		The distance between elements within the buffer.
-		void BindVertexBuffer(GLuint _bindingIndex, GLintptr _offset, GLsizeiptr _stride);
+		void BindVertexBuffer(GLuint _bindingIndex, GLintptr _offset, GLsizei _stride);
 
 		/// Binds as index buffer (vertex element array) if not already bound with the same parameters.
 		void BindIndexBuffer();
@@ -133,7 +133,7 @@ namespace gl
 			/// The offset of the first element of the buffer.
 			GLintptr offset;
 			/// The distance between elements within the buffer.
-			GLsizeiptr stride;
+			GLsizei stride;
 		};
 		static const unsigned int s_numVertexBindings = 16;
 		static VertexBufferBinding s_boundVertexBuffer[s_numVertexBindings];
