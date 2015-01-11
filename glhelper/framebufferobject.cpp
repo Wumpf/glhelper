@@ -56,6 +56,8 @@ namespace gl
 
 	FramebufferObject::~FramebufferObject()
 	{
+		if (s_BoundFrameBufferDraw == this)
+			s_BoundFrameBufferDraw = nullptr;
 		GL_CALL(glDeleteFramebuffers, 1, &m_framebuffer);
 	}
 

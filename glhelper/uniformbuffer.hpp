@@ -74,8 +74,10 @@ namespace gl
 		std::unordered_map<std::string, Variable> m_variables;
 
 
-		/// Currently bound UBOs - number is arbitrary!
-		static UniformBufferView* s_boundUBOs[16];
+		/// Arbitrary value based on observation: http://delphigl.de/glcapsviewer/gl_stats_caps_single.php?listreportsbycap=GL_MAX_COMBINED_UNIFORM_BLOCKS
+		static const unsigned int s_numUBOBindings = 64;
+		/// Currently bound UBOs!
+		static BufferId s_boundUBOs[s_numUBOBindings];
 	};
 
 #include "UniformBuffer.inl"

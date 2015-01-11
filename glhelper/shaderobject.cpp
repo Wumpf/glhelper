@@ -34,6 +34,8 @@ namespace gl
 	{
 		if (s_currentlyActiveShaderObject == this)
 		{
+			// Program must be detached to be able to delete it!
+			// http://docs.gl/gl4/glDeleteShader
 			GL_CALL(glUseProgram, 0);
 			s_currentlyActiveShaderObject = NULL;
 		}

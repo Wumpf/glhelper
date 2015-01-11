@@ -43,10 +43,13 @@ namespace gl
 
 	VertexArrayObject::~VertexArrayObject()
 	{
+		if (s_boundVertexArray == this)
+			ResetBinding();
+
 		GL_CALL(glDeleteVertexArrays, 1, &m_vao);
 	}
 
-	void VertexArrayObject::BindVertexArray()
+	void VertexArrayObject::Bind()
 	{
 		if (s_boundVertexArray != this)
 		{

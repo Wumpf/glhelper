@@ -43,7 +43,6 @@ namespace gl
 
         /// Create and allocate the buffer
 		Buffer(GLsizeiptr _sizeInBytes, Usage _usageFlags, const void* _data = nullptr);
-
         ~Buffer();
 
         // Clear this buffer
@@ -126,18 +125,18 @@ namespace gl
 		/// Descriptor for a vertex buffer binding.
 		struct VertexBufferBinding
 		{
-			VertexBufferBinding() : buffer(nullptr), offset(0), stride(0) {}
+			VertexBufferBinding() : bufferObject(0), offset(0), stride(0) {}
 
 			/// The bound buffer object.
-			Buffer* buffer;
+			BufferId bufferObject;
 			/// The offset of the first element of the buffer.
 			GLintptr offset;
 			/// The distance between elements within the buffer.
 			GLsizei stride;
 		};
-		static const unsigned int s_numVertexBindings = 16;
-		static VertexBufferBinding s_boundVertexBuffer[s_numVertexBindings];
-		static Buffer* s_boundIndexBuffer;
+		static const unsigned int s_numVertexBufferBindings = 16;
+		static VertexBufferBinding s_boundVertexBuffers[s_numVertexBufferBindings];
+		static BufferId s_boundIndexBuffer;
 
 		// Non copyable
 		Buffer(const Buffer&);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gl.hpp"
+#include "texture.hpp"
 #include <unordered_map>
 
 namespace gl
@@ -63,20 +64,29 @@ namespace gl
 		static const SamplerObject& GetSamplerObject(const Desc& desc);
 
 		/// Binds sampler to given texture stage if not already bound.
-		void BindSampler(GLuint textureStage) const;
+		///
+		/// \attention Deleting a bound resource may cause unexpected errors. 
+		///		The user is responsible for manual unbinding it (or overwriting the previous binding) before deleting.
+		void BindSampler(GLuint _textureStage);
+
+		/// Resets sampler binding for the given texture stage to zero.
+		static void ResetBinding(GLuint _textureStage);
 
 		/// Removes all existing sampler objects.
-		void ClearAllCachedSamplerObjects() { s_existingSamplerObjects.clear(); }
+		void DestroyAllCachedSamplerObjects() { s_existingSamplerObjects.clear(); }
 
 		SamplerId GetInternSamplerId() const { return m_samplerId; }
 
-		SamplerObject(SamplerObject&& cpy);
+		/// Move constructor. Needed for intern hashmap.
+		///
+		/// A single redundant bind may happen if the sampler _cpy was bound to a slot, since this pointer will not replaced with the new sampler.
+		SamplerObject(SamplerObject&& _cpy);
 		~SamplerObject();
 
 	private:
 		SamplerObject(const Desc& samplerDesc);
 
-		static const SamplerObject* s_pSamplerBindings[32];
+		static const SamplerObject* s_samplerBindings[Texture::s_numTextureBindings];
 		static std::unordered_map<Desc, SamplerObject, Desc::GetHash> s_existingSamplerObjects;
 
 		SamplerId m_samplerId;

@@ -3,8 +3,8 @@
 
 namespace gl
 {
-	Buffer::VertexBufferBinding Buffer::s_boundVertexBuffer[s_numVertexBindings];
-	Buffer* Buffer::s_boundIndexBuffer = nullptr;
+	Buffer::VertexBufferBinding Buffer::s_boundVertexBuffers[s_numVertexBufferBindings];
+	BufferId Buffer::s_boundIndexBuffer = 0;
 
 	Buffer::Buffer(GLsizeiptr _sizeInBytes, Usage _usageFlags, const void* _data) :
         m_sizeInBytes(_sizeInBytes),
@@ -46,12 +46,29 @@ namespace gl
     {
 		if (m_bufferObject != 0xffffffff)
 		{
-			if (m_mappedData)
+			// According to the specification the buffer will be unmapped automatically on deletion.
+			// http://docs.gl/gl4/glUnmapBuffer
+			m_mappedData = nullptr;
+			/*if (m_mappedData)
 			{
 				GL_CALL(glUnmapNamedBuffer, m_bufferObject);
 
 				m_mappedData = nullptr;
+			}*/
+
+			// According to the specification it is not necessary to unbind the buffer. All bindings reset themselves to zero.
+			// http://docs.gl/gl4/glDeleteBuffers
+			// However this means, that glhelper's saved bindings are wrong.
+			// Iterating over all bindings is rather costly but reliable, easy and zero overhead for all other operations.
+			if (s_boundIndexBuffer == m_bufferObject)
+				s_boundIndexBuffer = 0;
+			for (unsigned int i = 0; i < s_numVertexBufferBindings; ++i)
+			{
+				if (s_boundVertexBuffers[i].bufferObject == m_bufferObject)
+					s_boundVertexBuffers[i].bufferObject = 0;
 			}
+
+			
 			GL_CALL(glDeleteBuffers, 1, &m_bufferObject);
 		}
     }
@@ -145,25 +162,25 @@ namespace gl
 
 	void Buffer::BindVertexBuffer(GLuint _bindingIndex, GLintptr _offset, GLsizei _stride)
 	{
-		GLHELPER_ASSERT(_bindingIndex < s_numVertexBindings, "Glhelper supports only " + std::to_string(s_numVertexBindings) + 
+		GLHELPER_ASSERT(_bindingIndex < s_numVertexBufferBindings, "Glhelper supports only " + std::to_string(s_numVertexBufferBindings) + 
 						" bindings. See glGet with GL_MAX_VERTEX_ATTRIB_BINDINGS for hardware restrictions");
-		if (s_boundVertexBuffer[_bindingIndex].buffer != this ||
-			s_boundVertexBuffer[_bindingIndex].offset != _offset ||
-			s_boundVertexBuffer[_bindingIndex].stride != _stride)
+		if (s_boundVertexBuffers[_bindingIndex].bufferObject != m_bufferObject ||
+			s_boundVertexBuffers[_bindingIndex].offset != _offset ||
+			s_boundVertexBuffers[_bindingIndex].stride != _stride)
 		{
 			GL_CALL(glBindVertexBuffer, _bindingIndex, m_bufferObject, _offset, _stride);
-			s_boundVertexBuffer[_bindingIndex].buffer = this;
-			s_boundVertexBuffer[_bindingIndex].offset = _offset;
-			s_boundVertexBuffer[_bindingIndex].stride = _stride;
+			s_boundVertexBuffers[_bindingIndex].bufferObject = m_bufferObject;
+			s_boundVertexBuffers[_bindingIndex].offset = _offset;
+			s_boundVertexBuffers[_bindingIndex].stride = _stride;
 		}
 	}
 
 	void Buffer::BindIndexBuffer()
 	{
-		if (s_boundIndexBuffer != this)
+		if (s_boundIndexBuffer != m_bufferObject)
 		{
 			GL_CALL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, m_bufferObject);
-			s_boundIndexBuffer = this;
+			s_boundIndexBuffer = m_bufferObject;
 		}
 	}
 }

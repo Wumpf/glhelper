@@ -13,11 +13,9 @@ namespace gl
 		virtual ~Texture();
 
 		/// Binds texture to the given slot.
-		///
-		/// Does nothing if texture was already bound.
-		void Bind(GLuint slot);
+		void Bind(GLuint _slotIndex);
 
-        /// Unbind texture
+        /// Unbinds texture.
         static void ResetBinding(GLuint _slotIndex);
 
 		/// Different possibilities to access an image.
@@ -31,8 +29,8 @@ namespace gl
 		/// Binds as image.
 		///
 		/// Without redundancy checking! Does not perform checks if texture format is valid (see http://docs.gl/gl4/glBindImageTexture)!
-		void BindImage(GLuint slotIndex, ImageAccess access) { BindImage(slotIndex, access, m_format); }
-		void BindImage(GLuint slotIndex, ImageAccess access, TextureFormat format);
+		void BindImage(GLuint _slotIndex, ImageAccess _access) { BindImage(_slotIndex, _access, m_format); }
+		void BindImage(GLuint _slotIndex, ImageAccess _access, TextureFormat _format);
 
 		/// Reads image via glGetImage (http://docs.gl/gl4/glGetTexImage)
 		void ReadImage(unsigned int _mipLevel, TextureReadFormat _format, TextureReadType _type, unsigned int _bufferSize, void* _buffer);
@@ -55,9 +53,10 @@ namespace gl
 
 		virtual GLenum GetOpenGLTextureType() = 0;
 
-	protected:
-		static const unsigned int s_numTextureBindings = 256;
+		/// Max number of tracked texture bindings. Arbitrary number based on observation: http://delphigl.de/glcapsviewer/gl_stats_caps_single.php?listreportsbycap=GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS
+		static const unsigned int s_numTextureBindings = 192;
 
+	protected:
 		friend class TextureBufferView;
 
 		/// Binds given texture to a slot.
@@ -72,7 +71,6 @@ namespace gl
 		/// Not used for image binding
 		static TextureId s_boundTextures[s_numTextureBindings];
 		
-
 		TextureId m_textureHandle;
 
 		const std::uint32_t m_width;

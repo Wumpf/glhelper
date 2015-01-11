@@ -3,7 +3,7 @@
 namespace gl
 {
 	std::unordered_map<SamplerObject::Desc, SamplerObject, SamplerObject::Desc::GetHash> SamplerObject::s_existingSamplerObjects;
-	const SamplerObject* SamplerObject::s_pSamplerBindings[32];
+	const SamplerObject* SamplerObject::s_samplerBindings[gl::Texture::s_numTextureBindings];
 
 	SamplerObject::Desc::Desc(Filter minFilter, Filter magFilter, Filter mipFilter,
 		Border borderHandling, unsigned int maxAnisotropy, const gl::Vec3& borderColor) :
@@ -27,7 +27,7 @@ namespace gl
 	SamplerObject::SamplerObject(SamplerObject&& cpy) :
 		m_samplerId(cpy.m_samplerId)
 	{
-		cpy.m_samplerId = std::numeric_limits<GLuint>::max();
+		cpy.m_samplerId = 0;
 	}
 
 
@@ -56,8 +56,20 @@ namespace gl
 
 	SamplerObject::~SamplerObject()
 	{
-		if (m_samplerId != std::numeric_limits<GLuint>::max())
+		if (m_samplerId != 0)
+		{
+			// According to the specification it is not necessary to unbind the samplerobject. All associated sampler bindings reset themselves to zero.
+			// http://docs.gl/gl4/glDeleteSamplers
+			// However this means, that glhelper's saved bindings are wrong.
+			// Iterating over all bindings is rather costly but reliable, easy and zero overhead for all other operations.
+			for (unsigned int i = 0; i < Texture::s_numTextureBindings; ++i)
+			{
+				if (s_samplerBindings[i] == this)
+					s_samplerBindings[i] = nullptr;
+			}
+
 			GL_CALL(glDeleteSamplers, 1, &m_samplerId);
+		}
 	}
 
 	const SamplerObject& SamplerObject::GetSamplerObject(const Desc& desc)
@@ -72,13 +84,20 @@ namespace gl
 		return it->second;
 	}
 
-	void SamplerObject::BindSampler(unsigned int textureStage) const
+	void SamplerObject::BindSampler(GLuint _textureStage)
 	{
-		GLHELPER_ASSERT(textureStage < sizeof(s_pSamplerBindings) / sizeof(SamplerObject*), "Can't bind sampler to slot " << textureStage << " .Maximum number of slots is " << sizeof(s_pSamplerBindings) / sizeof(SamplerObject*));
-		if (s_pSamplerBindings[textureStage] != this)
+		GLHELPER_ASSERT(_textureStage < sizeof(s_samplerBindings) / sizeof(SamplerObject*), "Can't bind sampler to slot " << _textureStage << " .Maximum number of slots is " << sizeof(s_samplerBindings) / sizeof(SamplerObject*));
+		if (s_samplerBindings[_textureStage] != this)
 		{
-			GL_CALL(glBindSampler, textureStage, m_samplerId);
-			s_pSamplerBindings[textureStage] = this;
+			GL_CALL(glBindSampler, _textureStage, m_samplerId);
+			s_samplerBindings[_textureStage] = this;
 		}
+	}
+
+	void SamplerObject::ResetBinding(GLuint _textureStage)
+	{
+		GLHELPER_ASSERT(_textureStage < sizeof(s_samplerBindings) / sizeof(SamplerObject*), "Can't bind sampler to slot " << _textureStage << " .Maximum number of slots is " << sizeof(s_samplerBindings) / sizeof(SamplerObject*));
+		GL_CALL(glBindSampler, _textureStage, 0);
+		s_samplerBindings[_textureStage] = nullptr;
 	}
 }
