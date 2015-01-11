@@ -68,6 +68,9 @@ namespace gl
 		/// Binds vertex array if not already bound.
 		void Bind();
 
+		/// Resets the VAO binding to 0.
+		static void ResetBinding();
+
 		/// Returns intern OpenGL vertex array object handle.
 		VertexArrayObjectId GetInternHandle() const { return m_vao; }
 

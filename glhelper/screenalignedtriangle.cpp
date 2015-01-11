@@ -32,7 +32,7 @@ namespace gl
 
 	void ScreenAlignedTriangle::Draw()
 	{
-		m_vertexArrayObject->BindVertexArray();
+		m_vertexArrayObject->Bind();
 		m_vertexBuffer->BindVertexBuffer(0, 0, m_vertexArrayObject->GetVertexStride(0));
 		GL_CALL(glDrawArrays, GL_TRIANGLES, 0, 3);
 	}

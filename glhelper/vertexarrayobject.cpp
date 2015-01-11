@@ -58,6 +58,12 @@ namespace gl
 		}
 	}
 
+	void VertexArrayObject::ResetBinding()
+	{
+		s_boundVertexArray = nullptr;
+		GL_CALL(glBindVertexArray, 0);
+	}
+
 	GLuint VertexArrayObject::GetVertexStride(GLuint _vertexBufferSlotIndex) const
 	{
 		if (_vertexBufferSlotIndex >= m_vertexStrides.size())
