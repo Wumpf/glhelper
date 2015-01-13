@@ -56,8 +56,6 @@ Todos
 * add offset/size binding version to uniformbufferview to be more consistent
 * Remove Init method from TextureBufferView?
 * Remove Init method from ShaderStorageBufferView?
-* Make all resources uncopyable
-* Make all resources moveable?
 * File renames for texture/uniform/shaderstorage -buffer (view) ?
 * make instancing possible in vertexarrayobject
 * options for buffer map instead of parameters from construction

@@ -13,8 +13,13 @@ namespace gl
 	class TextureBufferView
 	{
 	public:
+		TextureBufferView(const TextureBufferView&) = delete;
+		void operator = (const TextureBufferView&) = delete;
+		void operator = (TextureBufferView&&) = delete;
+
         /// Create the buffer
 		TextureBufferView();
+		TextureBufferView(TextureBufferView&& _moved);
 		~TextureBufferView();
 			
         /// Bind the buffer data to this TextureBuffer.

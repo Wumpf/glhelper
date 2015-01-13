@@ -9,7 +9,13 @@ namespace gl
 	class Texture
 	{
 	public:
-		Texture(std::uint32_t width, std::uint32_t height, std::uint32_t depth, TextureFormat format, std::int32_t numMipLevels, std::uint32_t numMSAASamples = 0);
+		Texture(const Texture&) = delete;
+		void operator = (const Texture&) = delete;
+		void operator = (Texture&&) = delete;
+
+		Texture(std::uint32_t _width, std::uint32_t _height, std::uint32_t _depth, TextureFormat _format, 
+				 std::int32_t _numMipLevels, std::uint32_t _numMSAASamples = 0);
+		Texture(Texture&& _moved);
 		virtual ~Texture();
 
 		/// Binds texture to the given slot.

@@ -17,6 +17,20 @@ namespace gl
 		GLHELPER_ASSERT(m_numMipLevels == 1 || numMSAASamples == 0, "Texture must have either zero MSAA samples or only one miplevel!");
 	}
 
+	Texture::Texture(Texture&& _moved) :
+		m_textureHandle(_moved.m_textureHandle),
+
+		m_width(_moved.m_width),
+		m_height(_moved.m_height),
+		m_depth(_moved.m_depth),
+
+		m_format(_moved.m_format),
+		m_numMipLevels(_moved.m_numMipLevels),
+		m_numMSAASamples(_moved.m_numMSAASamples)
+	{
+		_moved.m_textureHandle = 0;
+	}
+
 	Texture::~Texture()
 	{
 		// According to the specification it is not necessary to unbind the texture. All bindings reset themselves to zero.

@@ -14,7 +14,7 @@ namespace gl
 	typedef GLuint VertexArrayObjectId;
 
 	typedef GLuint TextureId;
-	typedef GLuint Framebuffer;
+	typedef GLuint FramebufferId;
 	typedef GLuint SamplerId;
 
 	typedef GLuint QueryId;

@@ -41,12 +41,23 @@ namespace gl
 		}
 	}
 
+	VertexArrayObject::VertexArrayObject(VertexArrayObject&& _moved) :
+		m_vao(_moved.m_vao),
+		m_vertexAttributes(std::move(_moved.m_vertexAttributes)),
+		m_vertexStrides(std::move(_moved.m_vertexStrides))
+	{
+		_moved.m_vao = 0;
+	}
+
 	VertexArrayObject::~VertexArrayObject()
 	{
-		if (s_boundVertexArray == this)
-			ResetBinding();
+		if(m_vao != 0)
+		{
+			if(s_boundVertexArray == this)
+				ResetBinding();
 
-		GL_CALL(glDeleteVertexArrays, 1, &m_vao);
+			GL_CALL(glDeleteVertexArrays, 1, &m_vao);
+		}
 	}
 
 	void VertexArrayObject::Bind()

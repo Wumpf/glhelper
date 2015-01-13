@@ -18,6 +18,10 @@ namespace gl
 	class FramebufferObject
 	{
 	public:
+		FramebufferObject(const FramebufferObject&) = delete;
+		void operator = (const FramebufferObject&) = delete;
+		void operator = (FramebufferObject&&) = delete;
+
 		struct Attachment
 		{
 			Attachment(Texture* pTexture, std::uint32_t mipLevel = 0, std::uint32_t layer = 0) :
@@ -30,7 +34,11 @@ namespace gl
 
 		FramebufferObject(Attachment colorAttachments, Attachment depthStencil = Attachment(NULL), bool depthWithStencil = false);
 		FramebufferObject(std::initializer_list<Attachment> colorAttachments, Attachment depthStencil = Attachment(NULL), bool depthWithStencil = false);
+		
+		FramebufferObject(FramebufferObject&& _moved);
+
 		~FramebufferObject();
+
 
 		/// Binds the framebuffer object (GL_DRAW_FRAMEBUFFER).
 		/// Has no effect if this FBO is already bound.
@@ -46,19 +54,17 @@ namespace gl
 		/// \attention Will not change the viewport.
 		//   void BlitTo(FramebufferObject* pDest, const ezRectU32& srcRect, const ezRectU32& dstRect, GLuint mask = GL_COLOR_BUFFER_BIT, GLuint filter = GL_NEAREST);
 
-		Framebuffer GetInternHandle() { return m_framebuffer; }
+		FramebufferId GetInternHandle() { return m_framebuffer; }
 
 
 		const std::vector<Attachment>& GetColorAttachments() const { return m_colorAttachments; }
 		const Attachment& GetDepthStencilAttachment() { return m_depthStencil; }
 
 	private:
-		/// Currently bound draw framebuffer object (NULL means backbuffer)
-		static FramebufferObject* s_BoundFrameBufferDraw;
-		/// Currently bound read framebuffer object (NULL means backbuffer)
-		//static FramebufferObject* s_BoundFrameBufferRead; // No need anymore thanks to DSA
+		/// Currently bound draw framebuffer object
+		static FramebufferId s_BoundFrameBuffer;
 
-		Framebuffer m_framebuffer;
+		FramebufferId m_framebuffer;
 
 		Attachment m_depthStencil;
 		std::vector<Attachment> m_colorAttachments;

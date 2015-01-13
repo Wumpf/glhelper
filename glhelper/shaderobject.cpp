@@ -15,12 +15,12 @@ namespace gl
 
 	const ShaderObject* ShaderObject::s_currentlyActiveShaderObject = NULL;
 
-	ShaderObject::ShaderObject(const std::string& name) :
-		m_name(name),
+	ShaderObject::ShaderObject(const std::string& _name) :
+		m_name(_name),
 		m_program(0),
 		m_containsAssembledProgram(false)
 	{
-		for (Shader& shader : m_aShader)
+		for (Shader& shader : m_shader)
 		{
 			shader.shaderObject = 0;
 			shader.sOrigin = "";
@@ -30,24 +30,48 @@ namespace gl
 		//  s_shaderFileChangedEvent.AddEventHandler(ezEvent<const std::string&>::Handler(&ShaderObject::FileEventHandler, this));
 	}
 
+	ShaderObject::ShaderObject(ShaderObject&& _moved) :
+		m_name(std::move(_moved.m_name)),
+		m_program(_moved.m_program),
+		m_containsAssembledProgram(_moved.m_containsAssembledProgram),
+		m_filesPerShaderType(std::move(_moved.m_filesPerShaderType)),
+
+		m_globalUniformInfo(std::move(_moved.m_globalUniformInfo)),
+		m_uniformBlockInfos(std::move(_moved.m_uniformBlockInfos)),
+		m_shaderStorageInfos(std::move(_moved.m_shaderStorageInfos)),
+
+		m_totalProgramInputCount(_moved.m_totalProgramInputCount),
+		m_totalProgramOutputCount(_moved.m_totalProgramOutputCount)
+	{
+		for(unsigned int i = 0; i < static_cast<unsigned int>(ShaderType::NUM_SHADER_TYPES); ++i)
+		{
+			m_shader[i] = std::move(_moved.m_shader[i]);
+			_moved.m_shader[i].shaderObject = 0;
+		}
+		_moved.m_program = 0;
+	}
+
 	ShaderObject::~ShaderObject()
 	{
-		if (s_currentlyActiveShaderObject == this)
+		if(m_program)
 		{
-			// Program must be detached to be able to delete it!
-			// http://docs.gl/gl4/glDeleteShader
-			GL_CALL(glUseProgram, 0);
-			s_currentlyActiveShaderObject = NULL;
-		}
+			if(s_currentlyActiveShaderObject == this)
+			{
+				// Program must be detached to be able to delete it!
+				// http://docs.gl/gl4/glDeleteShader
+				GL_CALL(glUseProgram, 0);
+				s_currentlyActiveShaderObject = NULL;
+			}
 
-		for (Shader& shader : m_aShader)
-		{
-			if (shader.loaded)
-				GL_CALL(glDeleteShader, shader.shaderObject);
-		}
+			for(Shader& shader : m_shader)
+			{
+				if(shader.loaded)
+					GL_CALL(glDeleteShader, shader.shaderObject);
+			}
 
-		if (m_containsAssembledProgram)
-			GL_CALL(glDeleteProgram, m_program);
+			if(m_containsAssembledProgram)
+				GL_CALL(glDeleteProgram, m_program);
+		}
 
 		//    s_shaderFileChangedEvent.RemoveEventHandler(ezEvent<const std::string&>::Handler(&ShaderObject::FileEventHandler, this));
 	}
@@ -196,7 +220,7 @@ namespace gl
 
 	Result ShaderObject::AddShaderFromSource(ShaderType type, const std::string& sourceCode, const std::string& sOriginName)
 	{
-		Shader& shader = m_aShader[static_cast<std::uint32_t>(type)];
+		Shader& shader = m_shader[static_cast<std::uint32_t>(type)];
 
 		// create shader
 		GLuint shaderObjectTemp = 0;
@@ -292,7 +316,7 @@ namespace gl
 
 		// attach programs
 		int numAttachedShader = 0;
-		for (Shader& shader : m_aShader)
+		for (Shader& shader : m_shader)
 		{
 			if (shader.loaded)
 			{
@@ -328,11 +352,11 @@ namespace gl
 				GL_CALL(glDeleteProgram, m_program);
 
 				// clear meta information
-				m_iTotalProgramInputCount = 0;
-				m_iTotalProgramOutputCount = 0;
-				m_GlobalUniformInfo.clear();
-				m_UniformBlockInfos.clear();
-				m_ShaderStorageInfos.clear();
+				m_totalProgramInputCount = 0;
+				m_totalProgramOutputCount = 0;
+				m_globalUniformInfo.clear();
+				m_uniformBlockInfos.clear();
+				m_shaderStorageInfos.clear();
 			}
 
 			// memorize new data only if loading successful - this way a failed reload won't affect anything
@@ -354,8 +378,8 @@ namespace gl
 	void ShaderObject::QueryProgramInformations()
 	{
 		// query basic uniform & shader storage block infos
-		QueryBlockInformations(m_UniformBlockInfos, GL_UNIFORM_BLOCK);
-		QueryBlockInformations(m_ShaderStorageInfos, GL_SHADER_STORAGE_BLOCK);
+		QueryBlockInformations(m_uniformBlockInfos, GL_UNIFORM_BLOCK);
+		QueryBlockInformations(m_shaderStorageInfos, GL_SHADER_STORAGE_BLOCK);
 
 		// informations about uniforms ...
 		GLint iTotalNumUniforms = 0;
@@ -387,10 +411,10 @@ namespace gl
 
 			// where to store (to which ubo block does this variable belong)
 			if (pRawUniformBlockInfoData[4] < 0)
-				m_GlobalUniformInfo.emplace(name, uniformInfo);
+				m_globalUniformInfo.emplace(name, uniformInfo);
 			else
 			{
-				for (auto it = m_UniformBlockInfos.begin(); it != m_UniformBlockInfos.end(); ++it)
+				for (auto it = m_uniformBlockInfos.begin(); it != m_uniformBlockInfos.end(); ++it)
 				{
 					if (it->second.iInternalBufferIndex == pRawUniformBlockInfoData[4])
 					{
@@ -429,7 +453,7 @@ namespace gl
 			name.resize(iActualNameLength);
 
 			// where to store (to which shader storage block does this variable belong)
-			for (auto it = m_ShaderStorageInfos.begin(); it != m_ShaderStorageInfos.end(); ++it)
+			for (auto it = m_shaderStorageInfos.begin(); it != m_shaderStorageInfos.end(); ++it)
 			{
 				if (it->second.iInternalBufferIndex == pRawStorageBlockInfoData[4])
 				{
@@ -440,8 +464,8 @@ namespace gl
 		}
 
 		// other informations
-		GL_CALL(glGetProgramInterfaceiv, m_program, GL_PROGRAM_INPUT, GL_ACTIVE_RESOURCES, &m_iTotalProgramInputCount);
-		GL_CALL(glGetProgramInterfaceiv, m_program, GL_PROGRAM_OUTPUT, GL_ACTIVE_RESOURCES, &m_iTotalProgramOutputCount);
+		GL_CALL(glGetProgramInterfaceiv, m_program, GL_PROGRAM_INPUT, GL_ACTIVE_RESOURCES, &m_totalProgramInputCount);
+		GL_CALL(glGetProgramInterfaceiv, m_program, GL_PROGRAM_OUTPUT, GL_ACTIVE_RESOURCES, &m_totalProgramOutputCount);
 	}
 
 	template<typename BufferVariableType>
@@ -498,8 +522,8 @@ namespace gl
 
 	Result ShaderObject::BindUBO(UniformBufferView& ubo, const std::string& sUBOName)
 	{
-		auto it = m_UniformBlockInfos.find(sUBOName);
-		if (it != m_UniformBlockInfos.end())
+		auto it = m_uniformBlockInfos.find(sUBOName);
+		if (it != m_uniformBlockInfos.end())
 			return Result::FAILURE;
 
 		ubo.BindBuffer(it->second.iBufferBinding);
@@ -630,9 +654,9 @@ namespace gl
 		auto it = m_filesPerShaderType.find(changedShaderFile);
 		if (it != m_filesPerShaderType.end())
 		{
-			if (m_aShader[static_cast<std::uint32_t>(it->second)].loaded)
+			if (m_shader[static_cast<std::uint32_t>(it->second)].loaded)
 			{
-				std::string origin(m_aShader[static_cast<std::uint32_t>(it->second)].sOrigin);  // need to copy the string, since it could be deleted in the course of reloading..
+				std::string origin(m_shader[static_cast<std::uint32_t>(it->second)].sOrigin);  // need to copy the string, since it could be deleted in the course of reloading..
 				if (AddShaderFromFile(it->second, origin) != Result::FAILURE && m_containsAssembledProgram)
 					CreateProgram();
 			}

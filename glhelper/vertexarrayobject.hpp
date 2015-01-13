@@ -18,6 +18,10 @@ namespace gl
 	class VertexArrayObject
 	{
 	public:
+		VertexArrayObject(const VertexArrayObject&) = delete;
+		void operator = (const VertexArrayObject&) = delete;
+		void operator = (VertexArrayObject&&) = delete;
+
 		/// Info about a single vertex attribute.
 		struct Attribute
 		{
@@ -63,6 +67,7 @@ namespace gl
 		/// Constructs a vertex array object from vertex attribute descriptors.
 		/// \param vertexAttributes List of vertex attributes. Attributes need to be in order as they are occur in the vertex buffer.
 		VertexArrayObject(const std::initializer_list<Attribute>& _vertexAttributes);
+		VertexArrayObject(VertexArrayObject&& _moved);
 		~VertexArrayObject();
 
 		/// Binds vertex array if not already bound.

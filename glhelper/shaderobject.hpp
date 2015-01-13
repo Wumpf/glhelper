@@ -19,6 +19,10 @@ namespace gl
 		typedef std::unordered_map<std::string, ShaderStorageBufferMetaInfo> ShaderStorageInfos;
 		typedef std::unordered_map<std::string, UniformBufferMetaInfo> UniformBlockInfos;
 
+		ShaderObject(const ShaderObject&) = delete;
+		void operator = (const ShaderObject&) = delete;
+		void operator = (ShaderObject&&) = delete;
+
 		enum class ShaderType
 		{
 			VERTEX,
@@ -33,7 +37,8 @@ namespace gl
 
 		/// Constructs ShaderObject
 		/// \param shaderName   Name mainly used for debugging and identification.
-		ShaderObject(const std::string& shaderName);
+		ShaderObject(const std::string& _shaderName);
+		ShaderObject(ShaderObject&& _moved);
 		~ShaderObject();
 
 		const std::string& GetName() const { return m_name; }
@@ -69,29 +74,29 @@ namespace gl
 		/// 
 		/// If the first stage is a Vertex Shader, then this is the list of active attributes.
 		/// If the program only contains a Compute Shader, then there are no inputs.
-		GLint GetTotalProgramInputCount() const   { return m_iTotalProgramInputCount; }
+		GLint GetTotalProgramInputCount() const   { return m_totalProgramInputCount; }
 
 		/// The set of active user-defined outputs from the final shader stage in this program.
 		/// 
 		/// If the final stage is a Fragment Shader, then this represents the fragment outputs that get written to individual color buffers.
 		/// If the program only contains a Compute Shader, then there are no outputs.
-		GLint GetTotalProgramOutputCount() const  { return m_iTotalProgramOutputCount; }
+		GLint GetTotalProgramOutputCount() const  { return m_totalProgramOutputCount; }
 
 
 
 		/// Returns infos about global uniforms
 		/// \remarks Deliberately not const so user can use operator[] on the map
-		GlobalUniformInfos& GetGlobalUniformInfo()    { return m_GlobalUniformInfo; }
+		GlobalUniformInfos& GetGlobalUniformInfo()    { return m_globalUniformInfo; }
 
-		const GlobalUniformInfos& GetGlobalUniformInfo() const { return m_GlobalUniformInfo; }
+		const GlobalUniformInfos& GetGlobalUniformInfo() const { return m_globalUniformInfo; }
 
 		/// Returns infos about used uniform buffer definitions
 		/// \remarks Deliberately not const so user can use operator[] on the map
-		UniformBlockInfos& GetUniformBufferInfo()    { return m_UniformBlockInfos; }
-		const UniformBlockInfos& GetUniformBufferInfo() const { return m_UniformBlockInfos; }
+		UniformBlockInfos& GetUniformBufferInfo()    { return m_uniformBlockInfos; }
+		const UniformBlockInfos& GetUniformBufferInfo() const { return m_uniformBlockInfos; }
 
 		/// Returns infos about used shader storage buffer definitions
-		const ShaderStorageInfos& GetShaderStorageBufferInfo() const    { return m_ShaderStorageInfos; }
+		const ShaderStorageInfos& GetShaderStorageBufferInfo() const    { return m_shaderStorageInfos; }
 
 
 		/// Returns a binary representation of the shader.
@@ -154,16 +159,16 @@ namespace gl
 			std::string  sOrigin;
 			bool      loaded;
 		};
-		Shader m_aShader[(unsigned int)ShaderType::NUM_SHADER_TYPES];
+		Shader m_shader[(unsigned int)ShaderType::NUM_SHADER_TYPES];
 
 		// meta information
-		GlobalUniformInfos m_GlobalUniformInfo;
-		UniformBlockInfos  m_UniformBlockInfos;
-		ShaderStorageInfos m_ShaderStorageInfos;
+		GlobalUniformInfos m_globalUniformInfo;
+		UniformBlockInfos  m_uniformBlockInfos;
+		ShaderStorageInfos m_shaderStorageInfos;
 
 		// misc
-		GLint m_iTotalProgramInputCount;  ///< \see GetTotalProgramInputCount
-		GLint m_iTotalProgramOutputCount; ///< \see GetTotalProgramOutputCount
+		GLint m_totalProgramInputCount;  ///< \see GetTotalProgramInputCount
+		GLint m_totalProgramOutputCount; ///< \see GetTotalProgramOutputCount
 
 		// currently missing meta information
 		// - transform feedback buffer

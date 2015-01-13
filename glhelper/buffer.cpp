@@ -42,9 +42,22 @@ namespace gl
 		}
     }
 
+	Buffer::Buffer(Buffer&& _moved) : 
+		m_bufferObject(_moved.m_bufferObject),
+		m_sizeInBytes(_moved.m_sizeInBytes),
+		m_glMapAccess(_moved.m_glMapAccess),
+		m_usageFlags(_moved.m_usageFlags),
+		m_mappedDataSize(_moved.m_mappedDataSize),
+		m_mappedDataOffset(_moved.m_mappedDataOffset),
+		m_mappedData(_moved.m_mappedData)
+	{
+		_moved.m_bufferObject = 0;
+		_moved.m_mappedData = nullptr;
+	}
+
     Buffer::~Buffer()
     {
-		if (m_bufferObject != 0xffffffff)
+		if (m_bufferObject != 0)
 		{
 			// According to the specification the buffer will be unmapped automatically on deletion.
 			// http://docs.gl/gl4/glUnmapBuffer

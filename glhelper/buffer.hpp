@@ -20,6 +20,10 @@ namespace gl
 		friend class UniformBufferView;
 		friend class ShaderStorageBufferView;
 
+		Buffer(const Buffer&) = delete;
+		void operator = (const Buffer&) = delete;
+		void operator = (Buffer&&) = delete;
+
         /// Flags for the (optimized) buffer creation.
         enum class Usage
         {
@@ -43,6 +47,7 @@ namespace gl
 
         /// Create and allocate the buffer
 		Buffer(GLsizeiptr _sizeInBytes, Usage _usageFlags, const void* _data = nullptr);
+		Buffer(Buffer&& _moved);
         ~Buffer();
 
         // Clear this buffer
@@ -92,8 +97,8 @@ namespace gl
 		void Get(void* _data, GLintptr _offset, GLsizeiptr _numBytes);
 
 		Usage GetUsageFlags() const		{ return m_usageFlags; }
-        BufferId GetBufferId() const    { return m_bufferObject; }
-		GLsizeiptr GetSize() const   { return m_sizeInBytes; }
+        BufferId GetBufferId() const	{ return m_bufferObject; }
+		GLsizeiptr GetSize() const		{ return m_sizeInBytes; }
 
 
 		/// Binds as vertex buffer on a given slot if not already bound with the same parameters.
@@ -137,9 +142,5 @@ namespace gl
 		static const unsigned int s_numVertexBufferBindings = 16;
 		static VertexBufferBinding s_boundVertexBuffers[s_numVertexBufferBindings];
 		static BufferId s_boundIndexBuffer;
-
-		// Non copyable
-		Buffer(const Buffer&);
-		void operator = (const Buffer&);
     };
 }

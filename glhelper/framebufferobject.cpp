@@ -3,7 +3,7 @@
 
 namespace gl
 {
-	FramebufferObject* FramebufferObject::s_BoundFrameBufferDraw = NULL;
+	FramebufferId FramebufferObject::s_BoundFrameBuffer = 0;
 	//FramebufferObject* FramebufferObject::s_BoundFrameBufferRead = NULL;
 
 	FramebufferObject::FramebufferObject(Attachment colorAttachments, Attachment depthStencil, bool depthWithStencil) :
@@ -54,19 +54,30 @@ namespace gl
 		GLHELPER_ASSERT(framebufferStatus == GL_FRAMEBUFFER_COMPLETE, "Frame buffer creation failed! Error code: " + std::to_string(framebufferStatus));
 	}
 
+	FramebufferObject::FramebufferObject(FramebufferObject&& _moved) :
+		m_framebuffer(_moved.m_framebuffer),
+		m_depthStencil(_moved.m_depthStencil),
+		m_colorAttachments(std::move(_moved.m_colorAttachments))
+	{
+		_moved.s_BoundFrameBuffer = 0;
+	}
+
 	FramebufferObject::~FramebufferObject()
 	{
-		if (s_BoundFrameBufferDraw == this)
-			s_BoundFrameBufferDraw = nullptr;
-		GL_CALL(glDeleteFramebuffers, 1, &m_framebuffer);
+		if(m_framebuffer != 0)
+		{
+			if(s_BoundFrameBuffer == m_framebuffer)
+				s_BoundFrameBuffer = 0;
+			GL_CALL(glDeleteFramebuffers, 1, &m_framebuffer);
+		}
 	}
 
 	void FramebufferObject::Bind(bool autoViewportSet)
 	{
-		if (s_BoundFrameBufferDraw != this)
+		if(m_framebuffer == 0)
 		{
 			GL_CALL(glBindFramebuffer, GL_DRAW_FRAMEBUFFER, m_framebuffer);
-			s_BoundFrameBufferDraw = this;
+			m_framebuffer = 0;
 
 			if (autoViewportSet)
 			{
@@ -91,10 +102,10 @@ namespace gl
 
 	void FramebufferObject::BindBackBuffer()
 	{
-		if (s_BoundFrameBufferDraw != nullptr)
+		if (s_BoundFrameBuffer != 0)
 		{
 			GL_CALL(glBindFramebuffer, GL_DRAW_FRAMEBUFFER, 0);
-			s_BoundFrameBufferDraw = nullptr;
+			s_BoundFrameBuffer = 0;
 		}
 	}
 

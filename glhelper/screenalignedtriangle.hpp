@@ -11,6 +11,9 @@ namespace gl
 	class ScreenAlignedTriangle
 	{
 	public:
+		ScreenAlignedTriangle(const ScreenAlignedTriangle&) = delete;
+		void operator = (const ScreenAlignedTriangle&) = delete;
+
 		ScreenAlignedTriangle();
 		~ScreenAlignedTriangle();
 
