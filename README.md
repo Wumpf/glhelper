@@ -48,3 +48,18 @@ Notes on how to use
 * Assumes that there is a OpenGL header <GL/GL.h> which defines everything that is needed (I use GLEW).  
 * Context creation etc. is (intentionally) up to the user!
   * I recommend GLFW :)
+ 
+Todos
+--------
+(just notes, in no specific order)
+* better name scheme for internal handle getter (same in all classes)
+* add offset/size binding version to uniformbufferview to be more consistent
+* Remove Init method from TextureBufferView?
+* Remove Init method from ShaderStorageBufferView?
+* Make all resources uncopyable
+* Make all resources moveable?
+* File renames for texture/uniform/shaderstorage -buffer (view) ?
+* make instancing possible in vertexarrayobject
+* options for buffer map instead of parameters from construction
+* multi bind-functions for vertex/index/uniform/shaderstorage buffers
+* consequently use std::string for assert/log (remove all usages of << to concat messages)
