@@ -84,7 +84,7 @@ namespace gl
 		return it->second;
 	}
 
-	void SamplerObject::BindSampler(GLuint _textureStage)
+	void SamplerObject::BindSampler(GLuint _textureStage) const
 	{
 		GLHELPER_ASSERT(_textureStage < sizeof(s_samplerBindings) / sizeof(SamplerObject*), "Can't bind sampler to slot " << _textureStage << " .Maximum number of slots is " << sizeof(s_samplerBindings) / sizeof(SamplerObject*));
 		if (s_samplerBindings[_textureStage] != this)

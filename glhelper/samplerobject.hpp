@@ -67,7 +67,7 @@ namespace gl
 		///
 		/// \attention Deleting a bound resource may cause unexpected errors. 
 		///		The user is responsible for manual unbinding it (or overwriting the previous binding) before deleting.
-		void BindSampler(GLuint _textureStage);
+		void BindSampler(GLuint _textureStage) const;
 
 		/// Resets sampler binding for the given texture stage to zero.
 		static void ResetBinding(GLuint _textureStage);
