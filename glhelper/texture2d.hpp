@@ -27,7 +27,7 @@ namespace gl
 
 		void GenMipMaps();
 
-		GLenum GetOpenGLTextureType() override { return GetNumMSAASamples() > 0 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D; }
+		GLenum GetOpenGLTextureType() const override { return GetNumMSAASamples() > 0 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D; }
 	};
 
 }

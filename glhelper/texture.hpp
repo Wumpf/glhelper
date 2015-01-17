@@ -57,7 +57,7 @@ namespace gl
 		std::uint32_t GetNumMSAASamples() const  { return m_numMSAASamples; }
 		TextureFormat GetFormat() const          { return m_format; }
 
-		virtual GLenum GetOpenGLTextureType() = 0;
+		virtual GLenum GetOpenGLTextureType() const = 0;
 
 		/// Max number of tracked texture bindings. Arbitrary number based on observation: http://delphigl.de/glcapsviewer/gl_stats_caps_single.php?listreportsbycap=GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS
 		static const unsigned int s_numTextureBindings = 192;
