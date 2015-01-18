@@ -14,6 +14,9 @@ namespace gl
 
 		m_numMSAASamples(numMSAASamples)
 	{
+		GLHELPER_ASSERT(m_width > 0 || m_height > 0 || m_depth > 0, "Invalid texture size.");
+		GLHELPER_ASSERT(m_numMipLevels > 0, "Invalid mipmap level count.");
+
 		GLHELPER_ASSERT(m_numMipLevels == 1 || numMSAASamples == 0, "Texture must have either zero MSAA samples or only one miplevel!");
 	}
 
@@ -48,19 +51,19 @@ namespace gl
 		GL_CALL(glDeleteTextures, 1, &m_textureHandle);
 	}
 
-	GLsizei Texture::ConvertMipMapSettingToActualCount(GLsizei _mipMapSetting, GLsizei _width, GLsizei _height, GLsizei depth)
+	GLsizei Texture::ConvertMipMapSettingToActualCount(GLsizei _mipMapSetting, GLsizei _width, GLsizei _height, GLsizei _depth)
 	{
 		if (_mipMapSetting == 0)
 		{
-			std::uint32_t uiNumMipLevels = 0;
-			while (_width > 0 || _height > 0 || depth > 0)
+			GLsizei numMipLevels = 0;
+			while (_width > 0 || _height > 0 || _depth > 0)
 			{
 				_width /= 2;
 				_height /= 2;
-				depth /= 2;
-				++uiNumMipLevels;
+				_depth /= 2;
+				++numMipLevels;
 			}
-			return uiNumMipLevels;
+			return numMipLevels;
 		}
 
 		else
@@ -115,5 +118,10 @@ namespace gl
 	{
 		GLHELPER_ASSERT(m_numMipLevels > _mipLevel, "Miplevel " + std::to_string(_mipLevel) + " not available, texture has only " + std::to_string(m_numMipLevels) + " levels!");
 		GL_CALL(glGetTextureImage, m_textureHandle, _mipLevel, static_cast<GLenum>(_format), static_cast<GLenum>(_type), _bufferSize, _buffer);
+	}
+
+	void Texture::GenMipMaps()
+	{
+		GL_CALL(glGenerateTextureMipmap, m_textureHandle);
 	}
 }

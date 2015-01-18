@@ -53,14 +53,24 @@ namespace gl
 		/// Returns intern OpenGL texture handle.
 		TextureId GetInternHandle() { return m_textureHandle; }
 
+		/// Returns texture width (for mipLevel==0).
 		GLsizei GetWidth() const           { return m_width; }
+
+		/// Returns texture height (for mipLevel==0).
 		GLsizei GetHeight() const          { return m_height; }
+
+		/// Returns total texture depth (for mipLevel==0)
+		/// 1 for non 3D textures.
 		GLsizei GetDepth() const           { return m_depth; }
+
 		GLsizei GetNumMipLevels() const    { return m_numMipLevels; }
 		GLsizei GetNumMSAASamples() const  { return m_numMSAASamples; }
 		TextureFormat GetFormat() const    { return m_format; }
 
 		virtual GLenum GetOpenGLTextureType() const = 0;
+
+		/// Generates mipmaps via glGenerateMipmap (http://docs.gl/gl4/glGenerateMipmap)
+		void GenMipMaps();
 
 		/// Max number of tracked texture bindings. Arbitrary number based on observation: http://delphigl.de/glcapsviewer/gl_stats_caps_single.php?listreportsbycap=GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS
 		static const unsigned int s_numTextureBindings = 192;
