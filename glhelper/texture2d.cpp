@@ -41,7 +41,7 @@ namespace gl
 			return nullptr;
 		}
 
-		std::unique_ptr<Texture2D> newTex(new Texture2D(static_cast<GLsizei>(texSizeX), static_cast<GLsizei>(texSizeY), _sRGB ? gl::TextureFormat::SRGB8_ALPHA8 : gl::TextureFormat::RGB8, _generateMipMaps ? -1 : 1));
+		std::unique_ptr<Texture2D> newTex(new Texture2D(static_cast<GLsizei>(texSizeX), static_cast<GLsizei>(texSizeY), _sRGB ? gl::TextureFormat::SRGB8_ALPHA8 : gl::TextureFormat::RGB8, _generateMipMaps ? 0 : 1));
 		newTex->SetData(0, TextureSetDataFormat::RGBA, TextureSetDataType::UNSIGNED_BYTE, textureData);
 		if (_generateMipMaps)
 			newTex->GenMipMaps();
