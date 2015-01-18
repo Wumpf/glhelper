@@ -42,13 +42,13 @@ namespace gl
 		template<typename T>
 		struct DefaultVec2
 		{
-			DefaultVec2(float x, float y) : x(x), y(y) {}
+			DefaultVec2(T x, T y) : x(x), y(y) {}
 			T x, y;
 		};
 		template<typename T>
 		struct DefaultVec3
 		{
-			DefaultVec3(float x, float y, float z) : x(x), y(y), z(z) {}
+			DefaultVec3(T x, T y, T z) : x(x), y(y), z(z) {}
 			T x, y, z;
 		};
 		template<typename T>
@@ -87,4 +87,5 @@ namespace gl
 
 
 // OpenGL header.
+
 #include <GL/glew.h>
