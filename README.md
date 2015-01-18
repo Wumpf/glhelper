@@ -2,7 +2,7 @@ glhelper
 ========
 
 Helper &amp; thin abstraction classes for OpenGL **4.5**.  
-_No compromises!_ Assumes full avaibility of direct state access, texture/buffer storage and so on.
+_No compromises!_ Assumes full availability of direct state access, texture/buffer storage and so on.
 
 This is **not** a complete API abstraction, rather a bunch of helper classes!
 
