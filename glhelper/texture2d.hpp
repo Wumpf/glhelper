@@ -23,7 +23,7 @@ namespace gl
 #endif
 
 		/// Overwrites data of a given mip level.
-		void SetData(std::uint32_t _mipLevel, TextureSetDataFormat _dataFormat, TextureSetDataType _dataType, const void* _pData);
+		void SetData(GLsizei _mipLevel, TextureSetDataFormat _dataFormat, TextureSetDataType _dataType, const void* _pData);
 
 		void GenMipMaps();
 

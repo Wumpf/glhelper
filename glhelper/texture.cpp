@@ -4,7 +4,7 @@ namespace gl
 {
 	TextureId Texture::s_boundTextures[Texture::s_numTextureBindings];
 
-	Texture::Texture(std::uint32_t width, std::uint32_t height, std::uint32_t depth, TextureFormat format, std::int32_t numMipLevels, std::uint32_t numMSAASamples) :
+	Texture::Texture(GLsizei width, GLsizei height, GLsizei depth, TextureFormat format, GLsizei numMipLevels, GLsizei numMSAASamples) :
 		m_width(width),
 		m_height(height),
 		m_depth(depth),
@@ -48,15 +48,15 @@ namespace gl
 		GL_CALL(glDeleteTextures, 1, &m_textureHandle);
 	}
 
-	std::uint32_t Texture::ConvertMipMapSettingToActualCount(std::int32_t iMipMapSetting, std::uint32_t width, std::uint32_t height, std::uint32_t depth)
+	GLsizei Texture::ConvertMipMapSettingToActualCount(GLsizei _mipMapSetting, GLsizei _width, GLsizei _height, GLsizei depth)
 	{
-		if (iMipMapSetting <= 0)
+		if (_mipMapSetting == 0)
 		{
 			std::uint32_t uiNumMipLevels = 0;
-			while (width > 0 || height > 0 || depth > 0)
+			while (_width > 0 || _height > 0 || depth > 0)
 			{
-				width /= 2;
-				height /= 2;
+				_width /= 2;
+				_height /= 2;
 				depth /= 2;
 				++uiNumMipLevels;
 			}
@@ -64,7 +64,7 @@ namespace gl
 		}
 
 		else
-			return iMipMapSetting;
+			return _mipMapSetting;
 	}
 
 	void Texture::BindImage(GLuint _slotIndex, Texture::ImageAccess access, TextureFormat format)
@@ -89,7 +89,7 @@ namespace gl
 		}
 	}
 
-	void Texture::ClearToZero(std::uint32_t _mipLevel)
+	void Texture::ClearToZero(GLsizei _mipLevel)
 	{
 		GLHELPER_ASSERT(m_numMipLevels > _mipLevel, "Miplevel " + std::to_string(_mipLevel) + " not available, texture has only " + std::to_string(m_numMipLevels) + " levels!");
 
@@ -111,7 +111,7 @@ namespace gl
 		}
 	}
 
-	void Texture::ReadImage(unsigned int _mipLevel, TextureReadFormat _format, TextureReadType _type, unsigned int _bufferSize, void* _buffer)
+	void Texture::ReadImage(GLsizei _mipLevel, TextureReadFormat _format, TextureReadType _type, GLsizei _bufferSize, void* _buffer)
 	{
 		GLHELPER_ASSERT(m_numMipLevels > _mipLevel, "Miplevel " + std::to_string(_mipLevel) + " not available, texture has only " + std::to_string(m_numMipLevels) + " levels!");
 		GL_CALL(glGetTextureImage, m_textureHandle, _mipLevel, static_cast<GLenum>(_format), static_cast<GLenum>(_type), _bufferSize, _buffer);

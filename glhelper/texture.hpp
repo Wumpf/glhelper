@@ -13,8 +13,11 @@ namespace gl
 		void operator = (const Texture&) = delete;
 		void operator = (Texture&&) = delete;
 
-		Texture(std::uint32_t _width, std::uint32_t _height, std::uint32_t _depth, TextureFormat _format, 
-				 std::int32_t _numMipLevels, std::uint32_t _numMSAASamples = 0);
+		/// New abstract texture.
+		///
+		/// \param _numMipLevels
+		///		Number of MipMap levels. If 0, the maximum possible number of mipmaps will be determined and used.
+		Texture(GLsizei _width, GLsizei _height, GLsizei _depth, TextureFormat _format, GLsizei _numMipLevels, GLsizei _numMSAASamples = 0);
 		Texture(Texture&& _moved);
 		virtual ~Texture();
 
@@ -39,23 +42,23 @@ namespace gl
 		void BindImage(GLuint _slotIndex, ImageAccess _access, TextureFormat _format);
 
 		/// Reads image via glGetImage (http://docs.gl/gl4/glGetTexImage)
-		void ReadImage(unsigned int _mipLevel, TextureReadFormat _format, TextureReadType _type, unsigned int _bufferSize, void* _buffer);
+		void ReadImage(GLsizei _mipLevel, TextureReadFormat _format, TextureReadType _type, GLsizei _bufferSize, void* _buffer);
 
 		/// Unbinds image slot.
 		static void ResetImageBinding(GLuint _slotIndex);
 
 		/// Clears texture to zero using glClearTexImage (http://docs.gl/gl4/glClearTexImage)
-		void ClearToZero(std::uint32_t _mipLevel = 0);
+		void ClearToZero(GLsizei _mipLevel = 0);
 
 		/// Returns intern OpenGL texture handle.
 		TextureId GetInternHandle() { return m_textureHandle; }
 
-		std::uint32_t GetWidth() const           { return m_width; }
-		std::uint32_t GetHeight() const          { return m_height; }
-		std::uint32_t GetDepth() const           { return m_depth; }
-		std::uint32_t GetNumMipLevels() const    { return m_numMipLevels; }
-		std::uint32_t GetNumMSAASamples() const  { return m_numMSAASamples; }
-		TextureFormat GetFormat() const          { return m_format; }
+		GLsizei GetWidth() const           { return m_width; }
+		GLsizei GetHeight() const          { return m_height; }
+		GLsizei GetDepth() const           { return m_depth; }
+		GLsizei GetNumMipLevels() const    { return m_numMipLevels; }
+		GLsizei GetNumMSAASamples() const  { return m_numMSAASamples; }
+		TextureFormat GetFormat() const    { return m_format; }
 
 		virtual GLenum GetOpenGLTextureType() const = 0;
 
@@ -79,16 +82,16 @@ namespace gl
 		
 		TextureId m_textureHandle;
 
-		const std::uint32_t m_width;
-		const std::uint32_t m_height;
-		const std::uint32_t m_depth;
+		const GLsizei m_width;
+		const GLsizei m_height;
+		const GLsizei m_depth;
 
 		const TextureFormat m_format;
-		const std::uint32_t  m_numMipLevels;
-		const std::uint32_t  m_numMSAASamples;
+		const GLsizei m_numMipLevels;
+		const GLsizei m_numMSAASamples;
 
 	private:
-		static std::uint32_t ConvertMipMapSettingToActualCount(std::int32_t iMipMapSetting, std::uint32_t width, std::uint32_t height, std::uint32_t depth = 0);
+		static GLsizei ConvertMipMapSettingToActualCount(GLsizei iMipMapSetting, GLsizei width, GLsizei height, GLsizei depth = 0);
 	};
 
 }
