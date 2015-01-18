@@ -2,6 +2,9 @@
 #include <string>
 
 #ifdef TEXTURE2D_FROMFILE_STBI
+// Tells stb to implement all image definitions in this file.
+#define STB_IMAGE_IMPLEMENTATION
+
 #include <stb_image.h>
 #endif
 
