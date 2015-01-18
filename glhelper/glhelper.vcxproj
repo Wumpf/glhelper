@@ -32,6 +32,7 @@
     <ClCompile Include="shaderstoragebuffer.cpp" />
     <ClCompile Include="texture.cpp" />
     <ClCompile Include="texture2d.cpp" />
+    <ClCompile Include="texture3d.cpp" />
     <ClCompile Include="texturebuffer.cpp" />
     <ClCompile Include="textureformats.cpp" />
     <ClCompile Include="uniformbuffer.cpp" />
@@ -50,6 +51,7 @@
     <ClInclude Include="shaderstoragebuffer.hpp" />
     <ClInclude Include="texture.hpp" />
     <ClInclude Include="texture2d.hpp" />
+    <ClInclude Include="texture3d.hpp" />
     <ClInclude Include="texturebuffer.hpp" />
     <ClInclude Include="textureformats.hpp" />
     <ClInclude Include="uniformbuffer.hpp" />

@@ -20,6 +20,7 @@
     <ClCompile Include="utils\pathutils.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="texture3d.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shaderobject.hpp" />
@@ -42,6 +43,7 @@
     <ClInclude Include="utils\pathutils.hpp">
       <Filter>utils</Filter>
     </ClInclude>
+    <ClInclude Include="texture3d.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="utils">
