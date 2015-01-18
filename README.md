@@ -61,5 +61,6 @@ Todos
 * options for buffer map instead of parameters from construction
 * multi bind-functions for vertex/index/uniform/shaderstorage buffers
 * consequently use std::string for assert/log (remove all usages of << to concat messages)
-* add support for 3d textures
 * add support for cube textures
+* add support for 2d texture arrays
+* add support for 3d texture arrays
