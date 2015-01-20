@@ -6,13 +6,13 @@ namespace gl
 	const SamplerObject* SamplerObject::s_samplerBindings[gl::Texture::s_numTextureBindings];
 
 	SamplerObject::Desc::Desc(Filter minFilter, Filter magFilter, Filter mipFilter,
-		Border borderHandling, unsigned int maxAnisotropy, const gl::Vec3& borderColor) :
+		Border borderHandling, unsigned int maxAnisotropy, const gl::Vec4& borderColor) :
 		Desc(minFilter, magFilter, mipFilter, borderHandling, borderHandling, borderHandling, maxAnisotropy, borderColor)
 	{}
 
 	SamplerObject::Desc::Desc(Filter minFilter, Filter magFilter, Filter mipFilter,
 		Border borderHandlingU, Border borderHandlingV, Border m_borderHandlingW,
-		unsigned int maxAnisotropy, const gl::Vec3& borderColor) :
+		unsigned int maxAnisotropy, const gl::Vec4& borderColor) :
 		minFilter(minFilter),
 		magFilter(magFilter),
 		mipFilter(mipFilter),

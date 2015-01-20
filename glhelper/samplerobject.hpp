@@ -30,11 +30,11 @@ namespace gl
 		{
 			/// Constructs a descriptor with the same border handling for all dimensions.
 			Desc(Filter minFilter, Filter magFilter, Filter mipFilter, Border borderHandling,
-				unsigned int maxAnisotropy = 1, const gl::Vec3& borderColor = gl::Vec3(1.0f, 1.0f, 1.0f));
+				unsigned int maxAnisotropy = 1, const gl::Vec4& borderColor = gl::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
 			/// Constructs a descriptor with the different border handling for each dimension.
 			Desc(Filter minFilter, Filter magFilter, Filter mipFilter, Border borderHandlingU, Border borderHandlingV, Border m_borderHandlingW,
-				unsigned int maxAnisotropy = 1, const gl::Vec3&borderColor = gl::Vec3(1.0f, 1.0f, 1.0f));
+				unsigned int maxAnisotropy = 1, const gl::Vec4& borderColor = gl::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
 			bool operator == (const Desc& other) const { return memcmp(this, &other, sizeof(Desc)) == 0; }
 
@@ -45,7 +45,7 @@ namespace gl
 			Border borderHandlingV;
 			Border borderHandlingW;
 			unsigned int maxAnisotropy;
-			gl::Vec3  borderColor;
+			gl::Vec4  borderColor;
 
 
 			struct GetHash
