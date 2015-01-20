@@ -54,13 +54,13 @@ namespace gl
 
 	void Texture2D::SetData(GLsizei _mipLevel, TextureSetDataFormat _dataFormat, TextureSetDataType _dataType, const void* _data, const gl::UVec2& _areaOffset, const gl::UVec2& _areaSize)
 	{
-		GLHELPER_ASSERT(_mipLevel != 0, "Mipmap level 0 is not a valid level");
+		GLHELPER_ASSERT(_mipLevel >= 0, "Invalid mipmap level");
 		GLHELPER_ASSERT(_mipLevel < m_numMipLevels, "MipLevel " + std::to_string(_mipLevel) + " does not exist, texture has only " + std::to_string(m_numMipLevels) + " MipMapLevels");
 		GLHELPER_ASSERT(_areaSize.x != 0 && _areaSize.y != 0, "SetData area is zero sized!");
-		GLHELPER_ASSERT(_areaOffset.x < static_cast<decltype(_areaOffset.x)>(m_width >> (_mipLevel - 1)) &&
-						_areaOffset.y < static_cast<decltype(_areaOffset.y)>(m_height >> (_mipLevel - 1)), "SetData area offset is outside of the texture!");
-		GLHELPER_ASSERT(_areaSize.x + _areaOffset.x <= static_cast<decltype(_areaOffset.x)>(m_width >> (_mipLevel - 1)) &&
-						_areaSize.y + _areaOffset.y <= static_cast<decltype(_areaOffset.y)>(m_height >> (_mipLevel - 1)), "SetData area overwrite overlaps regions outside the texture!");
+		GLHELPER_ASSERT(_areaOffset.x < static_cast<decltype(_areaOffset.x)>(m_width >> _mipLevel) &&
+						_areaOffset.y < static_cast<decltype(_areaOffset.y)>(m_height >> _mipLevel), "SetData area offset is outside of the texture!");
+		GLHELPER_ASSERT(_areaSize.x + _areaOffset.x <= static_cast<decltype(_areaOffset.x)>(m_width >> _mipLevel) &&
+						_areaSize.y + _areaOffset.y <= static_cast<decltype(_areaOffset.y)>(m_height >> _mipLevel), "SetData area overwrite overlaps regions outside the texture!");
 
 		GL_CALL(glTextureSubImage2D, m_textureHandle, _mipLevel, _areaOffset.x, _areaOffset.y, _areaSize.x, _areaSize.y, static_cast<GLenum>(_dataFormat), static_cast<GLenum>(_dataType), _data);
 	}

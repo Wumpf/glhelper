@@ -13,7 +13,7 @@ namespace gl
 		///
 		/// \param _numMipLevels
 		///		Number of MipMap levels. If 0, the maximum possible number of mipmaps will be determined and used.
-		Texture3D(GLsizei _width, GLsizei _height, TextureFormat _format, GLsizei _numMipLevels = 1);
+		Texture3D(GLsizei _width, GLsizei _height, GLsizei _depth, TextureFormat _format, GLsizei _numMipLevels = 1);
 
 		/// Overwrites all data of a given mip level.
 		void SetData(GLsizei _mipLevel, TextureSetDataFormat _dataFormat, TextureSetDataType _dataType, const void* _data)
