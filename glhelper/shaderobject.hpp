@@ -107,11 +107,14 @@ namespace gl
 		///   A token that specifies the format of the binary data.
 		std::vector<char> GetProgramBinary(GLenum& _binaryFormat);
 
-		/// Global event for changed shader files.
-		/// All Shader Objects will register upon this event. If any shader file is changed, just broadcast here!
-		// TODO - not yet reimplemented
-		// todo Automatic Shader reload on file change -> state restore needed
-		//static ezEvent<const std::string&> s_shaderFileChangedEvent;
+
+
+		/// Call this function for hot reloading of a shader.
+		/// If the given filename is not recognized, nothing will happen.
+		void ShaderFileChangeHandler(const std::string& _changedShaderFile);
+
+		/// Gets a list of all associated shader files (including resolved includes) and their usage.
+		const std::unordered_map<std::string, ShaderType>& GetShaderFilenames() { return m_filesPerShaderType; }
 
 	private:
 		/// Print information about the compiling step
@@ -119,14 +122,11 @@ namespace gl
 		/// Print information about the linking step
 		void PrintProgramInfoLog(ProgramId program);
 
-		/// file handler event for hot reloading
-		void FileEventHandler(const std::string& changedShaderFile);
-
 		/// Reads shader source code from file and performs parsing of #include directives
 		/// \param fileIndex	This will used as second parameter for each #line macro. It is a kind of file identifier.
 		/// \remarks Uses a lot of potentially slow string operations.
-		static std::string ReadShaderFromFile(const std::string& shaderFilename, const std::string& prefixCode = "",
-										std::unordered_set<std::string>& includedFiles = std::unordered_set<std::string>(), unsigned int fileIndex = 0);
+		static std::string ReadShaderFromFile(const std::string& shaderFilename, const std::string& prefixCode,
+												unsigned int fileIndex, std::unordered_set<std::string>& _beforeIncludedFiles, std::unordered_set<std::string>& _allReadFiles);
 
 
 
@@ -149,7 +149,7 @@ namespace gl
 		/// As long as no user bypasses the Activate mechanism by calling glUseProgram, this pointer will always point the currently bound program.
 		static const ShaderObject* s_currentlyActiveShaderObject;
 
-		/// list of relevant files - if any of these changes a reload will be triggered
+		/// list of relevant files - if any of these changes a reload can be triggered via ShaderFileChangeHandler.
 		std::unordered_map<std::string, ShaderType> m_filesPerShaderType;
 
 		// underlying shaders

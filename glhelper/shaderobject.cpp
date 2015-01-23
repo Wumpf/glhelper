@@ -26,8 +26,6 @@ namespace gl
 			shader.sOrigin = "";
 			shader.loaded = false;
 		}
-
-		//  s_shaderFileChangedEvent.AddEventHandler(ezEvent<const std::string&>::Handler(&ShaderObject::FileEventHandler, this));
 	}
 
 	ShaderObject::ShaderObject(ShaderObject&& _moved) :
@@ -72,15 +70,13 @@ namespace gl
 			if(m_containsAssembledProgram)
 				GL_CALL(glDeleteProgram, m_program);
 		}
-
-		//    s_shaderFileChangedEvent.RemoveEventHandler(ezEvent<const std::string&>::Handler(&ShaderObject::FileEventHandler, this));
 	}
 
 	Result ShaderObject::AddShaderFromFile(ShaderType type, const std::string& filename, const std::string& prefixCode)
 	{
 		// load new code
-		std::unordered_set<std::string> includingFiles;
-		std::string sourceCode = ReadShaderFromFile(filename, prefixCode, includingFiles);
+		std::unordered_set<std::string> includingFiles, allFiles;
+		std::string sourceCode = ReadShaderFromFile(filename, prefixCode, 0, includingFiles, allFiles);
 		if (sourceCode == "")
 			return Result::FAILURE;
 
@@ -89,7 +85,7 @@ namespace gl
 		if (result != Result::FAILURE)
 		{
 			// memorize files
-			for (auto it = includingFiles.begin(); it != includingFiles.end(); ++it)
+			for (auto it = allFiles.begin(); it != allFiles.end(); ++it)
 				m_filesPerShaderType.emplace(*it, type);
 		}
 
@@ -99,7 +95,7 @@ namespace gl
 	/// \param _beforeIncludedFiles
 	///		Does not include THIS file, but all files before.
 	std::string ShaderObject::ReadShaderFromFile(const std::string& shaderFilename, const std::string& prefixCode,
-												std::unordered_set<std::string>& _beforeIncludedFiles, unsigned int fileIndex)
+												 unsigned int fileIndex, std::unordered_set<std::string>& _beforeIncludedFiles, std::unordered_set<std::string>& _allReadFiles)
 	{
 		// open file
 		std::ifstream file(shaderFilename.c_str());
@@ -108,6 +104,8 @@ namespace gl
 			GLHELPER_LOG_ERROR("Unable to open shader file " + shaderFilename);
 			return "";
 		}
+
+		_allReadFiles.insert(shaderFilename);
 
 		// Reserve
 		std::string sourceCode;
@@ -204,7 +202,7 @@ namespace gl
 			}
 			else
 			{
-				insertionBuffer = ReadShaderFromFile(includeFile, "", includedFilesNew, ++lastFileIndex);
+				insertionBuffer = ReadShaderFromFile(includeFile, "", ++lastFileIndex, includedFilesNew, _allReadFiles);
 				insertionBuffer += "\n#line " + std::to_string(parseCursorOriginalFileNumber + 1) + " " + std::to_string(fileIndex); // whitespace replaces #include!
 				sourceCode.replace(includePos, quotMarksLast - includePos + 1, insertionBuffer);
 
@@ -295,7 +293,7 @@ namespace gl
 				if (it->second == type)
 				{
 					it = m_filesPerShaderType.erase(it);
-					if (it != m_filesPerShaderType.end())
+					if (it == m_filesPerShaderType.end())
 						break;
 				}
 			}
@@ -648,8 +646,7 @@ namespace gl
 #endif
 	}
 
-	/// file handler event for hot reloading
-	void ShaderObject::FileEventHandler(const std::string& changedShaderFile)
+	void ShaderObject::ShaderFileChangeHandler(const std::string& changedShaderFile)
 	{
 		auto it = m_filesPerShaderType.find(changedShaderFile);
 		if (it != m_filesPerShaderType.end())
