@@ -39,7 +39,7 @@ namespace gl
 				ShaderVariable(metaInfo), m_uniformBuffer(pUniformBuffer) {}
 			
 
-			void Set(const void* pData, std::uint32_t SizeInBytes) override;
+			void Set(const void* pData, GLsizei SizeInBytes) override;
 
 			using gl::ShaderVariable<UniformVariableInfo>::Set;
 		private:
@@ -51,7 +51,7 @@ namespace gl
 		///
 		/// \attention
 		///		Checks only via GLHELPER_ASSERT if memory area is actually mapped!
-		void Set(const void* _data, std::uint32_t offset, std::uint32_t _sizeInBytes);
+		void Set(const void* _data, GLsizei offset, GLsizei _sizeInBytes);
 
 		bool ContainsVariable(const std::string& _variableName) const       { return m_variables.find(_variableName) != m_variables.end(); }
 		UniformBufferView::Variable& operator[] (const std::string& sVariableName);

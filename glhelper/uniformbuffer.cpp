@@ -145,7 +145,7 @@ namespace gl
 
 	}
 
-	void UniformBufferView::Set(const void* _data, std::uint32_t _offset, std::uint32_t _dataSize)
+	void UniformBufferView::Set(const void* _data, GLsizei _offset, GLsizei _dataSize)
 	{
 		GLHELPER_ASSERT(m_buffer != nullptr, "Uniform buffer " << m_bufferName << " is not initialized");
 		GLHELPER_ASSERT(_dataSize != 0, "Given size to set for uniform data is 0.");

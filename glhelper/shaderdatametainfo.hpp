@@ -203,7 +203,7 @@ namespace gl
 		void Set(const gl::IVec3& v);
 		void Set(const gl::IVec4& v);
 
-		virtual void Set(const void* pData, std::uint32_t uiSizeInBytes) = 0;
+		virtual void Set(const void* pData, GLsizei uiSizeInBytes) = 0;
 
 		// add more type implementations here if necessary
 

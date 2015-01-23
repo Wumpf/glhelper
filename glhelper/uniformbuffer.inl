@@ -1,5 +1,5 @@
 
-inline void UniformBufferView::Variable::Set(const void* pData, std::uint32_t sizeInBytes)
+inline void UniformBufferView::Variable::Set(const void* pData, GLsizei sizeInBytes)
 {
 	GLHELPER_ASSERT(m_uniformBuffer != NULL, "Uniform buffer variable is not assigned to an Uniform Buffer!");
 	GLHELPER_ASSERT(m_uniformBuffer->m_buffer != nullptr, "Uniform buffer " << m_uniformBuffer->m_bufferName << " is not initialized");
