@@ -10,11 +10,9 @@ namespace gl
 	///
 	/// This helper class is restricted to the use of VAOs as pure vertex definition,
 	/// which means that it does NOT reference any buffer (vertex array or vertex element array) buffers.
-	/// As with most helper classes there are some restrictions to make the interface easier:
-	/// E.g. vertex attributes are not allowed to be overlapping.
 	/// This is made possible by ARB_vertex_attrib_binding (core since OpenGL 4.3)
-	///
-	/// \todo Divisor rates for instancing (http://docs.gl/gl4/glVertexBindingDivisor)
+	/// As with most helper classes there are a few restrictions to make the interface easier:
+	/// E.g. vertex attributes are not allowed to be overlapping.
 	class VertexArrayObject
 	{
 	public:
@@ -23,34 +21,52 @@ namespace gl
 		void operator = (VertexArrayObject&&) = delete;
 
 		/// Info about a single vertex attribute.
+		///
+		/// For details see http://docs.gl/gl4/glVertexAttribFormat
 		struct Attribute
 		{
 			/// Possible element types.
-			enum class Type : GLenum
+			enum class Type
 			{
-				INT8 = GL_BYTE,
-				UINT8 = GL_UNSIGNED_BYTE,
-				INT16 = GL_SHORT,
-				UINT16 = GL_UNSIGNED_SHORT,
-				INT32 = GL_INT,
-				UINT32 = GL_UNSIGNED_INT,
+				INT8,
+				UINT8,
+				INT16,
+				UINT16,
+				INT32,
+				UINT32,
 
-				FIXED = GL_FIXED,
+				FIXED,
 
-				FLOAT = GL_FLOAT,
-				HALF = GL_HALF_FLOAT,
-				DOUBLE = GL_DOUBLE,
+				FLOAT,
+				HALF,
+				DOUBLE, // Uses always glVertexArrayAttribLFormat.
 
-				INT_2_10_10_10 = GL_INT_2_10_10_10_REV,
-				UINT_2_10_10_10 = GL_UNSIGNED_INT_2_10_10_10_REV,
-				UINT_10F_11F_11F = GL_UNSIGNED_INT_10F_11F_11F_REV,
+				INT_2_10_10_10 ,
+				UINT_2_10_10_10,
+				UINT_10F_11F_11F,
 
 				NUM_TYPES
 			};
 
+			/// Defines how integer types are interpreted.
+			enum class IntegerHandling
+			{
+				/// Will interpret the data as it is - uint or int depending on Type.
+				/// Uses glVertexArrayAttribIFormat internally.
+				INTEGER,
+
+				/// Converts to [0;1] for unsigned and to [-1;1] floating point by normalization.
+				/// Uses glVertexArrayAttribFormat with normalized=true internally.
+				NORMALIZED,
+
+				/// Integer data is directly converted to floating point.
+				/// Uses glVertexArrayAttribFormat with normalized=false internally.
+				FORCE_FLOAT
+			};
+
 			/// Construct attribute. For more details see variable documentation.
-			Attribute(Type _type, GLuint _numComponents, GLuint _vertexBufferBinding = 0, bool _normalized = false) :
-				type(_type), numComponents(_numComponents), vertexBufferBinding(_vertexBufferBinding), normalized(_normalized) {}
+			Attribute(Type _type, GLuint _numComponents, GLuint _vertexBufferBinding = 0, IntegerHandling _integerHandling = IntegerHandling::INTEGER) :
+				type(_type), numComponents(_numComponents), vertexBufferBinding(_vertexBufferBinding), integerHandling(_integerHandling) {}
 
 			/// The type of a component.
 			Type type;
@@ -58,15 +74,25 @@ namespace gl
 			GLuint numComponents;
 			/// The index of the vertex buffer binding with which to associate the generic vertex attribute.
 			GLuint vertexBufferBinding;
-	
-			/// If true, converts to [0;1] for unsigned and to [-1;1] floating point by normalization.
-			/// Flag is ignored for floats and doubles.
-			bool normalized;
+
+			/// Describes how integers are handled.
+			/// Ignored for float, half and double.
+			IntegerHandling integerHandling;
+
+			/// Assigns each attribute type the corresponding OpenGL type.
+			static const GLenum s_typeToGLType[static_cast<int>(Type::NUM_TYPES)];
+
+			/// Assigns each attribute type an OpenGL Type (
+			static const GLuint s_typeSizeInBytes[static_cast<int>(Type::NUM_TYPES)];
 		};
 
 		/// Constructs a vertex array object from vertex attribute descriptors.
-		/// \param vertexAttributes List of vertex attributes. Attributes need to be in order as they are occur in the vertex buffer.
-		VertexArrayObject(const std::initializer_list<Attribute>& _vertexAttributes);
+		/// \param _vertexAttributes
+		///		List of vertex attributes. Attributes need to be in order as they are occur in the vertex buffer.
+		/// \param _divisorIndices
+		///		List of binding vertex binding divisors. Position in list gives affected vertex binding.
+		///		If divisor value is non-zero, the attributes advance once per divisor instances of the set(s) of vertices being rendered.
+		VertexArrayObject(const std::initializer_list<Attribute>& _vertexAttributes, const std::initializer_list<GLuint>& _vertexBindingDivisors = {});
 		VertexArrayObject(VertexArrayObject&& _moved);
 		~VertexArrayObject();
 

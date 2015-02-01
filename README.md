@@ -57,8 +57,8 @@ Todos
 * Remove Init method from TextureBufferView?
 * Remove Init method from ShaderStorageBufferView?
 * File renames for texture/uniform/shaderstorage -buffer (view) ?
-* make instancing possible in vertexarrayobject
 * options for buffer map instead of parameters from construction
+  * support for GL_MAP_INVALIDATE_BUFFER_BIT/GL_MAP_INVALIDATE_RANGE_BIT
 * multi bind-functions for vertex/index/uniform/shaderstorage buffers
 * consequently use std::string for assert/log (remove all usages of << to concat messages)
 * add support for cube textures
