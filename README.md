@@ -56,7 +56,6 @@ Todos
 * add offset/size binding version to uniformbufferview to be more consistent
 * Remove Init method from TextureBufferView?
 * Remove Init method from ShaderStorageBufferView?
-* File renames for texture/uniform/shaderstorage -buffer (view) ?
 * options for buffer map instead of parameters from construction
   * support for GL_MAP_INVALIDATE_BUFFER_BIT/GL_MAP_INVALIDATE_RANGE_BIT
 * multi bind-functions for vertex/index/uniform/shaderstorage buffers
