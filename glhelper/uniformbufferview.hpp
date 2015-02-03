@@ -13,23 +13,21 @@ namespace gl
 	class UniformBufferView
 	{
 	public:
-		UniformBufferView();
-		~UniformBufferView();
-		
 		/// Init as view to existing buffer.
 		///
 		/// Buffer needs to have at least MAP_WRITE access!
-		Result Init(std::shared_ptr<Buffer> _buffer, const std::string& _bufferName);
+		UniformBufferView(const std::shared_ptr<Buffer>& _buffer, const std::string& _bufferName);
 
 		/// Creates a new buffer without any meta infos.
 		///
 		/// Buffer needs to have at least MAP_WRITE access!
-		Result Init(std::uint32_t _bufferSizeBytes, const std::string& _bufferName, Buffer::Usage bufferUsage = Buffer::Usage::MAP_WRITE);
+		UniformBufferView(std::uint32_t _bufferSizeBytes, const std::string& _bufferName, Buffer::Usage bufferUsage = Buffer::Usage::MAP_WRITE);
 
 		/// Create a uniform buffer that matches all the given meta infos. Performs sanity checks if there's something contradictory
-		Result Init(std::initializer_list<const gl::ShaderObject*> shaders, const std::string& _bufferName, Buffer::Usage bufferUsage = Buffer::Usage::MAP_WRITE);
-		Result Init(const gl::ShaderObject& _shader, const std::string& _bufferName, Buffer::Usage bufferUsage = Buffer::Usage::MAP_WRITE);
+		UniformBufferView(std::initializer_list<const gl::ShaderObject*> shaders, const std::string& _bufferName, Buffer::Usage bufferUsage = Buffer::Usage::MAP_WRITE);
+		UniformBufferView(const gl::ShaderObject& _shader, const std::string& _bufferName, Buffer::Usage bufferUsage = Buffer::Usage::MAP_WRITE);
 
+		~UniformBufferView();
 
 		class Variable : public gl::ShaderVariable < UniformVariableInfo >
 		{
@@ -64,9 +62,11 @@ namespace gl
 		const std::string& GetBufferName() const { return m_bufferName; }
 
 		/// Get the internal bound buffer resource.
-		std::shared_ptr<Buffer> GetBuffer() const   { return m_buffer; }
+		const std::shared_ptr<Buffer>& GetBuffer() const   { return m_buffer; }
 
 	private:
+		void InitByCreatingBuffer(std::uint32_t _bufferSizeBytes, const std::string& _bufferName, Buffer::Usage _bufferUsage);
+
 		std::shared_ptr<Buffer> m_buffer;
 		std::string		m_bufferName;
 

@@ -1,4 +1,4 @@
-#include "shaderstoragebuffer.hpp"
+#include "shaderstoragebufferview.hpp"
 #include "shaderobject.hpp"
 #include "buffer.hpp"
 #include "utils/flagoperators.hpp"
@@ -7,9 +7,10 @@ namespace gl
 {
 	BufferId ShaderStorageBufferView::s_boundSSBOs[ShaderStorageBufferView::s_numSSBOBindings];
 
-	ShaderStorageBufferView::ShaderStorageBufferView()
+	ShaderStorageBufferView::ShaderStorageBufferView(std::shared_ptr<gl::Buffer> _buffer, const std::string& _name)
 	{
-        // No additional resources required
+		m_buffer = _buffer;
+		m_name = _name;
 	}
 
 	ShaderStorageBufferView::~ShaderStorageBufferView()
@@ -25,18 +26,10 @@ namespace gl
 		}
 	}
 
-    Result ShaderStorageBufferView::Init(std::shared_ptr<gl::Buffer> _buffer, const std::string& _name)
-    {
-        m_buffer = _buffer;
-		m_name = _name;
-
-        return gl::Result::SUCCEEDED;
-    }
-
 	void ShaderStorageBufferView::BindBuffer(GLuint _locationIndex)
 	{
 		GLHELPER_ASSERT(_locationIndex < s_numSSBOBindings,
-			"Can't bind shader object buffer to slot " << _locationIndex << ". Maximum number of slots is " << s_numSSBOBindings);
+			"Can't bind shader object buffer to slot " + std::to_string(_locationIndex) + ". Maximum number of slots is " + std::to_string(s_numSSBOBindings));
 
 		if (m_buffer->m_mappedData != nullptr && static_cast<GLenum>(m_buffer->m_usageFlags & Buffer::Usage::MAP_PERSISTENT) == 0)
 			m_buffer->Unmap();
@@ -51,7 +44,7 @@ namespace gl
 	void ShaderStorageBufferView::ResetBinding(GLuint _locationIndex)
 	{
 		GLHELPER_ASSERT(_locationIndex < s_numSSBOBindings,
-			"Can't bind shader object buffer to slot " << _locationIndex << ". Maximum number of slots is " << s_numSSBOBindings);
+			"Can't bind shader object buffer to slot " + std::to_string(_locationIndex) + ". Maximum number of slots is " + std::to_string(s_numSSBOBindings));
 		
 		GL_CALL(glBindBufferBase, GL_SHADER_STORAGE_BUFFER, _locationIndex, 0);
 		s_boundSSBOs[_locationIndex] = 0;

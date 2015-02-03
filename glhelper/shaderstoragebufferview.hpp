@@ -8,20 +8,18 @@ namespace gl
 {
 	class Buffer;
 
-	/// Large buffers with cached index access for the GP.
-	/// OpenGL name: shader storage buffer object (SSBO)
+	/// Easy shader storage buffer handling.
 	class ShaderStorageBufferView
 	{
 	public:
-		/// Create the buffer
-		ShaderStorageBufferView();
+		/// Provides a shader storage view for a given buffer.
+		/// \param [in] _name
+		///		Name used for binding via shader - see ShaderObject::BindSSBO.
+		ShaderStorageBufferView(std::shared_ptr<gl::Buffer> _buffer, const std::string& _name);
+
 		~ShaderStorageBufferView();
 
-		/// Bind the buffer data to this structured TextureBuffer.
-		/// \param [in] _name Name used in shader programs if explicit binding
-		///     is not used.
-		Result Init(std::shared_ptr<gl::Buffer> _buffer, const std::string& _name);
-
+		/// Returns buffer name (see constructor).
 		const std::string& GetBufferName() const { return m_name; }
 
 		/// Binds buffer if not already bound.
@@ -35,7 +33,7 @@ namespace gl
 		static void ResetBinding(GLuint _locationIndex);
 
 		/// Get the internal bound buffer resource.
-		std::shared_ptr<Buffer> GetBuffer() const   { return m_buffer; }
+		const std::shared_ptr<Buffer>& GetBuffer() const   { return m_buffer; }
 
 	private:
 		std::shared_ptr<Buffer> m_buffer;

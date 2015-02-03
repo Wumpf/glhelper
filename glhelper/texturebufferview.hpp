@@ -17,14 +17,13 @@ namespace gl
 		void operator = (const TextureBufferView&) = delete;
 		void operator = (TextureBufferView&&) = delete;
 
-        /// Create the buffer
-		TextureBufferView();
+		/// Creates a texture buffer view that provides access to an entire buffer.
+		TextureBufferView(const std::shared_ptr<Buffer>& _buffer, TextureBufferFormat _format);
+		/// Creates a texture buffer view that provides access to a part of a buffer.
+		TextureBufferView(const std::shared_ptr<Buffer>& _buffer, TextureBufferFormat _format, GLintptr _offset, GLsizeiptr _numBytes);
+
 		TextureBufferView(TextureBufferView&& _moved);
 		~TextureBufferView();
-			
-        /// Bind the buffer data to this TextureBuffer.
-		Result Init(std::shared_ptr<Buffer> _buffer, TextureBufferFormat _format);
-		Result Init(std::shared_ptr<Buffer> _buffer, TextureBufferFormat _format, GLintptr _offset, GLsizeiptr _numBytes);
 
 
 		/// Binds buffer if not already bound.
@@ -32,7 +31,7 @@ namespace gl
 		void BindBuffer(GLuint _locationIndex) const;
 
         /// Get the internal bound buffer resource.
-        std::shared_ptr<Buffer> GetBuffer() const   { return m_buffer; }
+        const std::shared_ptr<Buffer>& GetBuffer() const   { return m_buffer; }
 
 	private:
 		TextureId m_textureHandle;

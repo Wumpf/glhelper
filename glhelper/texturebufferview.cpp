@@ -1,15 +1,9 @@
-﻿#include "texturebuffer.hpp"
+﻿#include "texturebufferview.hpp"
 #include "shaderobject.hpp"
 #include "texture.hpp"
 
 namespace gl
 {
-	TextureBufferView::TextureBufferView() :
-		m_textureHandle(0)
-	{
-		GL_CALL(glCreateTextures, GL_TEXTURE_BUFFER, 1, &m_textureHandle);
-	}
-
 	TextureBufferView::TextureBufferView(TextureBufferView&& _moved) :
 		m_textureHandle(_moved.m_textureHandle),
 		m_buffer(std::move(_moved.m_buffer))
@@ -37,18 +31,18 @@ namespace gl
 		}
 	}
 
-	Result TextureBufferView::Init(std::shared_ptr<Buffer> _buffer, TextureBufferFormat _format)
+	TextureBufferView::TextureBufferView(const std::shared_ptr<Buffer>& _buffer, TextureBufferFormat _format) :
+		TextureBufferView(_buffer, _format, 0, _buffer->GetSize())
 	{
-		return Init(_buffer, _format, 0, _buffer->GetSize());
 	}
 
-	Result TextureBufferView::Init(std::shared_ptr<Buffer> _buffer, TextureBufferFormat _format, GLintptr _offset, GLsizeiptr _numBytes)
+	TextureBufferView::TextureBufferView(const std::shared_ptr<Buffer>& _buffer, TextureBufferFormat _format, GLintptr _offset, GLsizeiptr _numBytes)
     {
+		GL_CALL(glCreateTextures, GL_TEXTURE_BUFFER, 1, &m_textureHandle);
+
 		m_buffer = _buffer;
 		GL_CALL(glTextureBufferRange, m_textureHandle, 
 				static_cast<GLenum>(_format), _buffer->GetBufferId(), _offset, _numBytes);
-
-        return Result::SUCCEEDED;
     }
 
 	void TextureBufferView::BindBuffer(GLuint _locationIndex) const

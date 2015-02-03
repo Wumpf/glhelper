@@ -54,8 +54,6 @@ Todos
 (just notes, in no specific order)
 * better name scheme for internal handle getter (same in all classes)
 * add offset/size binding version to uniformbufferview to be more consistent
-* Remove Init method from TextureBufferView?
-* Remove Init method from ShaderStorageBufferView?
 * options for buffer map instead of parameters from construction
   * support for GL_MAP_INVALIDATE_BUFFER_BIT/GL_MAP_INVALIDATE_RANGE_BIT
 * multi bind-functions for vertex/index/uniform/shaderstorage buffers
@@ -63,3 +61,6 @@ Todos
 * add support for cube textures
 * add support for 2d texture arrays
 * add support for 3d texture arrays
+* add wrapper for glEnable/glDisable
+* add wrapper for drawing and viewport
+* add wrapper for glGet

@@ -1,4 +1,4 @@
-#include "uniformbuffer.hpp"
+#include "uniformbufferview.hpp"
 #include "shaderobject.hpp"
 #include "buffer.hpp"
 #include "utils/flagoperators.hpp"
@@ -6,12 +6,6 @@
 namespace gl
 {
 	BufferId UniformBufferView::s_boundUBOs[s_numUBOBindings];
-
-	UniformBufferView::UniformBufferView() :
-		m_variables(),
-		m_bufferName("")
-	{
-	}
 
 	UniformBufferView::~UniformBufferView()
 	{
@@ -26,107 +20,89 @@ namespace gl
 		}
 	}
 
-	Result UniformBufferView::Init(std::shared_ptr<Buffer> _buffer, const std::string& _bufferName)
+	UniformBufferView::UniformBufferView(const std::shared_ptr<Buffer>& _buffer, const std::string& _bufferName)
 	{
 		if (static_cast<std::uint32_t>(_buffer->GetUsageFlags() & Buffer::Usage::MAP_WRITE))
 		{
-			GLHELPER_LOG_ERROR("Uniform buffer need at least Buffer::Usage::WRITE!");
-			return gl::Result::FAILURE;
+			GLHELPER_LOG_WARNING("Uniform buffer needs at least Buffer::Usage::WRITE flag to work as expected!");
 		}
 		else
 		{
 			m_bufferName = _bufferName;
 			m_buffer = _buffer;
-			return gl::Result::SUCCEEDED;
 		}
 	}
 
-	Result UniformBufferView::Init(std::uint32_t _bufferSizeBytes, const std::string& _bufferName, Buffer::Usage _bufferUsage)
+	UniformBufferView::UniformBufferView(std::uint32_t _bufferSizeBytes, const std::string& _bufferName, Buffer::Usage _bufferUsage)
 	{
-		if (static_cast<std::uint32_t>(_bufferUsage & Buffer::Usage::MAP_WRITE) == 0)
-		{
-			GLHELPER_LOG_ERROR("Uniform buffer need at least Buffer::Usage::WRITE!");
-			return gl::Result::FAILURE;
-		}
-		else
-		{
-			m_bufferName = _bufferName;
-			m_buffer.reset(new Buffer(_bufferSizeBytes, _bufferUsage));
-			return gl::Result::SUCCEEDED;
-		}
+		InitByCreatingBuffer(_bufferSizeBytes, _bufferName, _bufferUsage);
 	}
 
-	Result UniformBufferView::Init(const gl::ShaderObject& _shader, const std::string& _bufferName, Buffer::Usage _bufferUsage)
+	UniformBufferView::UniformBufferView(const gl::ShaderObject& _shader, const std::string& _bufferName, Buffer::Usage _bufferUsage) :
+		UniformBufferView({ &_shader }, _bufferName, _bufferUsage)
+	{}
+
+	UniformBufferView::UniformBufferView(std::initializer_list<const gl::ShaderObject*> _metaInfos, const std::string& _bufferName, Buffer::Usage _bufferUsage)
 	{
-		auto uniformBufferInfoIterator = _shader.GetUniformBufferInfo().find(_bufferName);
-		if (uniformBufferInfoIterator == _shader.GetUniformBufferInfo().end())
-		{
-			GLHELPER_LOG_ERROR("Shader \"" + _shader.GetName() + "\" doesn't contain a uniform buffer meta block info with the name \"" + _bufferName + "\"!");
-			return gl::Result::FAILURE;
-		}
+		GLHELPER_ASSERT(_metaInfos.size() != 0, "Meta info lookup list is empty!");
 
-		for (auto it = uniformBufferInfoIterator->second.Variables.begin(); it != uniformBufferInfoIterator->second.Variables.end(); ++it)
-			m_variables.emplace(it->first, Variable(it->second, this));
+		GLuint bufferSize = 0;
 
-		return Init(uniformBufferInfoIterator->second.iBufferDataSizeByte, _bufferName, _bufferUsage);
-	}
-
-	Result UniformBufferView::Init(std::initializer_list<const gl::ShaderObject*> metaInfos, const std::string& bufferName, Buffer::Usage bufferUsage)
-	{
-		GLHELPER_ASSERT(metaInfos.size() != 0, "Meta info lookup list is empty!");
-
-		bool initialized = false;
+		// Find largest version of buffer, get all variables and perform sanity checks across "versions".
 		int i = 0;
-		for (auto shaderObjectIt = metaInfos.begin(); shaderObjectIt != metaInfos.end(); ++shaderObjectIt, ++i)
+		for (auto shaderObjectIt = _metaInfos.begin(); shaderObjectIt != _metaInfos.end(); ++shaderObjectIt, ++i)
 		{
 			GLHELPER_ASSERT(*shaderObjectIt != nullptr, "Metainfo element is nullptr!");
-			auto uniformBufferInfoIterator = (*shaderObjectIt)->GetUniformBufferInfo().find(bufferName);
+
+			// Check if uniform exists in this shader.
+			auto uniformBufferInfoIterator = (*shaderObjectIt)->GetUniformBufferInfo().find(_bufferName);
 			if (uniformBufferInfoIterator == (*shaderObjectIt)->GetUniformBufferInfo().end())
 			{
-				GLHELPER_LOG_WARNING("ShaderObject \"" + (*shaderObjectIt)->GetName() + "\" in list for uniform buffer \"" + bufferName + "\" initialization doesn't contain the needed meta data! Skiping..");
+				GLHELPER_LOG_WARNING("ShaderObject \"" + (*shaderObjectIt)->GetName() + "\" in list for uniform buffer \"" + _bufferName + "\" initialization doesn't contain the needed meta data! Skiping..");
 				continue;
 			}
 
-			if (!initialized)
-			{
-				Result result = Init(**metaInfos.begin(), bufferName, bufferUsage);
-				if (result == Result::FAILURE)
-					initialized = true;
-				
-				continue;
-			}
-
-			// Sanity check.
-			if (uniformBufferInfoIterator->second.iBufferDataSizeByte != m_buffer->GetSize())
-			{
-				GLHELPER_LOG_WARNING("ShaderObject \"" << (*shaderObjectIt)->GetName() << "\" in list for uniform buffer \"" << bufferName << "\" initialization gives size " <<
-						uniformBufferInfoIterator->second.iBufferDataSizeByte << ", first shader gave size " << m_buffer->GetSize() << "! Skiping..");
-				continue;
-			}
-
+			// Sanity check for same variables.
 			for (auto varIt = uniformBufferInfoIterator->second.Variables.begin(); varIt != uniformBufferInfoIterator->second.Variables.end(); ++varIt)
 			{
+				// Variable already known?
 				auto ownVarIt = m_variables.find(varIt->first);
-				if (ownVarIt != m_variables.end())  // overlap
+				if (ownVarIt != m_variables.end())
 				{
 					// Sanity check.
 					const gl::UniformVariableInfo* ownVar = &ownVarIt->second.GetMetaInfo();
 					const gl::UniformVariableInfo* otherVar = &varIt->second;
 					if (memcmp(ownVar, otherVar, sizeof(gl::UniformVariableInfo)) != 0)
 					{
-						GLHELPER_LOG_ERROR("ShaderObject \"" + (*shaderObjectIt)->GetName() + "\" in list for uniform buffer \"" + bufferName + "\" has a description of variable \"" +
-							varIt->first + "\" that doesn't match with the ones before!");
+						GLHELPER_LOG_ERROR("ShaderObject \"" + (*shaderObjectIt)->GetName() + "\" in list for uniform buffer \"" + _bufferName + "\" has a description of variable \"" +
+											varIt->first + "\" that doesn't match with the ones before!");
 					}
 				}
-				else // new one
+				else // New variable
 				{
 					m_variables.emplace(varIt->first, Variable(varIt->second, this));
 					// No overlap checking so far.
 				}
 			}
+
+			// Find max size.
+			bufferSize = std::max<GLuint>(uniformBufferInfoIterator->second.iBufferDataSizeByte, bufferSize);
 		}
 
-		return m_buffer != nullptr ? Result::SUCCEEDED : Result::FAILURE;
+		InitByCreatingBuffer(bufferSize, _bufferName, _bufferUsage);
+	}
+
+	void UniformBufferView::InitByCreatingBuffer(std::uint32_t _bufferSizeBytes, const std::string& _bufferName, Buffer::Usage _bufferUsage)
+	{
+		if (static_cast<std::uint32_t>(_bufferUsage & Buffer::Usage::MAP_WRITE) == 0)
+		{
+			GLHELPER_LOG_WARNING("Uniform buffer needs at least Buffer::Usage::WRITE flag to work as expected!");
+		}
+		else
+		{
+			m_bufferName = _bufferName;
+			m_buffer.reset(new Buffer(_bufferSizeBytes, _bufferUsage));
+		}
 	}
 
 	void UniformBufferView::BindBuffer(GLuint locationIndex)
