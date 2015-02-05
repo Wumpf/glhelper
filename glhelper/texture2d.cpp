@@ -20,8 +20,8 @@ namespace gl
 			GL_CALL(glTextureStorage2DMultisample, m_textureHandle, m_numMSAASamples, gl::TextureFormatToGLSizedInternal[static_cast<unsigned int>(_format)], m_width, m_height, GL_FALSE);
 	}
 
-	Texture2D::Texture2D(GLsizei _width, GLsizei _height, TextureFormat _format, const void* _data, TextureSetDataFormat _dataFormat, TextureSetDataType _dataType, GLsizei _numMSAASamples) :
-		Texture2D(_width, _height, _format, 1, _numMSAASamples)
+	Texture2D::Texture2D(GLsizei _width, GLsizei _height, TextureFormat _format, const void* _data, TextureSetDataFormat _dataFormat, TextureSetDataType _dataType, GLsizei _numMipLevels, GLsizei _numMSAASamples) :
+		Texture2D(_width, _height, _format, _numMipLevels, _numMSAASamples)
 	{
 		GL_CALL(glTextureSubImage2D, m_textureHandle, 0, 0, 0, m_width, m_height,
 				static_cast<GLenum>(_dataFormat), static_cast<GLenum>(_dataType), _data);

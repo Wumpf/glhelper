@@ -99,7 +99,7 @@ namespace gl
 		GL_CALL(glClearTexImage, m_textureHandle, _mipLevel, gl::TextureFormatToGLBaseInternal[static_cast<unsigned int>(m_format)], GL_UNSIGNED_INT, nullptr);
 	}
 
-	void Texture::Bind(GLuint _slotIndex)
+	void Texture::Bind(GLuint _slotIndex) const
 	{
 		Bind(m_textureHandle, _slotIndex);
 	}

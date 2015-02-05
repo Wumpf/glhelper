@@ -74,10 +74,10 @@ namespace gl
 
 	void FramebufferObject::Bind(bool autoViewportSet)
 	{
-		if(m_framebuffer == 0)
+		if (s_BoundFrameBuffer != m_framebuffer)
 		{
 			GL_CALL(glBindFramebuffer, GL_DRAW_FRAMEBUFFER, m_framebuffer);
-			m_framebuffer = 0;
+			s_BoundFrameBuffer = m_framebuffer;
 
 			if (autoViewportSet)
 			{

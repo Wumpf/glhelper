@@ -32,8 +32,8 @@ namespace gl
 			std::uint32_t layer;
 		};
 
-		FramebufferObject(Attachment colorAttachments, Attachment depthStencil = Attachment(NULL), bool depthWithStencil = false);
-		FramebufferObject(std::initializer_list<Attachment> colorAttachments, Attachment depthStencil = Attachment(NULL), bool depthWithStencil = false);
+		FramebufferObject(Attachment _colorAttachment, Attachment _depthStencil = Attachment(NULL), bool _depthWithStencil = false);
+		FramebufferObject(std::initializer_list<Attachment> _colorAttachments, Attachment _depthStencil = Attachment(NULL), bool _depthWithStencil = false);
 		
 		FramebufferObject(FramebufferObject&& _moved);
 

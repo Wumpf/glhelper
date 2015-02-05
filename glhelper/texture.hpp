@@ -22,7 +22,7 @@ namespace gl
 		virtual ~Texture();
 
 		/// Binds texture to the given slot.
-		void Bind(GLuint _slotIndex);
+		void Bind(GLuint _slotIndex) const;
 
         /// Unbinds texture.
         static void ResetBinding(GLuint _slotIndex);

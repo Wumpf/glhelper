@@ -19,7 +19,7 @@ namespace gl
 		///
 		/// \param _numMipLevels
 		///		Number of MipMap levels. If 0, the maximum possible number of mipmaps will be determined and used.
-		Texture2D(GLsizei _width, GLsizei _height, TextureFormat _format, const void* _data, TextureSetDataFormat _dataFormat, TextureSetDataType _dataType, GLsizei _numMSAASamples = 0);
+		Texture2D(GLsizei _width, GLsizei _height, TextureFormat _format, const void* _data, TextureSetDataFormat _dataFormat, TextureSetDataType _dataType, GLsizei _numMipLevels = 1, GLsizei _numMSAASamples = 0);
 
 		Texture2D(Texture2D&& _moved) : Texture(std::move(_moved)) {}
 
