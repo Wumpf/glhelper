@@ -38,11 +38,11 @@ namespace gl
 		/// Binds as image.
 		///
 		/// Without redundancy checking! Does not perform checks if texture format is valid (see http://docs.gl/gl4/glBindImageTexture)!
-		void BindImage(GLuint _slotIndex, ImageAccess _access) { BindImage(_slotIndex, _access, m_format); }
-		void BindImage(GLuint _slotIndex, ImageAccess _access, TextureFormat _format);
+		void BindImage(GLuint _slotIndex, ImageAccess _access) const { BindImage(_slotIndex, _access, m_format); }
+		void BindImage(GLuint _slotIndex, ImageAccess _access, TextureFormat _format) const;
 
 		/// Reads image via glGetImage (http://docs.gl/gl4/glGetTexImage)
-		void ReadImage(GLsizei _mipLevel, TextureReadFormat _format, TextureReadType _type, GLsizei _bufferSize, void* _buffer);
+		void ReadImage(GLsizei _mipLevel, TextureReadFormat _format, TextureReadType _type, GLsizei _bufferSize, void* _buffer) const;
 
 		/// Unbinds image slot.
 		static void ResetImageBinding(GLuint _slotIndex);

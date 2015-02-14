@@ -70,7 +70,7 @@ namespace gl
 			return _mipMapSetting;
 	}
 
-	void Texture::BindImage(GLuint _slotIndex, Texture::ImageAccess access, TextureFormat format)
+	void Texture::BindImage(GLuint _slotIndex, Texture::ImageAccess access, TextureFormat format) const
 	{
 		GL_CALL(glBindImageTexture, _slotIndex, m_textureHandle, 0, GL_TRUE, 0, static_cast<GLenum>(access), gl::TextureFormatToGLSizedInternal[static_cast<unsigned int>(format)]);
 	}
@@ -114,7 +114,7 @@ namespace gl
 		}
 	}
 
-	void Texture::ReadImage(GLsizei _mipLevel, TextureReadFormat _format, TextureReadType _type, GLsizei _bufferSize, void* _buffer)
+	void Texture::ReadImage(GLsizei _mipLevel, TextureReadFormat _format, TextureReadType _type, GLsizei _bufferSize, void* _buffer) const
 	{
 		GLHELPER_ASSERT(m_numMipLevels > _mipLevel, "Miplevel " + std::to_string(_mipLevel) + " not available, texture has only " + std::to_string(m_numMipLevels) + " levels!");
 		GL_CALL(glGetTextureImage, m_textureHandle, _mipLevel, static_cast<GLenum>(_format), static_cast<GLenum>(_type), _bufferSize, _buffer);
