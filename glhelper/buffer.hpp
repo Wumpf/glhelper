@@ -84,6 +84,8 @@ namespace gl
 		void Flush();
 		void Flush(GLintptr _offset, GLsizeiptr _numBytes);
 
+		/// Clears buffer to zero using glClearNamedBufferData (http://docs.gl/gl4/glClearBufferData)
+		void ClearToZero();
 
         /// Use glBufferSubData to update a range in the buffer.
 		/// \remarks

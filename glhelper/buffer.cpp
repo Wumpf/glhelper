@@ -151,6 +151,14 @@ namespace gl
 		}
 	}
 
+	void Buffer::ClearToZero()
+	{
+		GLHELPER_ASSERT(m_mappedData == nullptr, "Can't clear a buffer while it is mapped!");
+
+		GLuint i = 0;
+		GL_CALL(glClearNamedBufferData, m_bufferObject, GL_R32UI, GL_RED, GL_UNSIGNED_INT, &i);
+	}
+
 
 	void Buffer::Set(const void* _data, GLintptr _offset, GLsizeiptr _numBytes)
     {
