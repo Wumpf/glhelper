@@ -141,7 +141,6 @@ namespace gl
 			{
 				// Insert after version and surround by #line macro for proper error output.
 				size_t nextLineIdx = sourceCode.find_first_of("\n", versionPos);
-				size_t numLinesOfPrefixCode = std::count(prefixCode.begin(), prefixCode.end(), '\n') + 1;
 				size_t numLinesBeforeVersion = std::count(sourceCode.begin(), sourceCode.begin() + versionPos, '\n');
 
 				insertionBuffer = "\n#line 1 " + std::to_string(++lastFileIndex) + "\n";
