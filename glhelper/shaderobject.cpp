@@ -520,7 +520,7 @@ namespace gl
 	Result ShaderObject::BindUBO(UniformBufferView& ubo, const std::string& sUBOName)
 	{
 		auto it = m_uniformBlockInfos.find(sUBOName);
-		if (it != m_uniformBlockInfos.end())
+		if (it == m_uniformBlockInfos.end())
 			return Result::FAILURE;
 
 		ubo.BindBuffer(it->second.iBufferBinding);

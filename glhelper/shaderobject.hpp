@@ -87,12 +87,13 @@ namespace gl
 		/// Returns infos about global uniforms
 		/// \remarks Deliberately not const so user can use operator[] on the map
 		GlobalUniformInfos& GetGlobalUniformInfo()    { return m_globalUniformInfo; }
-
+		/// \copydoc GetGlobalUniformInfo
 		const GlobalUniformInfos& GetGlobalUniformInfo() const { return m_globalUniformInfo; }
 
 		/// Returns infos about used uniform buffer definitions
 		/// \remarks Deliberately not const so user can use operator[] on the map
 		UniformBlockInfos& GetUniformBufferInfo()    { return m_uniformBlockInfos; }
+		/// \copydoc GetUniformBufferInfo
 		const UniformBlockInfos& GetUniformBufferInfo() const { return m_uniformBlockInfos; }
 
 		/// Returns infos about used shader storage buffer definitions
