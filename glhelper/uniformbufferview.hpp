@@ -10,6 +10,9 @@
 
 namespace gl
 {
+	/// Allows easy use of gl::Buffer as a uniform buffer.
+	///
+	/// UniformBufferViews have names for usage with gl::ShaderObject reflected meta data.
 	class UniformBufferView
 	{
 	public:
@@ -23,8 +26,7 @@ namespace gl
 		/// Buffer needs to have at least MAP_WRITE access!
 		UniformBufferView(std::uint32_t _bufferSizeBytes, const std::string& _bufferName, Buffer::Usage bufferUsage = Buffer::Usage::MAP_WRITE);
 
-		/// Create a uniform buffer that matches all the given meta infos. Performs sanity checks if there's something contradictory
-		UniformBufferView(std::initializer_list<const gl::ShaderObject*> shaders, const std::string& _bufferName, Buffer::Usage bufferUsage = Buffer::Usage::MAP_WRITE);
+		/// Create a uniform buffer that matches the meta infos of a given shader.
 		UniformBufferView(const gl::ShaderObject& _shader, const std::string& _bufferName, Buffer::Usage bufferUsage = Buffer::Usage::MAP_WRITE);
 
 		~UniformBufferView();
@@ -52,7 +54,7 @@ namespace gl
 		void Set(const void* _data, GLsizei offset, GLsizei _sizeInBytes);
 
 		bool ContainsVariable(const std::string& _variableName) const       { return m_variables.find(_variableName) != m_variables.end(); }
-		UniformBufferView::Variable& operator[] (const std::string& sVariableName);
+		UniformBufferView::Variable operator[] (const std::string& sVariableName);
 
 		/// Binds buffer if not already bound.
 		///
@@ -62,7 +64,7 @@ namespace gl
 		const std::string& GetBufferName() const { return m_bufferName; }
 
 		/// Get the internal bound buffer resource.
-		const std::shared_ptr<Buffer>& GetBuffer() const   { return m_buffer; }
+		const std::shared_ptr<Buffer>& GetBuffer() const { return m_buffer; }
 
 	private:
 		void InitByCreatingBuffer(std::uint32_t _bufferSizeBytes, const std::string& _bufferName, Buffer::Usage _bufferUsage);
@@ -71,7 +73,7 @@ namespace gl
 		std::string		m_bufferName;
 
 		/// meta information
-		std::unordered_map<std::string, Variable> m_variables;
+		std::unordered_map<std::string, gl::UniformVariableInfo> m_variables;
 
 
 		/// Arbitrary value based on observation: http://delphigl.de/glcapsviewer/gl_stats_caps_single.php?listreportsbycap=GL_MAX_COMBINED_UNIFORM_BLOCKS

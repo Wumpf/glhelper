@@ -9,9 +9,9 @@ inline void UniformBufferView::Variable::Set(const void* pData, GLsizei sizeInBy
 	m_uniformBuffer->Set(pData, m_MetaInfo.iBlockOffset, sizeInBytes);
 }
 
-inline UniformBufferView::Variable& UniformBufferView::operator[] (const std::string& sVariableName)
+inline UniformBufferView::Variable UniformBufferView::operator[] (const std::string& sVariableName)
 {
 	GLHELPER_ASSERT(m_buffer != nullptr, "Uniform buffer " << m_bufferName << " is not initialized");
 	GLHELPER_ASSERT(m_variables.find(sVariableName) != m_variables.end(), "There is no variable named \"" + sVariableName + "\" in the uniform buffer \"" + m_bufferName + " \"");
-	return m_variables[sVariableName];
+	return Variable(m_variables[sVariableName], this);
 }

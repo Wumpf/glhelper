@@ -38,58 +38,21 @@ namespace gl
 		InitByCreatingBuffer(_bufferSizeBytes, _bufferName, _bufferUsage);
 	}
 
-	UniformBufferView::UniformBufferView(const gl::ShaderObject& _shader, const std::string& _bufferName, Buffer::Usage _bufferUsage) :
-		UniformBufferView({ &_shader }, _bufferName, _bufferUsage)
-	{}
-
-	UniformBufferView::UniformBufferView(std::initializer_list<const gl::ShaderObject*> _metaInfos, const std::string& _bufferName, Buffer::Usage _bufferUsage)
+	UniformBufferView::UniformBufferView(const gl::ShaderObject& _shader, const std::string& _bufferName, Buffer::Usage _bufferUsage)
 	{
-		GLHELPER_ASSERT(_metaInfos.size() != 0, "Meta info lookup list is empty!");
-
 		GLuint bufferSize = 0;
 
-		// Find largest version of buffer, get all variables and perform sanity checks across "versions".
-		int i = 0;
-		for (auto shaderObjectIt = _metaInfos.begin(); shaderObjectIt != _metaInfos.end(); ++shaderObjectIt, ++i)
+		// Check if uniform exists in this shader.
+		auto uniformBufferInfoIterator = _shader.GetUniformBufferInfo().find(_bufferName);
+		if (uniformBufferInfoIterator == _shader.GetUniformBufferInfo().end())
 		{
-			GLHELPER_ASSERT(*shaderObjectIt != nullptr, "Metainfo element is nullptr!");
-
-			// Check if uniform exists in this shader.
-			auto uniformBufferInfoIterator = (*shaderObjectIt)->GetUniformBufferInfo().find(_bufferName);
-			if (uniformBufferInfoIterator == (*shaderObjectIt)->GetUniformBufferInfo().end())
-			{
-				GLHELPER_LOG_WARNING("ShaderObject \"" + (*shaderObjectIt)->GetName() + "\" in list for uniform buffer \"" + _bufferName + "\" initialization doesn't contain the needed meta data! Skiping..");
-				continue;
-			}
-
-			// Sanity check for same variables.
-			for (auto varIt = uniformBufferInfoIterator->second.Variables.begin(); varIt != uniformBufferInfoIterator->second.Variables.end(); ++varIt)
-			{
-				// Variable already known?
-				auto ownVarIt = m_variables.find(varIt->first);
-				if (ownVarIt != m_variables.end())
-				{
-					// Sanity check.
-					const gl::UniformVariableInfo* ownVar = &ownVarIt->second.GetMetaInfo();
-					const gl::UniformVariableInfo* otherVar = &varIt->second;
-					if (memcmp(ownVar, otherVar, sizeof(gl::UniformVariableInfo)) != 0)
-					{
-						GLHELPER_LOG_ERROR("ShaderObject \"" + (*shaderObjectIt)->GetName() + "\" in list for uniform buffer \"" + _bufferName + "\" has a description of variable \"" +
-											varIt->first + "\" that doesn't match with the ones before!");
-					}
-				}
-				else // New variable
-				{
-					m_variables.emplace(varIt->first, Variable(varIt->second, this));
-					// No overlap checking so far.
-				}
-			}
-
-			// Find max size.
-			bufferSize = std::max<GLuint>(uniformBufferInfoIterator->second.iBufferDataSizeByte, bufferSize);
+			GLHELPER_LOG_ERROR("ShaderObject \"" + _shader.GetName() + "\" in list for uniform buffer \"" + _bufferName + "\" initialization doesn't contain the needed meta data! Skiping..");
 		}
-
-		InitByCreatingBuffer(bufferSize, _bufferName, _bufferUsage);
+		else
+		{
+			m_variables = uniformBufferInfoIterator->second.Variables;
+			InitByCreatingBuffer(uniformBufferInfoIterator->second.iBufferDataSizeByte, _bufferName, _bufferUsage);
+		}
 	}
 
 	void UniformBufferView::InitByCreatingBuffer(std::uint32_t _bufferSizeBytes, const std::string& _bufferName, Buffer::Usage _bufferUsage)
