@@ -51,7 +51,7 @@ namespace gl
 		else
 		{
 			m_variables = uniformBufferInfoIterator->second.Variables;
-			InitByCreatingBuffer(uniformBufferInfoIterator->second.iBufferDataSizeByte, _bufferName, _bufferUsage);
+			InitByCreatingBuffer(uniformBufferInfoIterator->second.bufferDataSizeByte, _bufferName, _bufferUsage);
 		}
 	}
 

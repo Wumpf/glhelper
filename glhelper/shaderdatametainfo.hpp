@@ -128,8 +128,8 @@ namespace gl
 	template<typename VariableType>
 	struct BufferInfo
 	{
-		GLint     iBufferBinding;       ///< OpengGL buffer binding index
-		std::int32_t   iBufferDataSizeByte;  ///< Minimal buffer size in bytes
+		GLint bufferBinding;       ///< OpengGL buffer binding index
+		std::int32_t bufferDataSizeByte;  ///< Minimal buffer size in bytes
 
 		/// Known contained variable information
 		std::unordered_map<std::string, VariableType> Variables;
@@ -140,21 +140,21 @@ namespace gl
 	private:
 		friend class ShaderObject;
 
-		// internal buffer index for connection variables with buffers
-		std::int32_t   iInternalBufferIndex;
+		// Internal buffer index for connecting variables with buffers.
+		std::int32_t internalBufferIndex;
 	};
 
-	/// Basic information block for all possible shader variables
+	/// Basic information block for all possible shader variables.
 	struct ShaderVariableInfoBase
 	{
-		ShaderVariableType  Type;         ///< Data type
-		std::int32_t		iBlockOffset; ///< Offset in corresponding buffer, -1 if there's no buffer.
+		ShaderVariableType  type;        ///< Data type
+		std::int32_t		blockOffset; ///< Offset in corresponding buffer, -1 if there's no buffer.
 
-		std::int32_t iArrayElementCount;   ///< Number of array elements.
-		std::int32_t iArrayStride; ///< Stride between array elements in bytes.
+		std::int32_t arrayElementCount; ///< Number of array elements.
+		std::int32_t arrayStride;		///< Stride between array elements in bytes.
 
-		std::int32_t iMatrixStride;  ///< Stride between columns of a column-major matrix or rows of a row-major matrix.
-		bool    bRowMajor;
+		std::int32_t matrixStride;  ///< Stride between columns of a column-major matrix or rows of a row-major matrix.
+		bool    rowMajor;
 
 		// possible, but currently missing:
 		// - usage by shader stage (GL_REFERENCED_BY_..)
@@ -162,14 +162,14 @@ namespace gl
 	/// Information block for uniform variables
 	struct UniformVariableInfo : ShaderVariableInfoBase
 	{
-		GLint iLocation;      ///< OpenGL location, -1 if used in a buffer.
-		GLint iAtomicCounterbufferIndex; ///< Index of active atomic counter buffer containing this variable?. -1 if this is no atomic counter buffer
+		GLint location;      ///< OpenGL location, -1 if used in a buffer.
+		GLint atomicCounterbufferIndex; ///< Index of active atomic counter buffer containing this variable?. -1 if this is no atomic counter buffer
 	};
 	/// Info block for buffer variables
 	struct BufferVariableInfo : ShaderVariableInfoBase
 	{
-		std::int32_t iTopLevelArraySize;
-		std::int32_t iTopLevelArrayStride;
+		std::int32_t topLevelArraySize;
+		std::int32_t topLevelArrayStride;
 	};
 
 	typedef BufferInfo<BufferVariableInfo> ShaderStorageBufferMetaInfo;

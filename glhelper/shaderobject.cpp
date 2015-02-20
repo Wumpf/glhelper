@@ -390,14 +390,14 @@ namespace gl
 			GLsizei length = 0;
 			GL_CALL(glGetProgramResourceiv, m_program, GL_UNIFORM, blockIndex, iNumQueriedUniformProps, pQueriedUniformProps, iNumQueriedUniformProps, &length, pRawUniformBlockInfoData);
 			UniformVariableInfo uniformInfo;
-			uniformInfo.Type = static_cast<gl::ShaderVariableType>(pRawUniformBlockInfoData[1]);
-			uniformInfo.iArrayElementCount = static_cast<std::int32_t>(pRawUniformBlockInfoData[2]);
-			uniformInfo.iBlockOffset = static_cast<std::int32_t>(pRawUniformBlockInfoData[3]);
-			uniformInfo.iArrayStride = static_cast<std::int32_t>(pRawUniformBlockInfoData[5]) * 4;
-			uniformInfo.iMatrixStride = static_cast<std::int32_t>(pRawUniformBlockInfoData[6]);
-			uniformInfo.bRowMajor = pRawUniformBlockInfoData[7] > 0;
-			uniformInfo.iAtomicCounterbufferIndex = pRawUniformBlockInfoData[8];
-			uniformInfo.iLocation = pRawUniformBlockInfoData[9];
+			uniformInfo.type = static_cast<gl::ShaderVariableType>(pRawUniformBlockInfoData[1]);
+			uniformInfo.arrayElementCount = static_cast<std::int32_t>(pRawUniformBlockInfoData[2]);
+			uniformInfo.blockOffset = static_cast<std::int32_t>(pRawUniformBlockInfoData[3]);
+			uniformInfo.arrayStride = static_cast<std::int32_t>(pRawUniformBlockInfoData[5]) * 4;
+			uniformInfo.matrixStride = static_cast<std::int32_t>(pRawUniformBlockInfoData[6]);
+			uniformInfo.rowMajor = pRawUniformBlockInfoData[7] > 0;
+			uniformInfo.atomicCounterbufferIndex = pRawUniformBlockInfoData[8];
+			uniformInfo.location = pRawUniformBlockInfoData[9];
 
 			// name
 			GLint actualNameLength = 0;
@@ -413,7 +413,7 @@ namespace gl
 			{
 				for (auto it = m_uniformBlockInfos.begin(); it != m_uniformBlockInfos.end(); ++it)
 				{
-					if (it->second.iInternalBufferIndex == pRawUniformBlockInfoData[4])
+					if (it->second.internalBufferIndex == pRawUniformBlockInfoData[4])
 					{
 						it->second.Variables.emplace(name, uniformInfo);
 						break;
@@ -433,14 +433,14 @@ namespace gl
 			// general data
 			GL_CALL(glGetProgramResourceiv, m_program, GL_BUFFER_VARIABLE, blockIndex, numQueriedStorageProps, queriedStorageProps, numQueriedStorageProps, nullptr, pRawStorageBlockInfoData);
 			BufferVariableInfo storageInfo;
-			storageInfo.Type = static_cast<gl::ShaderVariableType>(pRawStorageBlockInfoData[1]);
-			storageInfo.iArrayElementCount = static_cast<std::int32_t>(pRawStorageBlockInfoData[2]);
-			storageInfo.iBlockOffset = static_cast<std::int32_t>(pRawStorageBlockInfoData[3]);
-			storageInfo.iArrayStride = static_cast<std::int32_t>(pRawStorageBlockInfoData[5]);
-			storageInfo.iMatrixStride = static_cast<std::int32_t>(pRawStorageBlockInfoData[6]);
-			storageInfo.bRowMajor = pRawStorageBlockInfoData[7] > 0;
-			storageInfo.iTopLevelArraySize = pRawStorageBlockInfoData[8];
-			storageInfo.iTopLevelArrayStride = pRawStorageBlockInfoData[9];
+			storageInfo.type = static_cast<gl::ShaderVariableType>(pRawStorageBlockInfoData[1]);
+			storageInfo.arrayElementCount = static_cast<std::int32_t>(pRawStorageBlockInfoData[2]);
+			storageInfo.blockOffset = static_cast<std::int32_t>(pRawStorageBlockInfoData[3]);
+			storageInfo.arrayStride = static_cast<std::int32_t>(pRawStorageBlockInfoData[5]);
+			storageInfo.matrixStride = static_cast<std::int32_t>(pRawStorageBlockInfoData[6]);
+			storageInfo.rowMajor = pRawStorageBlockInfoData[7] > 0;
+			storageInfo.topLevelArraySize = pRawStorageBlockInfoData[8];
+			storageInfo.topLevelArrayStride = pRawStorageBlockInfoData[9];
 
 			// name
 			GLint iActualNameLength = 0;
@@ -452,7 +452,7 @@ namespace gl
 			// where to store (to which shader storage block does this variable belong)
 			for (auto it = m_shaderStorageInfos.begin(); it != m_shaderStorageInfos.end(); ++it)
 			{
-				if (it->second.iInternalBufferIndex == pRawStorageBlockInfoData[4])
+				if (it->second.internalBufferIndex == pRawStorageBlockInfoData[4])
 				{
 					it->second.Variables.emplace(name, storageInfo);
 					break;
@@ -483,9 +483,9 @@ namespace gl
 			GLsizei length = 0;
 			GL_CALL(glGetProgramResourceiv, m_program, InterfaceName, blockIndex, iNumQueriedBlockProps, pQueriedBlockProps, iNumQueriedBlockProps, &length, pRawUniformBlockInfoData);
 			BufferInfo<BufferVariableType> BlockInfo;
-			BlockInfo.iInternalBufferIndex = blockIndex;
-			BlockInfo.iBufferBinding = pRawUniformBlockInfoData[1];
-			BlockInfo.iBufferDataSizeByte = pRawUniformBlockInfoData[2];// * sizeof(float);
+			BlockInfo.internalBufferIndex = blockIndex;
+			BlockInfo.bufferBinding = pRawUniformBlockInfoData[1];
+			BlockInfo.bufferDataSizeByte = pRawUniformBlockInfoData[2];// * sizeof(float);
 			//BlockInfo.Variables.Reserve(pRawUniformBlockInfoData[3]);
 
 			// name
@@ -523,7 +523,7 @@ namespace gl
 		if (it == m_uniformBlockInfos.end())
 			return Result::FAILURE;
 
-		ubo.BindBuffer(it->second.iBufferBinding);
+		ubo.BindBuffer(it->second.bufferBinding);
 
 		return Result::SUCCEEDED;
 	}
@@ -541,7 +541,7 @@ namespace gl
 			GLHELPER_LOG_ERROR("Shader \"" + GetName() + "\" doesn't contain a storage buffer meta block info with the name \"" + _SSBOName + "\"!");
 			return Result::FAILURE;
 		}
-		_ssbo.BindBuffer( storageBufferInfoIterator->second.iBufferBinding );
+		_ssbo.BindBuffer( storageBufferInfoIterator->second.bufferBinding );
 
 		return Result::SUCCEEDED;
 	}

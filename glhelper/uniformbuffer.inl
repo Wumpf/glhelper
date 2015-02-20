@@ -6,7 +6,7 @@ inline void UniformBufferView::Variable::Set(const void* pData, GLsizei sizeInBy
 	GLHELPER_ASSERT(sizeInBytes != 0, "Given size to set for uniform variable is 0.");
 	GLHELPER_ASSERT(pData != NULL, "Data to set for uniform variable is NULL.");
 
-	m_uniformBuffer->Set(pData, m_MetaInfo.iBlockOffset, sizeInBytes);
+	m_uniformBuffer->Set(pData, m_MetaInfo.blockOffset, sizeInBytes);
 }
 
 inline UniformBufferView::Variable UniformBufferView::operator[] (const std::string& sVariableName)
