@@ -68,7 +68,7 @@ namespace gl
 		}
 	}
 
-	void UniformBufferView::BindBuffer(GLuint locationIndex)
+	void UniformBufferView::BindBuffer(GLuint locationIndex) const
 	{
 		GLHELPER_ASSERT(locationIndex < s_numUBOBindings, 
 			"Can't bind ubo to slot " + std::to_string(locationIndex) + ". Maximum number of slots is " + std::to_string(s_numUBOBindings));

@@ -27,7 +27,7 @@ namespace gl
 		/// Performs an Unmap if the buffer is currently maped.
 		/// \attention Deleting a bound resource may cause unexpected errors. 
 		///		The user is responsible for manual unbinding it (or overwriting the previous binding) before deleting.
-		void BindBuffer(GLuint _locationIndex);
+		void BindBuffer(GLuint _locationIndex) const;
 
 		/// Resets the binding of the given location to zero.
 		static void ResetBinding(GLuint _locationIndex);

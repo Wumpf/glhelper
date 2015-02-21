@@ -59,7 +59,7 @@ namespace gl
 		/// Binds buffer if not already bound.
 		///
 		/// Performs an Unmap if the buffer is currently maped.
-		void BindBuffer(GLuint locationIndex);
+		void BindBuffer(GLuint locationIndex) const;
 
 		const std::string& GetBufferName() const { return m_bufferName; }
 

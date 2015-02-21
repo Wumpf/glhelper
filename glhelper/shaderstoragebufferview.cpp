@@ -26,7 +26,7 @@ namespace gl
 		}
 	}
 
-	void ShaderStorageBufferView::BindBuffer(GLuint _locationIndex)
+	void ShaderStorageBufferView::BindBuffer(GLuint _locationIndex) const
 	{
 		GLHELPER_ASSERT(_locationIndex < s_numSSBOBindings,
 			"Can't bind shader object buffer to slot " + std::to_string(_locationIndex) + ". Maximum number of slots is " + std::to_string(s_numSSBOBindings));

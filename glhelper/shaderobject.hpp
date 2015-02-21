@@ -11,7 +11,7 @@ namespace gl
 	class UniformBufferView;
 	class ShaderStorageBufferView;
 
-	/// Easy to use wrapper for OpenGL shader.
+	/// Easy to use wrapper for OpenGL shader. Supports #include and various reflection options.
 	class ShaderObject
 	{
 	public:
@@ -36,6 +36,8 @@ namespace gl
 		};
 
 		/// Constructs ShaderObject
+		/// 
+		/// To add code use AddShaderFromFile/AddShaderFromSource and call CreateProgram if you are done.
 		/// \param shaderName   Name mainly used for debugging and identification.
 		ShaderObject(const std::string& _shaderName);
 		ShaderObject(ShaderObject&& _moved);
@@ -43,15 +45,39 @@ namespace gl
 
 		const std::string& GetName() const { return m_name; }
 
-		Result AddShaderFromFile(ShaderType type, const std::string& sFilename, const std::string& prefixCode = "");
-		Result AddShaderFromSource(ShaderType type, const std::string& pSourceCode, const std::string& sOriginName);
+		/// Adds a shader file from a given source file.
+		///
+		/// Tries to resolve all #includes relative to the filename. You need to call CreateProgram in order to link the Shader.
+		/// \param _type
+		///   Type of the added shader.
+		/// \param _filename
+		///   Path to the shader file (text).
+		/// \param _prefixCode
+		///   Code inserted after the version tag.
+		/// \see AddShaderFromSource, CreateProgram
+		Result AddShaderFromFile(ShaderType _type, const std::string& _filename, const std::string& _prefixCode = "");
+
+		/// Adds a shader file from raw source text.
+		///
+		/// Does not resolve any #includes! You need to call CreateProgram in order to link the Shader.
+		/// \param _type
+		///   Type of the added shader.
+		/// \param _sourceCode
+		///   GLSL shader code.
+		/// \param _originName
+		///   Origin name used for identifying.
+		/// \see AddShaderFromSource, CreateProgram
+		Result AddShaderFromSource(ShaderType _type, const std::string& _sourceCode, const std::string& _originName);
+
+		/// Links all previously added shader to an OpenGL program.
 		Result CreateProgram();
 
 		/// Returns raw gl program identifier (you know what you're doing, right?)
 		GLuint GetProgram() const;
 
-		/// Makes program active
-		/// You can only activate one program at a time
+		/// Makes program active.
+		/// 
+		/// You can only activate one program at a time. Checks for redundant state changes.
 		void Activate() const;
 
 
@@ -59,15 +85,15 @@ namespace gl
 		// Make sure that the ShaderObject is already activated
 		// (Setting of ordinary global uniform variables is explicitly not supported! You can still handle this yourself using the available Meta-Info)
 
-		/// Binds an ubo by name
-		Result BindUBO(UniformBufferView& ubo, const std::string& sUBOName);
-		/// Binds an ubo by its intern buffer name
-		Result BindUBO(UniformBufferView& ubo);
+		/// Binds an ubo by name.
+		Result BindUBO(const UniformBufferView& ubo, const std::string& sUBOName) const;
+		/// Binds an ubo by its intern buffer name.
+		Result BindUBO(const UniformBufferView& ubo) const;
 
-		/// Binds a shader storage buffer by name
-		Result BindSSBO(ShaderStorageBufferView& _ssbo, const std::string& _SSBOName);
-		/// Binds a shader storage buffer by its intern buffer name
-		Result BindSSBO(ShaderStorageBufferView& _ssbo);
+		/// Binds a shader storage buffer by name.
+		Result BindSSBO(const ShaderStorageBufferView& _ssbo, const std::string& _SSBOName) const;
+		/// Binds a shader storage buffer by its intern buffer name.
+		Result BindSSBO(const ShaderStorageBufferView& _ssbo) const;
 
 
 		/// The set of active user-defined inputs to the first shader stage in this program. 
