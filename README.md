@@ -38,8 +38,11 @@ Contents
   * Reuse of already created sampler objects (all existing ones are hashed)
 * Framebuffer
   * Easy creation from multiple textures
+* State Wrapping
+  * [Only glEnable/Disable so far]
+  * Redundant state change checking and enums
 * Error handling & Check mechanism
-* Wraps many OpenGL defines in enums to avoid invalid GL calls
+* Wraps many OpenGL defines in enums to avoid invalid GL calls and provide an overview over all possibilities
 
 Notes on how to use
 --------
@@ -61,6 +64,5 @@ Todos
 * add support for cube textures
 * add support for 2d texture arrays
 * add support for 3d texture arrays
-* add wrapper for glEnable/glDisable
 * add wrapper for drawing and viewport
 * add wrapper for glGet
