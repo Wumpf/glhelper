@@ -3,7 +3,9 @@
 
 namespace gl
 {
-	Buffer::VertexBufferBinding Buffer::s_boundVertexBuffers[s_numVertexBufferBindings];
+	Buffer::BufferBinding Buffer::s_boundVertexBuffers[s_numVertexBufferBindings];
+	Buffer::BufferBinding Buffer::s_boundUBOs[s_numUBOBindings];
+	Buffer::BufferBinding Buffer::s_boundSSBOs[s_numSSBOBindings];
 	BufferId Buffer::s_boundIndexBuffer = 0;
 
 	Buffer::Buffer(GLsizeiptr _sizeInBytes, UsageFlag _usageFlags, const void* _data) :
@@ -69,15 +71,28 @@ namespace gl
 			// http://docs.gl/gl4/glDeleteBuffers
 			// However this means, that glhelper's saved bindings are wrong.
 			// Iterating over all bindings is rather costly but reliable, easy and zero overhead for all other operations.
+			
 			if (s_boundIndexBuffer == m_bufferObject)
 				s_boundIndexBuffer = 0;
+
 			for (unsigned int i = 0; i < s_numVertexBufferBindings; ++i)
 			{
 				if (s_boundVertexBuffers[i].bufferObject == m_bufferObject)
 					s_boundVertexBuffers[i].bufferObject = 0;
 			}
 
+			for (unsigned int i = 0; i < s_numUBOBindings; ++i)
+			{
+				if (s_boundUBOs[i].bufferObject == m_bufferObject)
+					s_boundUBOs[i].bufferObject = 0;
+			}
 			
+			for (unsigned int i = 0; i < s_numSSBOBindings; ++i)
+			{
+				if (s_boundSSBOs[i].bufferObject == m_bufferObject)
+					s_boundSSBOs[i].bufferObject = 0;
+			}
+
 			GL_CALL(glDeleteBuffers, 1, &m_bufferObject);
 		}
     }
@@ -212,16 +227,17 @@ namespace gl
 			GL_CALL(glGetNamedBufferSubData, m_bufferObject, _offset, _numBytes, _data);
     }
 
-	void Buffer::BindVertexBuffer(GLuint _bindingIndex, GLintptr _offset, GLsizei _stride)
+	void Buffer::BindVertexBuffer(BufferId _buffer, GLuint _bindingIndex, GLintptr _offset, GLsizei _stride)
 	{
-		GLHELPER_ASSERT(_bindingIndex < s_numVertexBufferBindings, "Glhelper supports only " + std::to_string(s_numVertexBufferBindings) + 
-						" bindings. See glGet with GL_MAX_VERTEX_ATTRIB_BINDINGS for hardware restrictions");
-		if (s_boundVertexBuffers[_bindingIndex].bufferObject != m_bufferObject ||
+		GLHELPER_ASSERT(_bindingIndex < s_numVertexBufferBindings, "Glhelper supports only " + std::to_string(s_numVertexBufferBindings) +
+			" bindings. See glGet with GL_MAX_VERTEX_ATTRIB_BINDINGS for actual hardware restrictions");
+
+		if (s_boundVertexBuffers[_bindingIndex].bufferObject != _buffer ||
 			s_boundVertexBuffers[_bindingIndex].offset != _offset ||
 			s_boundVertexBuffers[_bindingIndex].stride != _stride)
 		{
-			GL_CALL(glBindVertexBuffer, _bindingIndex, m_bufferObject, _offset, _stride);
-			s_boundVertexBuffers[_bindingIndex].bufferObject = m_bufferObject;
+			GL_CALL(glBindVertexBuffer, _bindingIndex, _buffer, _offset, _stride);
+			s_boundVertexBuffers[_bindingIndex].bufferObject = _buffer;
 			s_boundVertexBuffers[_bindingIndex].offset = _offset;
 			s_boundVertexBuffers[_bindingIndex].stride = _stride;
 		}
@@ -233,6 +249,38 @@ namespace gl
 		{
 			GL_CALL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, m_bufferObject);
 			s_boundIndexBuffer = m_bufferObject;
+		}
+	}
+
+	void Buffer::BindUniformBuffer(BufferId _buffer, GLuint _bindingIndex, GLintptr _offset, GLsizeiptr _size)
+	{
+		GLHELPER_ASSERT(_bindingIndex < s_numUBOBindings, "Glhelper supports only " + std::to_string(s_numUBOBindings) +
+			" UBO bindings. See glGet with GL_MAX_UNIFORM_BUFFER_BINDINGS for actual hardware restrictions");
+
+		if (s_boundUBOs[_bindingIndex].bufferObject != _buffer ||
+			s_boundUBOs[_bindingIndex].offset != _offset ||
+			s_boundUBOs[_bindingIndex].stride != _size)
+		{
+			GL_CALL(glBindBufferRange, GL_UNIFORM_BUFFER, _bindingIndex, _buffer, _offset, _size);
+			s_boundUBOs[_bindingIndex].bufferObject = _buffer;
+			s_boundUBOs[_bindingIndex].offset = _offset;
+			s_boundUBOs[_bindingIndex].stride = _size;
+		}
+	}
+
+	void Buffer::BindShaderStorageBuffer(BufferId _buffer, GLuint _bindingIndex, GLintptr _offset, GLsizeiptr _size)
+	{
+		GLHELPER_ASSERT(_bindingIndex < s_numSSBOBindings, "Glhelper supports only " + std::to_string(s_numSSBOBindings) +
+			" UBO bindings. See glGet with GL_MAX_COMBINED_SHADER_STORAGE_BLOCKS for actual hardware restrictions");
+
+		if (s_boundSSBOs[_bindingIndex].bufferObject != _buffer ||
+			s_boundSSBOs[_bindingIndex].offset != _offset ||
+			s_boundSSBOs[_bindingIndex].stride != _size)
+		{
+			GL_CALL(glBindBufferRange, GL_SHADER_STORAGE_BUFFER, _bindingIndex, _buffer, _offset, _size);
+			s_boundSSBOs[_bindingIndex].bufferObject = _buffer;
+			s_boundSSBOs[_bindingIndex].offset = _offset;
+			s_boundSSBOs[_bindingIndex].stride = _size;
 		}
 	}
 }

@@ -1,23 +1,11 @@
 #include "uniformbufferview.hpp"
 #include "shaderobject.hpp"
-#include "buffer.hpp"
 #include "utils/flagoperators.hpp"
 
 namespace gl
 {
-	BufferId UniformBufferView::s_boundUBOs[s_numUBOBindings];
-
 	UniformBufferView::~UniformBufferView()
 	{
-		// According to the specification it is not necessary to unbind the buffer. All bindings reset themselves to zero.
-		// http://docs.gl/gl4/glDeleteBuffers (performed by gl::Buffer)
-		// However this means, that glhelper's saved bindings are wrong.
-		// Iterating over all bindings is rather costly but reliable, easy and zero overhead for all other operations.
-		for (unsigned int i = 0; i < s_numUBOBindings; ++i)
-		{
-			if (s_boundUBOs[i] == m_buffer->GetBufferId())
-				s_boundUBOs[i] = 0;
-		}
 	}
 
 	UniformBufferView::UniformBufferView(const std::shared_ptr<Buffer>& _buffer, const std::string& _bufferName)
@@ -66,22 +54,6 @@ namespace gl
 			m_bufferName = _bufferName;
 			m_buffer.reset(new Buffer(_bufferSizeBytes, _bufferUsage));
 		}
-	}
-
-	void UniformBufferView::BindBuffer(GLuint locationIndex) const
-	{
-		GLHELPER_ASSERT(locationIndex < s_numUBOBindings, 
-			"Can't bind ubo to slot " + std::to_string(locationIndex) + ". Maximum number of slots is " + std::to_string(s_numUBOBindings));
-
-		if (m_buffer->m_mappedData != nullptr && static_cast<GLenum>(m_buffer->m_usageFlags & Buffer::UsageFlag::MAP_PERSISTENT) == 0)
-			m_buffer->Unmap();
-
-		if (s_boundUBOs[locationIndex] != m_buffer->GetBufferId())
-		{
-			GL_CALL(glBindBufferBase, GL_UNIFORM_BUFFER, locationIndex, m_buffer->GetBufferId());
-			s_boundUBOs[locationIndex] = m_buffer->GetBufferId();
-		}
-
 	}
 
 	void UniformBufferView::Set(const void* _data, GLsizei _offset, GLsizei _dataSize)

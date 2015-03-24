@@ -56,10 +56,8 @@ namespace gl
 		bool ContainsVariable(const std::string& _variableName) const       { return m_variables.find(_variableName) != m_variables.end(); }
 		UniformBufferView::Variable operator[] (const std::string& sVariableName);
 
-		/// Binds buffer if not already bound.
-		///
-		/// Performs an Unmap if the buffer is currently maped.
-		void BindBuffer(GLuint locationIndex) const;
+		/// Binds entire buffer if not already bound.
+		void BindBuffer(GLuint _locationIndex) const { m_buffer->BindUniformBuffer(_locationIndex); }
 
 		const std::string& GetBufferName() const { return m_bufferName; }
 
@@ -74,12 +72,6 @@ namespace gl
 
 		/// meta information
 		std::unordered_map<std::string, gl::UniformVariableInfo> m_variables;
-
-
-		/// Arbitrary value based on observation: http://delphigl.de/glcapsviewer/gl_stats_caps_single.php?listreportsbycap=GL_MAX_COMBINED_UNIFORM_BLOCKS
-		static const unsigned int s_numUBOBindings = 64;
-		/// Currently bound UBOs!
-		static BufferId s_boundUBOs[s_numUBOBindings];
 	};
 
 #include "UniformBuffer.inl"

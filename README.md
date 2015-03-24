@@ -56,8 +56,8 @@ Todos
 --------
 (just notes, in no specific order)
 * better name scheme for internal handle getter (same in all classes)
-* add offset/size binding version to uniformbufferview to be more consistent
 * multi bind-functions for vertex/index/uniform/shaderstorage buffers
+* better buffer destructor: Iterates currently over all possible bindings!
 * consequently use std::string for assert/log (remove all usages of << to concat messages)
 * add support for cube textures
 * add support for 2d texture arrays

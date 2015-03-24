@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gl.hpp"
+#include "buffer.hpp"
 
 #include <memory>
 
@@ -23,14 +24,7 @@ namespace gl
 		const std::string& GetBufferName() const { return m_name; }
 
 		/// Binds buffer if not already bound.
-		///
-		/// Performs an Unmap if the buffer is currently maped.
-		/// \attention Deleting a bound resource may cause unexpected errors. 
-		///		The user is responsible for manual unbinding it (or overwriting the previous binding) before deleting.
-		void BindBuffer(GLuint _locationIndex) const;
-
-		/// Resets the binding of the given location to zero.
-		static void ResetBinding(GLuint _locationIndex);
+		void BindBuffer(GLuint _locationIndex) const { m_buffer->BindShaderStorageBuffer(_locationIndex); }
 
 		/// Get the internal bound buffer resource.
 		const std::shared_ptr<Buffer>& GetBuffer() const   { return m_buffer; }
@@ -38,11 +32,5 @@ namespace gl
 	private:
 		std::shared_ptr<Buffer> m_buffer;
 		std::string m_name;
-
-		
-		/// Arbitrary value, based on observation: http://delphigl.de/glcapsviewer/gl_stats_caps_single.php?listreportsbycap=GL_MAX_COMBINED_SHADER_STORAGE_BLOCKS
-		static const unsigned int s_numSSBOBindings = 16;
-		/// Currently bound SSBOs.
-		static BufferId s_boundSSBOs[s_numSSBOBindings];
 	};
 }
