@@ -190,9 +190,10 @@ namespace gl
 
 	void Buffer::Flush(GLintptr _offset, GLsizeiptr _numBytes)
 	{
+		GLHELPER_ASSERT(_numBytes + _offset <= m_sizeInBytes, "Memory range is outside the buffer!");
+
 		if (any(m_usageFlags & UsageFlag::EXPLICIT_FLUSH))
 		{
-			// Flush only the part which was used.
 			GL_CALL(glFlushMappedNamedBufferRange, m_bufferObject, _offset, _numBytes);
 		}
 	}
@@ -208,6 +209,8 @@ namespace gl
 
 	void Buffer::Set(const void* _data, GLintptr _offset, GLsizeiptr _numBytes)
     {
+		GLHELPER_ASSERT(_numBytes + _offset <= m_sizeInBytes, "Memory range is outside the buffer!");
+
 		if (any(m_usageFlags & UsageFlag::SUB_DATA_UPDATE))
 			GLHELPER_LOG_ERROR("The buffer was not created with the SUB_DATA_UPDATE flag. Unable to set memory!");
 		else if (m_mappedData != NULL && (static_cast<GLenum>(m_usageFlags & UsageFlag::MAP_PERSISTENT)))
@@ -219,6 +222,8 @@ namespace gl
 
 	void Buffer::Get(void* _data, GLintptr _offset, GLsizeiptr _numBytes)
     {
+		GLHELPER_ASSERT(_numBytes + _offset <= m_sizeInBytes, "Memory range is outside the buffer!");
+
 		if (any(m_usageFlags & UsageFlag::SUB_DATA_UPDATE))
 			GLHELPER_LOG_ERROR("The buffer was not created with the SUB_DATA_UPDATE flag. Unable to get memory!");
 		else if (m_mappedData != NULL && (static_cast<GLenum>(m_usageFlags & UsageFlag::MAP_PERSISTENT)))
