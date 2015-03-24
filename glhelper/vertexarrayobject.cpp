@@ -66,27 +66,34 @@ namespace gl
 				m_vertexStrides.push_back(0);
 
 			// Activate and define vertex buffer binding point.
-			GL_CALL(glEnableVertexArrayAttrib, m_vao, attributeIndex);
-			GL_CALL(glVertexArrayAttribBinding, m_vao, attributeIndex, attribute.vertexBufferBinding);
+			if (!attribute.unused)
+			{
+				GL_CALL(glEnableVertexArrayAttrib, m_vao, attributeIndex);
+				GL_CALL(glVertexArrayAttribBinding, m_vao, attributeIndex, attribute.vertexBufferBinding);
 
-			// Define attribute properties.
-			// Double has extra function:
-			if (attribute.type == Attribute::Type::DOUBLE)
-			{
-				GL_CALL(glVertexArrayAttribLFormat, m_vao, attributeIndex, attribute.numComponents, Attribute::s_typeToGLType[static_cast<int>(attribute.type)], m_vertexStrides[attribute.vertexBufferBinding]);
+				// Define attribute properties.
+				// Double has extra function:
+				if (attribute.type == Attribute::Type::DOUBLE)
+				{
+					GL_CALL(glVertexArrayAttribLFormat, m_vao, attributeIndex, attribute.numComponents, Attribute::s_typeToGLType[static_cast<int>(attribute.type)], m_vertexStrides[attribute.vertexBufferBinding]);
+				}
+				// All other as float interpreted data.
+				else if (attribute.type == Attribute::Type::FLOAT || attribute.type == Attribute::Type::HALF ||
+					attribute.type == Attribute::Type::FIXED || attribute.type == Attribute::Type::UINT_10F_11F_11F ||
+					attribute.integerHandling != Attribute::IntegerHandling::INTEGER)
+				{
+					GL_CALL(glVertexArrayAttribFormat, m_vao, attributeIndex, attribute.numComponents, Attribute::s_typeToGLType[static_cast<int>(attribute.type)],
+						attribute.integerHandling == Attribute::IntegerHandling::NORMALIZED, m_vertexStrides[attribute.vertexBufferBinding]);
+				}
+				// Integer interpretation.
+				else
+				{
+					GL_CALL(glVertexArrayAttribIFormat, m_vao, attributeIndex, attribute.numComponents, Attribute::s_typeToGLType[static_cast<int>(attribute.type)], m_vertexStrides[attribute.vertexBufferBinding]);
+				}
 			}
-			// All other as float interpreted data.
-			else if (attribute.type == Attribute::Type::FLOAT || attribute.type == Attribute::Type::HALF || 
-					 attribute.type == Attribute::Type::FIXED || attribute.type == Attribute::Type::UINT_10F_11F_11F ||
-					 attribute.integerHandling != Attribute::IntegerHandling::INTEGER)
-			{
-				GL_CALL(glVertexArrayAttribFormat, m_vao, attributeIndex, attribute.numComponents, Attribute::s_typeToGLType[static_cast<int>(attribute.type)],
-													attribute.integerHandling == Attribute::IntegerHandling::NORMALIZED, m_vertexStrides[attribute.vertexBufferBinding]);
-			}
-			// Integer interpretation.
 			else
 			{
-				GL_CALL(glVertexArrayAttribIFormat, m_vao, attributeIndex, attribute.numComponents, Attribute::s_typeToGLType[static_cast<int>(attribute.type)], m_vertexStrides[attribute.vertexBufferBinding]);
+				GL_CALL(glDisableVertexArrayAttrib, m_vao, attributeIndex);
 			}
 
 			// Advance offset.

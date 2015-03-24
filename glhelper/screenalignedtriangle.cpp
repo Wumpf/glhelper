@@ -19,7 +19,7 @@ namespace gl
 		screenTriangle[2].position[0] = -1.0f;
 		screenTriangle[2].position[1] = 3.0f;
 
-		m_vertexBuffer = new Buffer(sizeof(screenTriangle), Buffer::Usage::IMMUTABLE, screenTriangle);
+		m_vertexBuffer = new Buffer(sizeof(screenTriangle), Buffer::UsageFlag::IMMUTABLE, screenTriangle);
 		m_vertexArrayObject = new VertexArrayObject({ VertexArrayObject::Attribute(VertexArrayObject::Attribute::Type::FLOAT, 2) });
 	}
 

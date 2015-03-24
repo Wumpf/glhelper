@@ -1,51 +1,47 @@
 #include "buffer.hpp"
-#include "utils/flagoperators.hpp"
+#include "utilities/flagoperators.hpp"
 
 namespace gl
 {
 	Buffer::VertexBufferBinding Buffer::s_boundVertexBuffers[s_numVertexBufferBindings];
 	BufferId Buffer::s_boundIndexBuffer = 0;
 
-	Buffer::Buffer(GLsizeiptr _sizeInBytes, Usage _usageFlags, const void* _data) :
+	Buffer::Buffer(GLsizeiptr _sizeInBytes, UsageFlag _usageFlags, const void* _data) :
         m_sizeInBytes(_sizeInBytes),
-		m_glMapAccess(0),
 		m_usageFlags(_usageFlags),
 
 		m_mappedDataOffset(0),
 		m_mappedDataSize(0),
 		m_mappedData(nullptr)
     {
-		GLHELPER_ASSERT(static_cast<uint32_t>(m_usageFlags & Usage::EXPLICIT_FLUSH) == 0 || static_cast<uint32_t>(m_usageFlags & Usage::MAP_PERSISTENT) > 0,
+		GLHELPER_ASSERT(static_cast<uint32_t>(m_usageFlags & UsageFlag::EXPLICIT_FLUSH) == 0 || static_cast<uint32_t>(m_usageFlags & UsageFlag::MAP_PERSISTENT) > 0,
 			   "EXPLICIT_FLUSH only valid in combination with PERSISTENT");
-		GLHELPER_ASSERT(static_cast<uint32_t>(m_usageFlags & Usage::MAP_COHERENT) == 0 || static_cast<uint32_t>(m_usageFlags & Usage::MAP_PERSISTENT) > 0,
+		GLHELPER_ASSERT(static_cast<uint32_t>(m_usageFlags & UsageFlag::MAP_COHERENT) == 0 || static_cast<uint32_t>(m_usageFlags & UsageFlag::MAP_PERSISTENT) > 0,
 			   "MAP_COHERENT only valid in combination with PERSISTENT");
 
 		GL_CALL(glCreateBuffers, 1, &m_bufferObject);
 		GL_CALL(glNamedBufferStorage, m_bufferObject, _sizeInBytes, _data, static_cast<GLbitfield>(_usageFlags));
 
-		if (any(m_usageFlags & Usage::MAP_READ))
-			m_glMapAccess = static_cast<uint32_t>(m_usageFlags & Usage::MAP_WRITE) > 0 ? GL_READ_WRITE : GL_READ_ONLY;
-        else
-			m_glMapAccess = static_cast<uint32_t>(m_usageFlags & Usage::MAP_WRITE) > 0 ? GL_WRITE_ONLY : 0;
 
-
-		if (any(m_usageFlags & Usage::MAP_PERSISTENT))
+		// Persistent buffers do not need to be unmapped!
+		if (any(m_usageFlags & UsageFlag::MAP_PERSISTENT))
 		{
-			m_glMapAccess |= GL_MAP_PERSISTENT_BIT;
-			if (static_cast<uint32_t>(m_usageFlags & Usage::EXPLICIT_FLUSH) > 0)
-				m_glMapAccess |= GL_MAP_FLUSH_EXPLICIT_BIT;
-			if (static_cast<uint32_t>(m_usageFlags & Usage::MAP_COHERENT) > 0)
-				m_glMapAccess |= GL_MAP_COHERENT_BIT;
+			MapWriteFlag mapWriteFlags = any(m_usageFlags & UsageFlag::EXPLICIT_FLUSH) ? MapWriteFlag::FLUSH_EXPLICIT : MapWriteFlag::NONE;
 
-			// Persistent buffers do not need to be unmapped!
-			Map();
+			if (any(m_usageFlags & UsageFlag::MAP_WRITE))
+				Map(MapType::WRITE, mapWriteFlags);
+			else if (any(m_usageFlags & UsageFlag::MAP_READ))
+				Map(MapType::READ, mapWriteFlags);
+			else if (any(m_usageFlags & UsageFlag::MAP_READ) && any(m_usageFlags & UsageFlag::MAP_WRITE))
+				Map(MapType::READ_WRITE, mapWriteFlags);
+			else
+				LOG_ERROR("Persistently mapped buffers need to specify MAP_READ, MAP_WRITE or both.");
 		}
     }
 
 	Buffer::Buffer(Buffer&& _moved) : 
 		m_bufferObject(_moved.m_bufferObject),
 		m_sizeInBytes(_moved.m_sizeInBytes),
-		m_glMapAccess(_moved.m_glMapAccess),
 		m_usageFlags(_moved.m_usageFlags),
 		m_mappedDataSize(_moved.m_mappedDataSize),
 		m_mappedDataOffset(_moved.m_mappedDataOffset),
@@ -86,32 +82,67 @@ namespace gl
 		}
     }
 
-	void* Buffer::Map(GLintptr _offset, GLsizeiptr _numBytes)
+	void* Buffer::Map(GLintptr _offset, GLsizeiptr _numBytes, MapType _mapType, MapWriteFlag _mapWriteFlags)
     {
-        if (m_glMapAccess == 0)
-            GLHELPER_LOG_ERROR( "The buffer was not created with READ or WRITE flag. Unable to map memory!" );
-		else
+		// Check against creation flags.
+		GLHELPER_ASSERT(((_mapType == MapType::READ_WRITE || _mapType == MapType::READ) && any(m_usageFlags & UsageFlag::MAP_READ)) ||
+						((_mapType == MapType::READ_WRITE || _mapType == MapType::WRITE) && any(m_usageFlags & UsageFlag::MAP_WRITE)), "Can't map the buffer for read/write since it was not created with the read/write usage flags.");
+
+		// Valid range.
+		GLHELPER_ASSERT(_offset >= 0 && _numBytes > 0, "Invalid map range!");
+		GLHELPER_ASSERT(_numBytes + _offset <= m_sizeInBytes, "Map region exceeds buffer size.");
+
+		if (m_mappedData != nullptr)
 		{
-			if (m_mappedData != nullptr)
+			if (m_mappedDataOffset <= _offset && m_mappedDataOffset + m_mappedDataSize >= _offset + _numBytes)
+				return static_cast<char*>(m_mappedData) + _offset;
+			else
 			{
-				if (m_mappedDataOffset <= _offset && m_mappedDataOffset + m_mappedDataSize >= _offset + _numBytes)
-					return static_cast<char*>(m_mappedData) + _offset;
-				else
-				{
-					GLHELPER_LOG_WARNING("Buffer was already mapped, but within incompatible range. Performing Buffer::Unmap ...");
-					Unmap();
-				}
-			}
-
-			if (m_mappedData == nullptr) // (still) already mapped?
-			{
-				m_mappedData = GL_RET_CALL(glMapNamedBufferRange, m_bufferObject, _offset, _numBytes, static_cast<GLbitfield>(m_usageFlags & ~Usage::SUB_DATA_UPDATE));
-
-				m_mappedDataOffset = _offset;
-				m_mappedDataSize = _numBytes;
+				GLHELPER_LOG_WARNING("Buffer was already mapped, but within incompatible range. Performing Buffer::Unmap ...");
+				Unmap();
 			}
 		}
-		
+
+		if (m_mappedData == nullptr) // (still) already mapped?
+		{
+			GLenum accessFlags = 0;
+
+			// Add read/write flags.
+			if (_mapType == MapType::READ)
+			{
+				accessFlags |= GL_MAP_READ_BIT;
+			}
+			else if (_mapType == MapType::WRITE)
+			{
+				accessFlags |= GL_MAP_WRITE_BIT;
+				accessFlags |= static_cast<GLenum>(_mapWriteFlags);
+			}
+			else
+			{
+				GLHELPER_ASSERT(_mapWriteFlags == MapWriteFlag::FLUSH_EXPLICIT || _mapWriteFlags == MapWriteFlag::NONE, "For mapping with both read and write access, the only valid MapWriteFlag is FLUSH_EXPLICIT.");
+				
+				accessFlags |= GL_MAP_READ_BIT | GL_MAP_WRITE_BIT;
+				accessFlags |= static_cast<GLenum>(_mapWriteFlags);
+			}
+
+			// Add persistent/coherent flags.
+			if (any(m_usageFlags & UsageFlag::MAP_PERSISTENT))
+			{
+				accessFlags |= GL_MAP_PERSISTENT_BIT;
+				if (any(m_usageFlags & UsageFlag::MAP_COHERENT))
+					accessFlags |= GL_MAP_COHERENT_BIT;
+			}
+
+			m_mappedData = GL_RET_CALL(glMapNamedBufferRange, m_bufferObject, _offset, _numBytes, accessFlags);
+
+			m_mappedDataOffset = _offset;
+			m_mappedDataSize = _numBytes;
+		}
+		else
+		{
+		//	GLHELPER_LOG_WARNING("Buffer was already mapped, but within a compatible range. Returning already mapped pointer ...");
+		}
+
         return m_mappedData;
     }
 
@@ -123,7 +154,7 @@ namespace gl
 		}
 
 		// Persistent mapped buffers need no unmapping
-		else if (any(m_usageFlags & Usage::MAP_PERSISTENT))
+		else if (any(m_usageFlags & UsageFlag::MAP_PERSISTENT))
 		{
 			GLHELPER_LOG_WARNING("Buffer has MAP_PERSISTENT flag and no EXPLICIT_FLUSH flag, unmaps are withouat any effect!");
 		}
@@ -144,7 +175,7 @@ namespace gl
 
 	void Buffer::Flush(GLintptr _offset, GLsizeiptr _numBytes)
 	{
-		if (any(m_usageFlags & Usage::EXPLICIT_FLUSH))
+		if (any(m_usageFlags & UsageFlag::EXPLICIT_FLUSH))
 		{
 			// Flush only the part which was used.
 			GL_CALL(glFlushMappedNamedBufferRange, m_bufferObject, _offset, _numBytes);
@@ -162,9 +193,9 @@ namespace gl
 
 	void Buffer::Set(const void* _data, GLintptr _offset, GLsizeiptr _numBytes)
     {
-		if (any(m_usageFlags & Usage::SUB_DATA_UPDATE))
+		if (any(m_usageFlags & UsageFlag::SUB_DATA_UPDATE))
 			GLHELPER_LOG_ERROR("The buffer was not created with the SUB_DATA_UPDATE flag. Unable to set memory!");
-		else if (m_mappedData != NULL && (static_cast<GLenum>(m_usageFlags & Usage::MAP_PERSISTENT)))
+		else if (m_mappedData != NULL && (static_cast<GLenum>(m_usageFlags & UsageFlag::MAP_PERSISTENT)))
 			GLHELPER_LOG_ERROR("Unable to set memory for currently mapped buffer that was created without the PERSISTENT flag.");
 		else {
 			GL_CALL(glNamedBufferSubData, m_bufferObject, _offset, _numBytes, _data);
@@ -173,9 +204,9 @@ namespace gl
 
 	void Buffer::Get(void* _data, GLintptr _offset, GLsizeiptr _numBytes)
     {
-		if (any(m_usageFlags & Usage::SUB_DATA_UPDATE))
+		if (any(m_usageFlags & UsageFlag::SUB_DATA_UPDATE))
 			GLHELPER_LOG_ERROR("The buffer was not created with the SUB_DATA_UPDATE flag. Unable to get memory!");
-		else if (m_mappedData != NULL && (static_cast<GLenum>(m_usageFlags & Usage::MAP_PERSISTENT)))
+		else if (m_mappedData != NULL && (static_cast<GLenum>(m_usageFlags & UsageFlag::MAP_PERSISTENT)))
 			GLHELPER_LOG_ERROR("Unable to get memory for currently mapped buffer that was created without the PERSISTENT flag.");
 		else
 			GL_CALL(glGetNamedBufferSubData, m_bufferObject, _offset, _numBytes, _data);

@@ -24,10 +24,10 @@ namespace gl
 		/// Creates a new buffer without any meta infos.
 		///
 		/// Buffer needs to have at least MAP_WRITE access!
-		UniformBufferView(std::uint32_t _bufferSizeBytes, const std::string& _bufferName, Buffer::Usage bufferUsage = Buffer::Usage::MAP_WRITE);
+		UniformBufferView(std::uint32_t _bufferSizeBytes, const std::string& _bufferName, Buffer::UsageFlag bufferUsage = Buffer::UsageFlag::MAP_WRITE);
 
 		/// Create a uniform buffer that matches the meta infos of a given shader.
-		UniformBufferView(const gl::ShaderObject& _shader, const std::string& _bufferName, Buffer::Usage bufferUsage = Buffer::Usage::MAP_WRITE);
+		UniformBufferView(const gl::ShaderObject& _shader, const std::string& _bufferName, Buffer::UsageFlag bufferUsage = Buffer::UsageFlag::MAP_WRITE);
 
 		~UniformBufferView();
 
@@ -67,7 +67,7 @@ namespace gl
 		const std::shared_ptr<Buffer>& GetBuffer() const { return m_buffer; }
 
 	private:
-		void InitByCreatingBuffer(std::uint32_t _bufferSizeBytes, const std::string& _bufferName, Buffer::Usage _bufferUsage);
+		void InitByCreatingBuffer(std::uint32_t _bufferSizeBytes, const std::string& _bufferName, Buffer::UsageFlag _bufferUsage);
 
 		std::shared_ptr<Buffer> m_buffer;
 		std::string		m_bufferName;

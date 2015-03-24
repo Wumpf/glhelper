@@ -57,8 +57,6 @@ Todos
 (just notes, in no specific order)
 * better name scheme for internal handle getter (same in all classes)
 * add offset/size binding version to uniformbufferview to be more consistent
-* options for buffer map instead of parameters from construction
-  * support for GL_MAP_INVALIDATE_BUFFER_BIT/GL_MAP_INVALIDATE_RANGE_BIT
 * multi bind-functions for vertex/index/uniform/shaderstorage buffers
 * consequently use std::string for assert/log (remove all usages of << to concat messages)
 * add support for cube textures

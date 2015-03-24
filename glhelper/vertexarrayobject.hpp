@@ -65,8 +65,8 @@ namespace gl
 			};
 
 			/// Construct attribute. For more details see variable documentation.
-			Attribute(Type _type, GLuint _numComponents, GLuint _vertexBufferBinding = 0, IntegerHandling _integerHandling = IntegerHandling::INTEGER) :
-				type(_type), numComponents(_numComponents), vertexBufferBinding(_vertexBufferBinding), integerHandling(_integerHandling) {}
+			Attribute(Type _type, GLuint _numComponents, GLuint _vertexBufferBinding = 0, IntegerHandling _integerHandling = IntegerHandling::INTEGER, bool _unused = false) :
+				type(_type), numComponents(_numComponents), vertexBufferBinding(_vertexBufferBinding), integerHandling(_integerHandling), unused(_unused) {}
 
 			/// The type of a component.
 			Type type;
@@ -78,6 +78,10 @@ namespace gl
 			/// Describes how integers are handled.
 			/// Ignored for float, half and double.
 			IntegerHandling integerHandling;
+
+			/// Unused attributes serve as dummy to skip VBO memory.
+			/// Note that the corresponding attribute index will stay reserved.
+			bool unused;
 
 			/// Assigns each attribute type the corresponding OpenGL type.
 			static const GLenum s_typeToGLType[static_cast<int>(Type::NUM_TYPES)];

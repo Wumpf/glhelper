@@ -22,7 +22,7 @@ namespace gl
 
 	UniformBufferView::UniformBufferView(const std::shared_ptr<Buffer>& _buffer, const std::string& _bufferName)
 	{
-		if (static_cast<std::uint32_t>(_buffer->GetUsageFlags() & Buffer::Usage::MAP_WRITE))
+		if (static_cast<std::uint32_t>(_buffer->GetUsageFlags() & Buffer::UsageFlag::MAP_WRITE))
 		{
 			GLHELPER_LOG_WARNING("Uniform buffer needs at least Buffer::Usage::WRITE flag to work as expected!");
 		}
@@ -33,12 +33,12 @@ namespace gl
 		}
 	}
 
-	UniformBufferView::UniformBufferView(std::uint32_t _bufferSizeBytes, const std::string& _bufferName, Buffer::Usage _bufferUsage)
+	UniformBufferView::UniformBufferView(std::uint32_t _bufferSizeBytes, const std::string& _bufferName, Buffer::UsageFlag _bufferUsage)
 	{
 		InitByCreatingBuffer(_bufferSizeBytes, _bufferName, _bufferUsage);
 	}
 
-	UniformBufferView::UniformBufferView(const gl::ShaderObject& _shader, const std::string& _bufferName, Buffer::Usage _bufferUsage)
+	UniformBufferView::UniformBufferView(const gl::ShaderObject& _shader, const std::string& _bufferName, Buffer::UsageFlag _bufferUsage)
 	{
 		GLuint bufferSize = 0;
 
@@ -55,9 +55,9 @@ namespace gl
 		}
 	}
 
-	void UniformBufferView::InitByCreatingBuffer(std::uint32_t _bufferSizeBytes, const std::string& _bufferName, Buffer::Usage _bufferUsage)
+	void UniformBufferView::InitByCreatingBuffer(std::uint32_t _bufferSizeBytes, const std::string& _bufferName, Buffer::UsageFlag _bufferUsage)
 	{
-		if (static_cast<std::uint32_t>(_bufferUsage & Buffer::Usage::MAP_WRITE) == 0)
+		if (static_cast<std::uint32_t>(_bufferUsage & Buffer::UsageFlag::MAP_WRITE) == 0)
 		{
 			GLHELPER_LOG_WARNING("Uniform buffer needs at least Buffer::Usage::WRITE flag to work as expected!");
 		}
@@ -73,7 +73,7 @@ namespace gl
 		GLHELPER_ASSERT(locationIndex < s_numUBOBindings, 
 			"Can't bind ubo to slot " + std::to_string(locationIndex) + ". Maximum number of slots is " + std::to_string(s_numUBOBindings));
 
-		if (m_buffer->m_mappedData != nullptr && static_cast<GLenum>(m_buffer->m_usageFlags & Buffer::Usage::MAP_PERSISTENT) == 0)
+		if (m_buffer->m_mappedData != nullptr && static_cast<GLenum>(m_buffer->m_usageFlags & Buffer::UsageFlag::MAP_PERSISTENT) == 0)
 			m_buffer->Unmap();
 
 		if (s_boundUBOs[locationIndex] != m_buffer->GetBufferId())

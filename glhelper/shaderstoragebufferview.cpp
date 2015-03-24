@@ -31,7 +31,7 @@ namespace gl
 		GLHELPER_ASSERT(_locationIndex < s_numSSBOBindings,
 			"Can't bind shader object buffer to slot " + std::to_string(_locationIndex) + ". Maximum number of slots is " + std::to_string(s_numSSBOBindings));
 
-		if (m_buffer->m_mappedData != nullptr && static_cast<GLenum>(m_buffer->m_usageFlags & Buffer::Usage::MAP_PERSISTENT) == 0)
+		if (m_buffer->m_mappedData != nullptr && static_cast<GLenum>(m_buffer->m_usageFlags & Buffer::UsageFlag::MAP_PERSISTENT) == 0)
 			m_buffer->Unmap();
 
 		if (s_boundSSBOs[_locationIndex] != m_buffer->GetBufferId())
