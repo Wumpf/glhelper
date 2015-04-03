@@ -75,7 +75,8 @@ namespace gl
 		/// Removes all existing sampler objects.
 		void DestroyAllCachedSamplerObjects() { s_existingSamplerObjects.clear(); }
 
-		SamplerId GetInternSamplerId() const { return m_samplerId; }
+		/// Returns intern OpenGL sampler handle.
+		SamplerId GetInternHandle() const { return m_samplerId; }
 
 		/// Move constructor. Needed for intern hashmap.
 		///

@@ -51,7 +51,7 @@ namespace gl
 		void ClearToZero(GLsizei _mipLevel = 0);
 
 		/// Returns intern OpenGL texture handle.
-		TextureId GetInternHandle() { return m_textureHandle; }
+		TextureId GetInternHandle() const { return m_textureHandle; }
 
 		/// Returns texture width (for mipLevel==0).
 		GLsizei GetWidth() const           { return m_width; }

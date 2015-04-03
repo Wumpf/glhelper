@@ -25,9 +25,12 @@ Contents
   * Reflection via OpenGL functions (e.g. for uniform variable positions etc.)
   * "hooks" for reloading (very useful for recompile on file change)
 * Buffer
-  * Texture and Uniform Buffer view
+  * Texture, Uniform and Shader Storage Buffer views
   * Easy creation from shader reflection
   * Memorizes creation information and bindings (avoids redundant ones)
+* Persistent Ring-Buffer 
+  * Helper class on top of buffer to provide an easy interface for a low driver overhead write-only ring buffer ("AZDO style")
+  * Warns automatically if GPU-CPU syncs happen
 * Vertex Array Object
   * Comfortable abstraction for usage as vertex format declaration  
     (possible using ARB_vertex_attrib_binding, which is Core in OpenGL 4.3)
@@ -55,12 +58,12 @@ Notes on how to use
 Todos
 --------
 (just notes, in no specific order)
-* better name scheme for internal handle getter (same in all classes)
 * multi bind-functions for vertex/index/uniform/shaderstorage buffers
 * better buffer destructor: Iterates currently over all possible bindings!
 * consequently use std::string for assert/log (remove all usages of << to concat messages)
 * add support for cube textures
 * add support for 2d texture arrays
 * add support for 3d texture arrays
-* add wrapper for drawing and viewport
+* add wrapper for drawing and viewport settings
 * add wrapper for glGet
+  * at least for constant device properties etc.

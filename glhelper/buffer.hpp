@@ -140,12 +140,19 @@ namespace gl
 		///		Usage usually not recommend. Consider to use Map.
 		void Get(void* _data, GLintptr _offset, GLsizeiptr _numBytes);
 
+
+		/// Returns creation usage flags.
 		UsageFlag GetUsageFlags() const		{ return m_usageFlags; }
-        BufferId GetBufferId() const	{ return m_bufferObject; }
+
+		/// Returns intern OpenGL buffer handle.
+		BufferId GetInternHandle() const	{ return m_bufferObject; }
+
+		/// Returns the size of the buffer in bytes.
 		GLsizeiptr GetSize() const		{ return m_sizeInBytes; }
 
 
-
+		// ---------------------------------------------------------------------
+		// Binding functions
 
 		/// \see Buffer::BindVertexBuffer
 		void BindVertexBuffer(GLuint _bindingIndex, GLintptr _offset, GLsizei _stride);
@@ -210,8 +217,8 @@ namespace gl
 		GLintptr m_mappedDataOffset;
 		void* m_mappedData;
 
-		// -----------------
-		// Redundant binding checks.
+		// -------------------------------------------------------------------------------
+		// Redundant binding checks for all types of buffer binding points.
 
 		/// Struct for general buffer bindings.
 		struct BufferBinding

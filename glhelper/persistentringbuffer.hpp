@@ -68,6 +68,12 @@ namespace gl
 		/// Subsequent AddBlock commands will make sure that the returned memory is not in use by any GL command preceding this call.
 		void CompleteFrame();
 
+
+		/// Returns underlying gl::Buffer.
+		gl::Buffer& GetBuffer()				{ return m_buffer; }
+		/// Returns underlying gl::Buffer.
+		const gl::Buffer& GetBuffer() const { return m_buffer; }
+
 		// -----------------------------
 		// On ensuring adding blocks without wait.
 

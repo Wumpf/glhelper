@@ -41,8 +41,7 @@ namespace gl
 		GL_CALL(glCreateTextures, GL_TEXTURE_BUFFER, 1, &m_textureHandle);
 
 		m_buffer = _buffer;
-		GL_CALL(glTextureBufferRange, m_textureHandle, 
-				static_cast<GLenum>(_format), _buffer->GetBufferId(), _offset, _numBytes);
+		GL_CALL(glTextureBufferRange, m_textureHandle, static_cast<GLenum>(_format), _buffer->GetInternHandle(), _offset, _numBytes);
     }
 
 	void TextureBufferView::BindBuffer(GLuint _locationIndex) const

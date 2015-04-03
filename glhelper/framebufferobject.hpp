@@ -54,7 +54,9 @@ namespace gl
 		/// \attention Will not change the viewport.
 		//   void BlitTo(FramebufferObject* pDest, const ezRectU32& srcRect, const ezRectU32& dstRect, GLuint mask = GL_COLOR_BUFFER_BIT, GLuint filter = GL_NEAREST);
 
-		FramebufferId GetInternHandle() { return m_framebuffer; }
+
+		/// Returns intern OpenGL framebuffer handle.
+		FramebufferId GetInternHandle() const { return m_framebuffer; }
 
 
 		const std::vector<Attachment>& GetColorAttachments() const { return m_colorAttachments; }
