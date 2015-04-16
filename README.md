@@ -23,11 +23,14 @@ Contents
   * File loading
   * `#include` parsing & resolve
   * Reflection via OpenGL functions (e.g. for uniform variable positions etc.)
+    * Info can be used to fill arbitrary memory
   * "hooks" for reloading (very useful for recompile on file change)
 * Buffer
-  * Texture, Uniform and Shader Storage Buffer views
-  * Easy creation from shader reflection
+  * Can be used as Vertex/Index/Uniform/ShaderStorage-Buffer
   * Memorizes creation information and bindings (avoids redundant ones)
+  * Various checks for wrapped functionallity
+* TextureBufferView
+  * Wrapper for Buffer to use it as texture buffer
 * Persistent Ring-Buffer 
   * Helper class on top of buffer to provide an easy interface for a low driver overhead write-only ring buffer ("AZDO style")
   * Warns automatically if GPU-CPU syncs happen
@@ -60,7 +63,6 @@ Todos
 (just notes, in no specific order)
 * multi bind-functions for vertex/index/uniform/shaderstorage buffers
 * better buffer destructor: Iterates currently over all possible bindings!
-* consequently use std::string for assert/log (remove all usages of << to concat messages)
 * add support for cube textures
 * add support for 2d texture arrays
 * add support for 3d texture arrays

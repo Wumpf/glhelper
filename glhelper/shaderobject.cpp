@@ -1,7 +1,7 @@
 ﻿#include "shaderobject.hpp"
-#include "uniformbufferview.hpp"
-#include "shaderstoragebufferview.hpp"
 #include "utils/pathutils.hpp"
+
+#include "buffer.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -115,6 +115,7 @@ namespace gl
 
 		// Read
 		sourceCode.assign((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+		file.close();
 
 		std::string insertionBuffer;
 		size_t parseCursorPos = 0;
@@ -415,7 +416,7 @@ namespace gl
 				{
 					if (it->second.internalBufferIndex == pRawUniformBlockInfoData[4])
 					{
-						it->second.Variables.emplace(name, uniformInfo);
+						it->second.variables.emplace(name, uniformInfo);
 						break;
 					}
 				}
@@ -454,7 +455,7 @@ namespace gl
 			{
 				if (it->second.internalBufferIndex == pRawStorageBlockInfoData[4])
 				{
-					it->second.Variables.emplace(name, storageInfo);
+					it->second.variables.emplace(name, storageInfo);
 					break;
 				}
 			}
@@ -501,39 +502,29 @@ namespace gl
 
 	GLuint ShaderObject::GetProgram() const
 	{
-		GLHELPER_ASSERT(m_containsAssembledProgram, "No shader program ready yet for ShaderObject \"" + m_name+ " \". Call CreateProgram first!");
+		GLHELPER_ASSERT(m_containsAssembledProgram, "No shader program ready yet for ShaderObject \"" + m_name+ "\". Call CreateProgram first!");
 		return m_program;
 	}
 
 	void ShaderObject::Activate() const
 	{
-		GLHELPER_ASSERT(m_containsAssembledProgram, "No shader program ready yet for ShaderObject \"" + m_name + " \". Call CreateProgram first!");
+		GLHELPER_ASSERT(m_containsAssembledProgram, "No shader program ready yet for ShaderObject \"" + m_name + "\". Call CreateProgram first!");
 		GL_CALL(glUseProgram, m_program);
 		s_currentlyActiveShaderObject = this;
 	}
 
-	Result ShaderObject::BindUBO(const UniformBufferView& ubo) const
+	Result ShaderObject::BindUBO(Buffer& _ubo, const std::string& _UBOName) const
 	{
-		return BindUBO(ubo, ubo.GetBufferName());
-	}
-
-	Result ShaderObject::BindUBO(const UniformBufferView& ubo, const std::string& sUBOName) const
-	{
-		auto it = m_uniformBlockInfos.find(sUBOName);
+		auto it = m_uniformBlockInfos.find(_UBOName);
 		if (it == m_uniformBlockInfos.end())
 			return Result::FAILURE;
 
-		ubo.BindBuffer(it->second.bufferBinding);
+		_ubo.BindUniformBuffer(it->second.bufferBinding);
 
 		return Result::SUCCEEDED;
 	}
 
-	Result ShaderObject::BindSSBO(const gl::ShaderStorageBufferView& _ssbo) const
-	{
-		return BindSSBO(_ssbo, _ssbo.GetBufferName());
-	}
-
-	Result ShaderObject::BindSSBO(const gl::ShaderStorageBufferView& _ssbo, const std::string& _SSBOName) const
+	Result ShaderObject::BindSSBO(gl::Buffer& _ssbo, const std::string& _SSBOName) const
 	{
 		auto storageBufferInfoIterator = GetShaderStorageBufferInfo().find(_SSBOName);
 		if(storageBufferInfoIterator == GetShaderStorageBufferInfo().end())
@@ -541,7 +532,7 @@ namespace gl
 			GLHELPER_LOG_ERROR("Shader \"" + GetName() + "\" doesn't contain a storage buffer meta block info with the name \"" + _SSBOName + "\"!");
 			return Result::FAILURE;
 		}
-		_ssbo.BindBuffer( storageBufferInfoIterator->second.bufferBinding );
+		_ssbo.BindShaderStorageBuffer(storageBufferInfoIterator->second.bufferBinding);
 
 		return Result::SUCCEEDED;
 	}
@@ -614,11 +605,11 @@ namespace gl
 
 		if (infoLog.size() > 0)
 		{
-			GLHELPER_LOG_ERROR("ShaderObject \"" + m_name + " \": Shader " + sShaderName + " compiled.Output:"); // Not necessarily an error - depends on driver.
+			GLHELPER_LOG_ERROR("ShaderObject \"" + m_name + "\": Shader " + sShaderName + " compiled.Output:"); // Not necessarily an error - depends on driver.
 			GLHELPER_LOG_ERROR(infoLog);
 		}
 		else
-			GLHELPER_LOG_INFO("ShaderObject \"" + m_name + " \": Shader " + sShaderName + " compiled successfully");
+			GLHELPER_LOG_INFO("ShaderObject \"" + m_name + "\": Shader " + sShaderName + " compiled successfully");
 #endif
 	}
 
@@ -637,11 +628,11 @@ namespace gl
 
 		if (infoLog.size() > 0)
 		{
-			GLHELPER_LOG_ERROR("Program \"" + m_name + " \" linked. Output:"); // Not necessarily an error - depends on driver.
+			GLHELPER_LOG_ERROR("Program \"" + m_name + "\" linked. Output:"); // Not necessarily an error - depends on driver.
 			GLHELPER_LOG_ERROR(infoLog);
 		}
 		else
-			GLHELPER_LOG_INFO("Program \"" + m_name + " \" linked successfully");
+			GLHELPER_LOG_INFO("Program \"" + m_name + "\" linked successfully");
 #endif
 	}
 

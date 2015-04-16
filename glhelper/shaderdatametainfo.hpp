@@ -132,7 +132,7 @@ namespace gl
 		std::int32_t bufferDataSizeByte;  ///< Minimal buffer size in bytes
 
 		/// Known contained variable information
-		std::unordered_map<std::string, VariableType> Variables;
+		std::unordered_map<std::string, VariableType> variables;
 
 		// possible, but currently missing:
 		// - usage by shader stage (GL_REFERENCED_BY_..)
@@ -175,46 +175,82 @@ namespace gl
 	typedef BufferInfo<BufferVariableInfo> ShaderStorageBufferMetaInfo;
 	typedef BufferInfo<UniformVariableInfo> UniformBufferMetaInfo;
 
-	/// \brief Base class for setable variable.
-	template<typename VariableType>
-	class ShaderVariable
+
+	/// Helper for easy use of buffer meta info.
+	///
+	/// Can be used to set memory in a buffer by given variables. Note however, that it is always much more efficient to write manually to the corresponding memory.
+	template<typename VariableInfoType>
+	class BufferInfoView
 	{
 	public:
-		void Set(float f);
-		void Set(const gl::Vec2& v);
-		void Set(const gl::Vec3& v);
-		void Set(const gl::Vec4& v);
-		void Set(const gl::Mat3& m);
-		void Set(const gl::Mat4& m);
+		/// Function called for each set command. 
+		/// 1) data to set 
+		/// 2) size of the data in bytes 
+		/// 3) offset of the data within the buffer
+		typedef std::function<void(const void* _data, GLsizei _sizeInBytes, std::int32_t _offset)> SetVariableFunction;
 
-		void Set(double f);
-		//void Set(const gl::Vecd& v);
-		//void Set(const gl::Vec3d& v);
-		//void Set(const gl::Vec4d& v);
-		//void Set(const gl::Mat3d& m);
-		//void Set(const gl::Mat4d& m);
+		/// Creates a buffer view from buffer meta info and a set variable function.
+		BufferInfoView(const BufferInfo<VariableInfoType>& _bufferInfo, const SetVariableFunction& _setVariableFunction) : 
+				m_bufferInfo(_bufferInfo), m_setVariableFunction(_setVariableFunction) {}
 
-		void Set(std::uint32_t ui);
-		void Set(const gl::UVec2& v);
-		void Set(const gl::UVec3& v);
-		void Set(const gl::UVec4& v);
-		void Set(std::int32_t i);
-		void Set(const gl::IVec2& v);
-		void Set(const gl::IVec3& v);
-		void Set(const gl::IVec4& v);
+		class SetableVariable
+		{
+		public:
+			SetableVariable(const VariableInfoType& _metaInfo, const BufferInfoView<VariableInfoType>& _parentBuffer) : m_MetaInfo(_metaInfo), m_parentBuffer(_parentBuffer) {}
 
-		virtual void Set(const void* pData, GLsizei uiSizeInBytes) = 0;
+			void Set(float f);
+			void Set(const gl::Vec2& v);
+			void Set(const gl::Vec3& v);
+			void Set(const gl::Vec4& v);
+			void Set(const gl::Mat3& m);
+			void Set(const gl::Mat4& m);
 
-		// add more type implementations here if necessary
+			void Set(double f);
+			//void Set(const gl::Vecd& v);
+			//void Set(const gl::Vec3d& v);
+			//void Set(const gl::Vec4d& v);
+			//void Set(const gl::Mat3d& m);
+			//void Set(const gl::Mat4d& m);
 
-		const VariableType& GetMetaInfo() const        { return m_MetaInfo; }
+			void Set(std::uint32_t ui);
+			void Set(const gl::UVec2& v);
+			void Set(const gl::UVec3& v);
+			void Set(const gl::UVec4& v);
+			void Set(std::int32_t i);
+			void Set(const gl::IVec2& v);
+			void Set(const gl::IVec3& v);
+			void Set(const gl::IVec4& v);
 
-	protected:
-		ShaderVariable() {}
-		ShaderVariable(const VariableType& metaInfo) : m_MetaInfo(metaInfo) {}
+			// add more type implementations here if necessary
 
-		VariableType m_MetaInfo;
+		private:
+			void Set(const void* _data, GLsizei _sizeInBytes);
+
+			const VariableInfoType& m_MetaInfo;
+			const BufferInfoView<VariableInfoType>& m_parentBuffer;
+		};
+
+		bool ContainsVariable(const std::string& _variableName) const   { return m_bufferInfo.variables.find(_variableName) != m_bufferInfo.variables.end(); }
+		SetableVariable operator[] (const std::string& _variableName)	{ return SetableVariable(m_bufferInfo.variables.find(_variableName)->second, *this); }
+
+
+	private:
+		friend class SetableVariable;
+
+		const BufferInfo<VariableInfoType>& m_bufferInfo;
+		const SetVariableFunction m_setVariableFunction;
 	};
+
+	/// A buffer info view, preconfigured for setting variables within a piece of mapped memory.
+	template<typename VariableInfoType>
+	class MappedMemoryView : public BufferInfoView<VariableInfoType>
+	{
+	public:
+		MappedMemoryView(const BufferInfo<VariableInfoType>& _bufferInfo, void* _mappedMemory, GLsizei _mapOffset = 0);
+	};
+	
+	typedef MappedMemoryView<BufferVariableInfo> MappedBufferView;
+	typedef MappedMemoryView<UniformVariableInfo> MappedUBOView;
 
 #include "ShaderDataMetaInfo.inl"
 }

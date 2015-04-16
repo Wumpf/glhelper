@@ -8,8 +8,7 @@
 
 namespace gl
 {
-	class UniformBufferView;
-	class ShaderStorageBufferView;
+	class Buffer;
 
 	/// Easy to use wrapper for OpenGL shader. Supports #include and various reflection options.
 	class ShaderObject
@@ -81,20 +80,12 @@ namespace gl
 		void Activate() const;
 
 
-		// Manipulation of global uniforms
-		// Make sure that the ShaderObject is already activated
-		// (Setting of ordinary global uniform variables is explicitly not supported! You can still handle this yourself using the available Meta-Info)
 
 		/// Binds an ubo by name.
-		Result BindUBO(const UniformBufferView& ubo, const std::string& sUBOName) const;
-		/// Binds an ubo by its intern buffer name.
-		Result BindUBO(const UniformBufferView& ubo) const;
+		Result BindUBO(Buffer& _ubo, const std::string& _UBOName) const;
 
 		/// Binds a shader storage buffer by name.
-		Result BindSSBO(const ShaderStorageBufferView& _ssbo, const std::string& _SSBOName) const;
-		/// Binds a shader storage buffer by its intern buffer name.
-		Result BindSSBO(const ShaderStorageBufferView& _ssbo) const;
-
+		Result BindSSBO(Buffer& _ssbo, const std::string& _SSBOName) const;
 
 		/// The set of active user-defined inputs to the first shader stage in this program. 
 		/// 
