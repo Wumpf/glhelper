@@ -7,6 +7,8 @@ namespace gl
 	Buffer::BufferBinding Buffer::s_boundUBOs[s_numUBOBindings];
 	Buffer::BufferBinding Buffer::s_boundSSBOs[s_numSSBOBindings];
 	BufferId Buffer::s_boundIndexBuffer = 0;
+	BufferId Buffer::s_boundIndirectDrawBuffer = 0;
+	BufferId Buffer::s_boundIndirectDispatchBuffer = 0;
 
 	Buffer::Buffer(GLsizeiptr _sizeInBytes, UsageFlag _usageFlags, const void* _data) :
         m_sizeInBytes(_sizeInBytes),
@@ -254,6 +256,24 @@ namespace gl
 		{
 			GL_CALL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, m_bufferObject);
 			s_boundIndexBuffer = m_bufferObject;
+		}
+	}
+
+	void Buffer::BindIndirectDrawBuffer()
+	{
+		if (s_boundIndirectDrawBuffer != m_bufferObject)
+		{
+			GL_CALL(glBindBuffer, GL_DRAW_INDIRECT_BUFFER, m_bufferObject);
+			s_boundIndirectDrawBuffer = m_bufferObject;
+		}
+	}
+
+	void Buffer::BindIndirectDispatchBuffer()
+	{
+		if (s_boundIndirectDispatchBuffer != m_bufferObject)
+		{
+			GL_CALL(glBindBuffer, GL_DISPATCH_INDIRECT_BUFFER, m_bufferObject);
+			s_boundIndirectDispatchBuffer = m_bufferObject;
 		}
 	}
 

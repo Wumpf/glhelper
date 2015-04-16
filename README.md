@@ -26,7 +26,7 @@ Contents
     * Info can be used to fill arbitrary memory
   * "hooks" for reloading (very useful for recompile on file change)
 * Buffer
-  * Can be used as Vertex/Index/Uniform/ShaderStorage-Buffer
+  * Can be used as Vertex/Index/Uniform/ShaderStorage/IndirectDraw/IndirectDispatch -Buffer
   * Memorizes creation information and bindings (avoids redundant ones)
   * Various checks for wrapped functionallity
 * TextureBufferView

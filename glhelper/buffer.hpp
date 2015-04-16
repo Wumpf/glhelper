@@ -206,6 +206,12 @@ namespace gl
 		///		The amount of data in machine units that can be read from the buffer object while used as an indexed target.
 		static void BindShaderStorageBuffer(BufferId _buffer, GLuint _bindingIndex, GLintptr _offset, GLsizeiptr _size);
 
+
+		/// Binds as indirect draw buffer if not already bound with the same parameters.
+		void BindIndirectDrawBuffer();
+		/// Binds as indirect dispatch buffer if not already bound with the same parameters.
+		void BindIndirectDispatchBuffer();
+
     private:
 		friend class PersistentRingBuffer;
 
@@ -248,6 +254,12 @@ namespace gl
 		// Shader Storage buffer
 		static const unsigned int s_numSSBOBindings = 16; /// Arbitrary value, based on observation: http://delphigl.de/glcapsviewer/gl_stats_caps_single.php?listreportsbycap=GL_MAX_COMBINED_SHADER_STORAGE_BLOCKS
 		static BufferBinding s_boundSSBOs[s_numSSBOBindings];
+
+		// Indirect Draw
+		static BufferId s_boundIndirectDrawBuffer;
+
+		// Indirect Dispatch
+		static BufferId s_boundIndirectDispatchBuffer;
     };
 
 	#include "buffer.inl"
