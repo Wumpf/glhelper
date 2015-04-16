@@ -26,15 +26,31 @@ namespace gl
 			BORDER = GL_CLAMP_TO_BORDER
 		};
 
+		enum class CompareMode
+		{
+			NONE,
+
+			LESS_EQUAL = GL_LEQUAL,
+			GREATER_EQUAL = GL_GEQUAL,
+			LESS = GL_LESS,
+			GREATER = GL_GREATER,
+			EQUAL = GL_EQUAL,
+			NOTEQUAL = GL_NOTEQUAL,
+			ALWAYS = GL_ALWAYS,
+			NEVER = GL_NEVER,
+		};
+
 		struct Desc
 		{
 			/// Constructs a descriptor with the same border handling for all dimensions.
 			Desc(Filter minFilter, Filter magFilter, Filter mipFilter, Border borderHandling,
-				unsigned int maxAnisotropy = 1, const gl::Vec4& borderColor = gl::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+				unsigned int maxAnisotropy = 1, const gl::Vec4& borderColor = gl::Vec4(1.0f, 1.0f, 1.0f, 1.0f),
+				CompareMode compareMode = CompareMode::NONE);
 
 			/// Constructs a descriptor with the different border handling for each dimension.
 			Desc(Filter minFilter, Filter magFilter, Filter mipFilter, Border borderHandlingU, Border borderHandlingV, Border m_borderHandlingW,
-				unsigned int maxAnisotropy = 1, const gl::Vec4& borderColor = gl::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+				unsigned int maxAnisotropy = 1, const gl::Vec4& borderColor = gl::Vec4(1.0f, 1.0f, 1.0f, 1.0f),
+				CompareMode compareMode = CompareMode::NONE);
 
 			bool operator == (const Desc& other) const { return memcmp(this, &other, sizeof(Desc)) == 0; }
 
@@ -45,7 +61,8 @@ namespace gl
 			Border borderHandlingV;
 			Border borderHandlingW;
 			unsigned int maxAnisotropy;
-			gl::Vec4  borderColor;
+			gl::Vec4 borderColor;
+			CompareMode compareMode;
 
 
 			struct GetHash
@@ -55,7 +72,7 @@ namespace gl
 					size_t hash = (static_cast<size_t>(desc.minFilter) << 0) + (static_cast<size_t>(desc.magFilter) << 1) + (static_cast<size_t>(desc.mipFilter) << 2);
 					hash |= (static_cast<size_t>(desc.borderHandlingU) + static_cast<size_t>(desc.borderHandlingV) + static_cast<size_t>(desc.borderHandlingW) +
 						reinterpret_cast<const uint64_t*>(&desc.maxAnisotropy)[0] + reinterpret_cast<const uint64_t*>(&desc.maxAnisotropy)[1]) << 3;
-					return hash;
+					return hash; // TODO: Add compare mode
 				}
 			};
 		};

@@ -6,13 +6,13 @@ namespace gl
 	const SamplerObject* SamplerObject::s_samplerBindings[gl::Texture::s_numTextureBindings];
 
 	SamplerObject::Desc::Desc(Filter minFilter, Filter magFilter, Filter mipFilter,
-		Border borderHandling, unsigned int maxAnisotropy, const gl::Vec4& borderColor) :
-		Desc(minFilter, magFilter, mipFilter, borderHandling, borderHandling, borderHandling, maxAnisotropy, borderColor)
+		Border borderHandling, unsigned int maxAnisotropy, const gl::Vec4& borderColor, CompareMode compareMode) :
+		Desc(minFilter, magFilter, mipFilter, borderHandling, borderHandling, borderHandling, maxAnisotropy, borderColor, compareMode)
 	{}
 
 	SamplerObject::Desc::Desc(Filter minFilter, Filter magFilter, Filter mipFilter,
 		Border borderHandlingU, Border borderHandlingV, Border m_borderHandlingW,
-		unsigned int maxAnisotropy, const gl::Vec4& borderColor) :
+		unsigned int maxAnisotropy, const gl::Vec4& borderColor, CompareMode compareMode) :
 		minFilter(minFilter),
 		magFilter(magFilter),
 		mipFilter(mipFilter),
@@ -20,7 +20,8 @@ namespace gl
 		borderHandlingV(borderHandlingV),
 		borderHandlingW(m_borderHandlingW),
 		maxAnisotropy(maxAnisotropy),
-		borderColor(borderColor)
+		borderColor(borderColor),
+		compareMode(compareMode)
 	{
 	}
 
@@ -52,6 +53,12 @@ namespace gl
 		GL_CALL(glSamplerParameteri, m_samplerId, GL_TEXTURE_MAX_ANISOTROPY_EXT, desc.maxAnisotropy);
 
 		GL_CALL(glSamplerParameterfv, m_samplerId, GL_TEXTURE_BORDER_COLOR, reinterpret_cast<const float*>(&desc.borderColor));
+
+		if (desc.compareMode != CompareMode::NONE)
+		{
+			GL_CALL(glSamplerParameteri, m_samplerId, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+			GL_CALL(glSamplerParameteri, m_samplerId, GL_TEXTURE_COMPARE_FUNC, static_cast<GLenum>(desc.compareMode));
+		}
 	}
 
 	SamplerObject::~SamplerObject()
