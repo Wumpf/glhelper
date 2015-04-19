@@ -61,6 +61,11 @@ namespace gl
 		{
 			InitScissorBlendStateOnStartup() { InitScissorBlendState(); }
 		} initScissorBlendStateOnStartup;
+
+
+
+		bool DepthWriteEnabled = false;
+		DepthFunc DepthComparisionFunc = DepthFunc::LESS;
 	}
 
 	void Enable(Cap _cap, GLuint _index, bool _force)
@@ -127,13 +132,13 @@ namespace gl
 		}
 	}
 
-	void ResetBooleanStateTable_Get()
+	void ResetBooleanCapStateTable_Get()
 	{
 		for (unsigned int i = 0; i < static_cast<unsigned int>(Cap::NUM_CAPS); ++i)
 			Details::CapStates[i] = glIsEnabled(Details::CapStateToGLCap[i]) == GL_TRUE ? CapState::ENABLED : CapState::DISABLED;
 	}
 
-	void ResetBooleanStateTable_Unkown()
+	void ResetBooleanCapStateTable_Unkown()
 	{
 		for (unsigned int i = 0; i < static_cast<unsigned int>(Cap::NUM_CAPS); ++i)
 			Details::CapStates[i] = CapState::UNKOWN;

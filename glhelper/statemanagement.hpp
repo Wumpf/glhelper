@@ -136,15 +136,78 @@ namespace gl
 	/// 
 	/// \attention This function is rather slow. Consider force flags or ResetBooleanStateTable_Unkown.
 	/// \see ResetBooleanStateTable_Unkown, Enable, Disable
-	void ResetBooleanStateTable_Get();
+	void ResetBooleanCapStateTable_Get();
 
 	/// Resets the internal state table to Details::EnableState::UNKOWN
 	///
 	/// For states which are set to unknown, no redundant change check will be performed. After a call to Enable/Disable a state is no longer unknown.
 	/// \see ResetBooleanStateTable_Get, Enable, Disable
-	void ResetBooleanStateTable_Unkown();
+	void ResetBooleanCapStateTable_Unkown();
 
 
+	// --------------------------------------------------------------------------------------------------------------------------
+	// Depth
+	// --------------------------------------------------------------------------------------------------------------------------
+
+	/// Possible states for SetDepthFunc http://docs.gl/gl4/glDepthFunc
+	enum DepthFunc
+	{
+		NEVER = GL_NEVER,		///< Never passes.
+		LESS = GL_LESS,			///< Passes if the incoming depth value is less than the stored depth value.
+		EQUAL = GL_EQUAL,		///< Passes if the incoming depth value is equal to the stored depth value.
+		LEQUAL = GL_LEQUAL,		///< Passes if the incoming depth value is less than or equal to the stored depth value.
+		GREATER = GL_GREATER,	///< Passes if the incoming depth value is greater than the stored depth value.
+		NOTEQUAL = GL_NOTEQUAL,	///< Passes if the incoming depth value is not equal to the stored depth value.
+		GEQUAL = GL_GEQUAL,		///< Passes if the incoming depth value is greater than or equal to the stored depth value.
+		ALWAYS = GL_ALWAYS,		///< Always passes.
+	};
+
+	namespace Details
+	{
+		extern bool DepthWriteEnabled;
+		extern DepthFunc DepthComparisionFunc;
+	}
+
+	/// Enable or disable writing into the depth buffer. (glDepthMask)
+	///
+	/// Reading from depth buffer is a cap state, since it is set by glEnable
+	void SetDepthWrite(bool _writeEnabled, bool _force = false);
+
+	/// Gets if writing to depth buffer is enabled. (glDepthMask)
+	bool GetDepthWrite();
+
+	/// Sets current depth buffer comparision function. (glDepthFunc)
+	void SetDepthFunc(DepthFunc _depthCompFunc, bool _force = false);
+
+	/// Gets current depth buffer comparision function.
+	DepthFunc GetDepthFunc();
+
+	// --------------------------------------------------------------------------------------------------------------------------
+	// Stencil
+	// --------------------------------------------------------------------------------------------------------------------------
+
+	// todo ...
+
+
+	// --------------------------------------------------------------------------------------------------------------------------
+	// Blending
+	// --------------------------------------------------------------------------------------------------------------------------
+
+	// todo ...
+
+
+	// --------------------------------------------------------------------------------------------------------------------------
+	// Viewport
+	// --------------------------------------------------------------------------------------------------------------------------
+
+	// todo ...
+
+
+	// --------------------------------------------------------------------------------------------------------------------------
+	// Misc
+	// --------------------------------------------------------------------------------------------------------------------------
+
+	// todo ...
 	#include "statemanagement.inl"
 }
 
