@@ -27,8 +27,6 @@ namespace gl
 		///		Size of the area in pixels which will be overwritten by _data.
 		void SetData(GLsizei _mipLevel, TextureSetDataFormat _dataFormat, TextureSetDataType _dataType, const void* _data, const gl::UVec3& _volumeOffset, const gl::UVec3& _volumeSize);
 
-		void GenMipMaps();
-
 		GLenum GetOpenGLTextureType() const override { return GL_TEXTURE_3D; }
 	};
 
