@@ -129,6 +129,7 @@ namespace gl
 
 		/// Call this function for hot reloading of a shader.
 		/// If the given filename is not recognized, nothing will happen.
+		/// If the file was loaded with a prefix code (see AddShaderFromFile) then this code will also be used again.
 		void ShaderFileChangeHandler(const std::string& _changedShaderFile);
 
 		/// Gets a list of all associated shader files (including resolved includes) and their usage.
@@ -136,9 +137,9 @@ namespace gl
 
 	private:
 		/// Print information about the compiling step
-		void PrintShaderInfoLog(ShaderId shader, const std::string& sShaderName);
+		void PrintShaderInfoLog(ShaderId _shader, const std::string& _shaderName);
 		/// Print information about the linking step
-		void PrintProgramInfoLog(ProgramId program);
+		void PrintProgramInfoLog(ProgramId _program);
 
 		/// Reads shader source code from file and performs parsing of #include directives
 		/// \param fileIndex	This will used as second parameter for each #line macro. It is a kind of file identifier.
@@ -146,6 +147,8 @@ namespace gl
 		static std::string ReadShaderFromFile(const std::string& shaderFilename, const std::string& prefixCode,
 												unsigned int fileIndex, std::unordered_set<std::string>& _beforeIncludedFiles, std::unordered_set<std::string>& _allReadFiles);
 
+		/// Internal function called by AddShaderFromSource and AddShaderFromFile
+		Result AddShader(ShaderType _type, const std::string& _sourceCode, const std::string& _originName, const std::string& _prefixCode);
 
 
 		/// queries uniform informations from the program
@@ -173,9 +176,10 @@ namespace gl
 		// underlying shaders
 		struct Shader
 		{
-			ShaderId  shaderObject;
-			std::string  sOrigin;
-			bool      loaded;
+			ShaderId shaderObject;
+			std::string origin;
+			std::string prefixCode;
+			bool loaded;
 		};
 		Shader m_shader[(unsigned int)ShaderType::NUM_SHADER_TYPES];
 

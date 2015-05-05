@@ -23,7 +23,7 @@ namespace gl
 		for (Shader& shader : m_shader)
 		{
 			shader.shaderObject = 0;
-			shader.sOrigin = "";
+			shader.origin = "";
 			shader.loaded = false;
 		}
 	}
@@ -72,21 +72,21 @@ namespace gl
 		}
 	}
 
-	Result ShaderObject::AddShaderFromFile(ShaderType type, const std::string& filename, const std::string& prefixCode)
+	Result ShaderObject::AddShaderFromFile(ShaderType _type, const std::string& _filename, const std::string& _prefixCode)
 	{
 		// load new code
 		std::unordered_set<std::string> includingFiles, allFiles;
-		std::string sourceCode = ReadShaderFromFile(filename, prefixCode, 0, includingFiles, allFiles);
+		std::string sourceCode = ReadShaderFromFile(_filename, _prefixCode, 0, includingFiles, allFiles);
 		if (sourceCode == "")
 			return Result::FAILURE;
 
-		Result result = AddShaderFromSource(type, sourceCode, filename);
+		Result result = AddShader(_type, sourceCode, _filename, _prefixCode);
 
 		if (result != Result::FAILURE)
 		{
 			// memorize files
 			for (auto it = allFiles.begin(); it != allFiles.end(); ++it)
-				m_filesPerShaderType.emplace(*it, type);
+				m_filesPerShaderType.emplace(*it, _type);
 		}
 
 		return result;
@@ -94,18 +94,18 @@ namespace gl
 
 	/// \param _beforeIncludedFiles
 	///		Does not include THIS file, but all files before.
-	std::string ShaderObject::ReadShaderFromFile(const std::string& shaderFilename, const std::string& prefixCode,
-												 unsigned int fileIndex, std::unordered_set<std::string>& _beforeIncludedFiles, std::unordered_set<std::string>& _allReadFiles)
+	std::string ShaderObject::ReadShaderFromFile(const std::string& _shaderFilename, const std::string& _prefixCode,
+												 unsigned int _fileIndex, std::unordered_set<std::string>& _beforeIncludedFiles, std::unordered_set<std::string>& _allReadFiles)
 	{
 		// open file
-		std::ifstream file(shaderFilename.c_str());
+		std::ifstream file(_shaderFilename.c_str());
 		if (file.bad() || file.fail())
 		{
-			GLHELPER_LOG_ERROR("Unable to open shader file " + shaderFilename);
+			GLHELPER_LOG_ERROR("Unable to open shader file " + _shaderFilename);
 			return "";
 		}
 
-		_allReadFiles.insert(shaderFilename);
+		_allReadFiles.insert(_shaderFilename);
 
 		// Reserve
 		std::string sourceCode;
@@ -127,16 +127,16 @@ namespace gl
 		// Don't insert one if this is the main file, recognizable by a #version tag!
 		if (versionPos == std::string::npos)
 		{
-			insertionBuffer = "#line 1 " + std::to_string(fileIndex) + "\n";
+			insertionBuffer = "#line 1 " + std::to_string(_fileIndex) + "\n";
 			sourceCode.insert(0, insertionBuffer);
 			parseCursorPos = insertionBuffer.size();
 			parseCursorOriginalFileNumber = 1;
 		}
 
-		unsigned int lastFileIndex = fileIndex;
+		unsigned int lastFileIndex = _fileIndex;
 
 		// Prefix code (optional)
-		if (!prefixCode.empty())
+		if (!_prefixCode.empty())
 		{
 			if (versionPos != std::string::npos)
 			{
@@ -145,8 +145,8 @@ namespace gl
 				size_t numLinesBeforeVersion = std::count(sourceCode.begin(), sourceCode.begin() + versionPos, '\n');
 
 				insertionBuffer = "\n#line 1 " + std::to_string(++lastFileIndex) + "\n";
-				insertionBuffer += prefixCode;
-				insertionBuffer += "\n#line " + std::to_string(numLinesBeforeVersion + 1) + " " + std::to_string(fileIndex) + "\n";
+				insertionBuffer += _prefixCode;
+				insertionBuffer += "\n#line " + std::to_string(numLinesBeforeVersion + 1) + " " + std::to_string(_fileIndex) + "\n";
 
 				sourceCode.insert(nextLineIdx, insertionBuffer);
 
@@ -159,11 +159,11 @@ namespace gl
 		// By adding this file to a NEW list of included files we allow multiple inclusion of the same file but disallow cycles.
 		// Including the same file multiple times may be useful in some cases!
 		auto includedFilesNew = _beforeIncludedFiles;
-		includedFilesNew.emplace(shaderFilename);
+		includedFilesNew.emplace(_shaderFilename);
 
 		// parse all include tags
 		size_t includePos = sourceCode.find("#include", parseCursorPos);
-		std::string relativePath = PathUtils::GetDirectory(shaderFilename);
+		std::string relativePath = PathUtils::GetDirectory(_shaderFilename);
 		while (includePos != std::string::npos)
 		{
 			parseCursorOriginalFileNumber += std::count(sourceCode.begin() + parseCursorPos, sourceCode.begin() + includePos, '\n');
@@ -173,20 +173,20 @@ namespace gl
 			size_t quotMarksFirst = sourceCode.find("\"", includePos);
 			if (quotMarksFirst == std::string::npos)
 			{
-				GLHELPER_LOG_ERROR("Invalid #include directive in shader file " + shaderFilename + ". Expected \"");
+				GLHELPER_LOG_ERROR("Invalid #include directive in shader file " + _shaderFilename + ". Expected \"");
 				break;
 			}
 			size_t quotMarksLast = sourceCode.find("\"", quotMarksFirst + 1);
 			if (quotMarksFirst == std::string::npos)
 			{
-				GLHELPER_LOG_ERROR("Invalid #include directive in shader file " + shaderFilename + ". Expected \"");
+				GLHELPER_LOG_ERROR("Invalid #include directive in shader file " + _shaderFilename + ". Expected \"");
 				break;
 			}
 
 			size_t stringLength = quotMarksLast - quotMarksFirst - 1;
 			if (stringLength == 0)
 			{
-				GLHELPER_LOG_ERROR("Invalid #include directive in shader file " + shaderFilename + ". Quotation marks empty!");
+				GLHELPER_LOG_ERROR("Invalid #include directive in shader file " + _shaderFilename + ". Quotation marks empty!");
 				break;
 			}
 
@@ -203,7 +203,7 @@ namespace gl
 			else
 			{
 				insertionBuffer = ReadShaderFromFile(includeFile, "", ++lastFileIndex, includedFilesNew, _allReadFiles);
-				insertionBuffer += "\n#line " + std::to_string(parseCursorOriginalFileNumber + 1) + " " + std::to_string(fileIndex); // whitespace replaces #include!
+				insertionBuffer += "\n#line " + std::to_string(parseCursorOriginalFileNumber + 1) + " " + std::to_string(_fileIndex); // whitespace replaces #include!
 				sourceCode.replace(includePos, quotMarksLast - includePos + 1, insertionBuffer);
 
 				parseCursorPos += insertionBuffer.size();
@@ -216,13 +216,21 @@ namespace gl
 		return sourceCode;
 	}
 
-	Result ShaderObject::AddShaderFromSource(ShaderType type, const std::string& sourceCode, const std::string& sOriginName)
+	Result ShaderObject::AddShaderFromSource(ShaderType _type, const std::string& _sourceCode, const std::string& _originName)
 	{
-		Shader& shader = m_shader[static_cast<std::uint32_t>(type)];
+		return AddShader(_type, _sourceCode, _originName, "");
+	}
+
+	Result ShaderObject::AddShader(ShaderType _type, const std::string& _sourceCode, const std::string& _originName, const std::string& _prefixCode)
+	{
+		GLHELPER_ASSERT(_sourceCode != "", "Shader source code is empty!");
+		GLHELPER_ASSERT(_originName != "", "No shader origin given!");
+
+		Shader& shader = m_shader[static_cast<std::uint32_t>(_type)];
 
 		// create shader
 		GLuint shaderObjectTemp = 0;
-		switch (type)
+		switch (_type)
 		{
 		case ShaderObject::ShaderType::VERTEX:
 			shaderObjectTemp = GL_RET_CALL(glCreateShader, GL_VERTEX_SHADER);
@@ -249,7 +257,7 @@ namespace gl
 		}
 
 		// compile shader
-		const char* sourceRaw = sourceCode.c_str();
+		const char* sourceRaw = _sourceCode.c_str();
 		GL_CALL(glShaderSource, shaderObjectTemp, 1, &sourceRaw, nullptr);	// attach shader code
 
 		Result result = gl::CheckGLError("glShaderSource");
@@ -271,7 +279,7 @@ namespace gl
 		}
 
 		// log output
-		PrintShaderInfoLog(shaderObjectTemp, sOriginName);
+		PrintShaderInfoLog(shaderObjectTemp, _originName);
 
 		// check result
 		if (result == Result::SUCCEEDED)
@@ -280,17 +288,18 @@ namespace gl
 			if (shader.loaded)
 			{
 				glDeleteShader(shader.shaderObject);
-				shader.sOrigin = "";
+				shader.origin = "";
 			}
 
 			// memorize new data only if loading successful - this way a failed reload won't affect anything
 			shader.shaderObject = shaderObjectTemp;
-			shader.sOrigin = sOriginName;
+			shader.origin = _originName;
+			shader.prefixCode = _prefixCode;
 
 			// remove old associated files
 			for (auto it = m_filesPerShaderType.begin(); it != m_filesPerShaderType.end(); ++it)
 			{
-				if (it->second == type)
+				if (it->second == _type)
 				{
 					it = m_filesPerShaderType.erase(it);
 					if (it == m_filesPerShaderType.end())
@@ -380,41 +389,41 @@ namespace gl
 		QueryBlockInformations(m_shaderStorageInfos, GL_SHADER_STORAGE_BLOCK);
 
 		// informations about uniforms ...
-		GLint iTotalNumUniforms = 0;
-		GL_CALL(glGetProgramInterfaceiv, m_program, GL_UNIFORM, GL_ACTIVE_RESOURCES, &iTotalNumUniforms);
+		GLint totalNumUniforms = 0;
+		GL_CALL(glGetProgramInterfaceiv, m_program, GL_UNIFORM, GL_ACTIVE_RESOURCES, &totalNumUniforms);
 		const GLuint iNumQueriedUniformProps = 10;
 		const GLenum pQueriedUniformProps[] = { GL_NAME_LENGTH, GL_TYPE, GL_ARRAY_SIZE, GL_OFFSET, GL_BLOCK_INDEX, GL_ARRAY_STRIDE, GL_MATRIX_STRIDE, GL_IS_ROW_MAJOR, GL_ATOMIC_COUNTER_BUFFER_INDEX, GL_LOCATION };
-		GLint pRawUniformBlockInfoData[iNumQueriedUniformProps] = {};
-		for (int blockIndex = 0; blockIndex < iTotalNumUniforms; ++blockIndex)
+		GLint _rawUniformBlockInfoData[iNumQueriedUniformProps] = {};
+		for (int blockIndex = 0; blockIndex < totalNumUniforms; ++blockIndex)
 		{
 			// general data
 			GLsizei length = 0;
-			GL_CALL(glGetProgramResourceiv, m_program, GL_UNIFORM, blockIndex, iNumQueriedUniformProps, pQueriedUniformProps, iNumQueriedUniformProps, &length, pRawUniformBlockInfoData);
+			GL_CALL(glGetProgramResourceiv, m_program, GL_UNIFORM, blockIndex, iNumQueriedUniformProps, pQueriedUniformProps, iNumQueriedUniformProps, &length, _rawUniformBlockInfoData);
 			UniformVariableInfo uniformInfo;
-			uniformInfo.type = static_cast<gl::ShaderVariableType>(pRawUniformBlockInfoData[1]);
-			uniformInfo.arrayElementCount = static_cast<std::int32_t>(pRawUniformBlockInfoData[2]);
-			uniformInfo.blockOffset = static_cast<std::int32_t>(pRawUniformBlockInfoData[3]);
-			uniformInfo.arrayStride = static_cast<std::int32_t>(pRawUniformBlockInfoData[5]) * 4;
-			uniformInfo.matrixStride = static_cast<std::int32_t>(pRawUniformBlockInfoData[6]);
-			uniformInfo.rowMajor = pRawUniformBlockInfoData[7] > 0;
-			uniformInfo.atomicCounterbufferIndex = pRawUniformBlockInfoData[8];
-			uniformInfo.location = pRawUniformBlockInfoData[9];
+			uniformInfo.type = static_cast<gl::ShaderVariableType>(_rawUniformBlockInfoData[1]);
+			uniformInfo.arrayElementCount = static_cast<std::int32_t>(_rawUniformBlockInfoData[2]);
+			uniformInfo.blockOffset = static_cast<std::int32_t>(_rawUniformBlockInfoData[3]);
+			uniformInfo.arrayStride = static_cast<std::int32_t>(_rawUniformBlockInfoData[5]) * 4;
+			uniformInfo.matrixStride = static_cast<std::int32_t>(_rawUniformBlockInfoData[6]);
+			uniformInfo.rowMajor = _rawUniformBlockInfoData[7] > 0;
+			uniformInfo.atomicCounterbufferIndex = _rawUniformBlockInfoData[8];
+			uniformInfo.location = _rawUniformBlockInfoData[9];
 
 			// name
 			GLint actualNameLength = 0;
 			std::string name;
-			name.resize(pRawUniformBlockInfoData[0] + 1);
+			name.resize(_rawUniformBlockInfoData[0] + 1);
 			GL_CALL(glGetProgramResourceName, m_program, GL_UNIFORM, static_cast<GLuint>(blockIndex), static_cast<GLsizei>(name.size()), &actualNameLength, &name[0]);
 			name.resize(actualNameLength);
 
 			// where to store (to which ubo block does this variable belong)
-			if (pRawUniformBlockInfoData[4] < 0)
+			if (_rawUniformBlockInfoData[4] < 0)
 				m_globalUniformInfo.emplace(name, uniformInfo);
 			else
 			{
 				for (auto it = m_uniformBlockInfos.begin(); it != m_uniformBlockInfos.end(); ++it)
 				{
-					if (it->second.internalBufferIndex == pRawUniformBlockInfoData[4])
+					if (it->second.internalBufferIndex == _rawUniformBlockInfoData[4])
 					{
 						it->second.variables.emplace(name, uniformInfo);
 						break;
@@ -424,36 +433,36 @@ namespace gl
 		}
 
 		// informations about shader storage variables 
-		GLint iTotalNumStorages = 0;
-		GL_CALL(glGetProgramInterfaceiv, m_program, GL_BUFFER_VARIABLE, GL_ACTIVE_RESOURCES, &iTotalNumStorages);
+		GLint totalNumStorages = 0;
+		GL_CALL(glGetProgramInterfaceiv, m_program, GL_BUFFER_VARIABLE, GL_ACTIVE_RESOURCES, &totalNumStorages);
 		const GLuint numQueriedStorageProps = 10;
 		const GLenum queriedStorageProps[] = { GL_NAME_LENGTH, GL_TYPE, GL_ARRAY_SIZE, GL_OFFSET, GL_BLOCK_INDEX, GL_ARRAY_STRIDE, GL_MATRIX_STRIDE, GL_IS_ROW_MAJOR, GL_TOP_LEVEL_ARRAY_SIZE, GL_TOP_LEVEL_ARRAY_STRIDE };
-		GLint pRawStorageBlockInfoData[numQueriedStorageProps];
-		for (GLint blockIndex = 0; blockIndex < iTotalNumStorages; ++blockIndex)
+		GLint rawStorageBlockInfoData[numQueriedStorageProps];
+		for (GLint blockIndex = 0; blockIndex < totalNumStorages; ++blockIndex)
 		{
 			// general data
-			GL_CALL(glGetProgramResourceiv, m_program, GL_BUFFER_VARIABLE, blockIndex, numQueriedStorageProps, queriedStorageProps, numQueriedStorageProps, nullptr, pRawStorageBlockInfoData);
+			GL_CALL(glGetProgramResourceiv, m_program, GL_BUFFER_VARIABLE, blockIndex, numQueriedStorageProps, queriedStorageProps, numQueriedStorageProps, nullptr, rawStorageBlockInfoData);
 			BufferVariableInfo storageInfo;
-			storageInfo.type = static_cast<gl::ShaderVariableType>(pRawStorageBlockInfoData[1]);
-			storageInfo.arrayElementCount = static_cast<std::int32_t>(pRawStorageBlockInfoData[2]);
-			storageInfo.blockOffset = static_cast<std::int32_t>(pRawStorageBlockInfoData[3]);
-			storageInfo.arrayStride = static_cast<std::int32_t>(pRawStorageBlockInfoData[5]);
-			storageInfo.matrixStride = static_cast<std::int32_t>(pRawStorageBlockInfoData[6]);
-			storageInfo.rowMajor = pRawStorageBlockInfoData[7] > 0;
-			storageInfo.topLevelArraySize = pRawStorageBlockInfoData[8];
-			storageInfo.topLevelArrayStride = pRawStorageBlockInfoData[9];
+			storageInfo.type = static_cast<gl::ShaderVariableType>(rawStorageBlockInfoData[1]);
+			storageInfo.arrayElementCount = static_cast<std::int32_t>(rawStorageBlockInfoData[2]);
+			storageInfo.blockOffset = static_cast<std::int32_t>(rawStorageBlockInfoData[3]);
+			storageInfo.arrayStride = static_cast<std::int32_t>(rawStorageBlockInfoData[5]);
+			storageInfo.matrixStride = static_cast<std::int32_t>(rawStorageBlockInfoData[6]);
+			storageInfo.rowMajor = rawStorageBlockInfoData[7] > 0;
+			storageInfo.topLevelArraySize = rawStorageBlockInfoData[8];
+			storageInfo.topLevelArrayStride = rawStorageBlockInfoData[9];
 
 			// name
 			GLint iActualNameLength = 0;
 			std::string name;
-			name.resize(pRawStorageBlockInfoData[0] + 1);
+			name.resize(rawStorageBlockInfoData[0] + 1);
 			GL_CALL(glGetProgramResourceName, m_program, GL_BUFFER_VARIABLE, blockIndex, static_cast<GLsizei>(name.size()), &iActualNameLength, &name[0]);
 			name.resize(iActualNameLength);
 
 			// where to store (to which shader storage block does this variable belong)
 			for (auto it = m_shaderStorageInfos.begin(); it != m_shaderStorageInfos.end(); ++it)
 			{
-				if (it->second.internalBufferIndex == pRawStorageBlockInfoData[4])
+				if (it->second.internalBufferIndex == rawStorageBlockInfoData[4])
 				{
 					it->second.variables.emplace(name, storageInfo);
 					break;
@@ -467,12 +476,12 @@ namespace gl
 	}
 
 	template<typename BufferVariableType>
-	void ShaderObject::QueryBlockInformations(std::unordered_map<std::string, BufferInfo<BufferVariableType>>& BufferToFill, GLenum InterfaceName)
+	void ShaderObject::QueryBlockInformations(std::unordered_map<std::string, BufferInfo<BufferVariableType>>& _bufferToFill, GLenum _interfaceName)
 	{
-		BufferToFill.clear();
+		_bufferToFill.clear();
 
 		GLint iTotalNumBlocks = 0;
-		GL_CALL(glGetProgramInterfaceiv, m_program, InterfaceName, GL_ACTIVE_RESOURCES, &iTotalNumBlocks);
+		GL_CALL(glGetProgramInterfaceiv, m_program, _interfaceName, GL_ACTIVE_RESOURCES, &iTotalNumBlocks);
 
 		// gather infos about uniform blocks
 		const GLuint iNumQueriedBlockProps = 4;
@@ -482,7 +491,7 @@ namespace gl
 		{
 			// general data
 			GLsizei length = 0;
-			GL_CALL(glGetProgramResourceiv, m_program, InterfaceName, blockIndex, iNumQueriedBlockProps, pQueriedBlockProps, iNumQueriedBlockProps, &length, pRawUniformBlockInfoData);
+			GL_CALL(glGetProgramResourceiv, m_program, _interfaceName, blockIndex, iNumQueriedBlockProps, pQueriedBlockProps, iNumQueriedBlockProps, &length, pRawUniformBlockInfoData);
 			BufferInfo<BufferVariableType> BlockInfo;
 			BlockInfo.internalBufferIndex = blockIndex;
 			BlockInfo.bufferBinding = pRawUniformBlockInfoData[1];
@@ -493,10 +502,10 @@ namespace gl
 			GLint actualNameLength = 0;
 			std::string name;
 			name.resize(pRawUniformBlockInfoData[0] + 1);
-			GL_CALL(glGetProgramResourceName, m_program, InterfaceName, blockIndex, static_cast<GLsizei>(name.size()), &actualNameLength, &name[0]);
+			GL_CALL(glGetProgramResourceName, m_program, _interfaceName, blockIndex, static_cast<GLsizei>(name.size()), &actualNameLength, &name[0]);
 			name.resize(actualNameLength);
 
-			BufferToFill.emplace(name, BlockInfo);
+			_bufferToFill.emplace(name, BlockInfo);
 		}
 	}
 
@@ -537,93 +546,39 @@ namespace gl
 		return Result::SUCCEEDED;
 	}
 
-	/*
-	Result ShaderObject::BindImage(Texture& texture, Texture::ImageAccess accessMode, const std::string& sImageName)
-	{
-	auto it = m_GlobalUniformInfo.Find(sImageName);
-	if(!it.IsValid())
-	return Result::FAILURE;
-
-	// optional typechecking
-	switch(it.Value().Type)
-	{
-	case ShaderVariableType::UNSIGNED_INT_IMAGE_3D:
-	case ShaderVariableType::INT_IMAGE_3D:
-	case ShaderVariableType::IMAGE_3D:
-	GLHELPER_ASSERT(dynamic_cast<Texture3D*>(&texture) != NULL, "3D Texture expected!");
-	break;
-	default:
-	GLHELPER_ASSERT(false, "Handling for this type of uniform not implemented!");
-	break;
-	}
-
-	GLHELPER_ASSERT(it.Value(). ??  >= 0, "Location of shader variable %s is invalid. You need to to specify the location with the layout qualifier!", it.Key());
-
-	texture.BindImage(it.Value(). ??, accessMode);
-
-	return EZ_SUCCESS;
-	}
-
-	Result ShaderObject::BindTexture(Texture& texture, const std::string& sTextureName)
-	{
-	auto it = m_GlobalUniformInfo.Find(sTextureName);
-	if(!it.IsValid())
-	return Result::FAILURE;
-
-	// optional typechecking
-	switch(it.Value().Type)
-	{
-	case ShaderVariableType::UNSIGNED_INT_SAMPLER_3D:
-	case ShaderVariableType::INT_SAMPLER_3D:
-	case ShaderVariableType::SAMPLER_3D:
-	GLHELPER_ASSERT(dynamic_cast<Texture3D*>(&texture) != NULL, "3D Texture expected!");
-	break;
-	default:
-	GLHELPER_ASSERT(false, "Handling for this type of uniform not implemented!");
-	break;
-	}
-
-	GLHELPER_ASSERT(it.Value(). ?? >= 0, "Location of shader variable %s is invalid. You need to to specify the location with the layout qualifier!", it.Key());
-
-	texture.Bind(it.Value(). ??);
-
-	return EZ_SUCCESS;
-	}
-	*/
-
-	void ShaderObject::PrintShaderInfoLog(ShaderId Shader, const std::string& sShaderName)
+	void ShaderObject::PrintShaderInfoLog(ShaderId _shader, const std::string& _shaderName)
 	{
 #ifdef SHADER_COMPILE_LOGS
 		GLint infologLength = 0;
 		GLsizei charsWritten = 0;
 
-		GL_CALL(glGetShaderiv, Shader, GL_INFO_LOG_LENGTH, &infologLength);
+		GL_CALL(glGetShaderiv, _shader, GL_INFO_LOG_LENGTH, &infologLength);
 		std::string infoLog;
 		infoLog.resize(infologLength);
-		GL_CALL(glGetShaderInfoLog, Shader, infologLength, &charsWritten, &infoLog[0]);
+		GL_CALL(glGetShaderInfoLog, _shader, infologLength, &charsWritten, &infoLog[0]);
 		infoLog.resize(charsWritten);
 
 		if (infoLog.size() > 0)
 		{
-			GLHELPER_LOG_ERROR("ShaderObject \"" + m_name + "\": Shader " + sShaderName + " compiled.Output:"); // Not necessarily an error - depends on driver.
+			GLHELPER_LOG_ERROR("ShaderObject \"" + m_name + "\": Shader " + _shaderName + " compiled.Output:"); // Not necessarily an error - depends on driver.
 			GLHELPER_LOG_ERROR(infoLog);
 		}
 		else
-			GLHELPER_LOG_INFO("ShaderObject \"" + m_name + "\": Shader " + sShaderName + " compiled successfully");
+			GLHELPER_LOG_INFO("ShaderObject \"" + m_name + "\": Shader " + _shaderName + " compiled successfully");
 #endif
 	}
 
 	// Print information about the linking step
-	void ShaderObject::PrintProgramInfoLog(ProgramId Program)
+	void ShaderObject::PrintProgramInfoLog(ProgramId _program)
 	{
 #ifdef SHADER_COMPILE_LOGS
 		GLint infologLength = 0;
 		GLsizei charsWritten = 0;
 
-		GL_CALL(glGetProgramiv, Program, GL_INFO_LOG_LENGTH, &infologLength);
+		GL_CALL(glGetProgramiv, _program, GL_INFO_LOG_LENGTH, &infologLength);
 		std::string infoLog;
 		infoLog.resize(infologLength);
-		GL_CALL(glGetProgramInfoLog, Program, infologLength, &charsWritten, &infoLog[0]);
+		GL_CALL(glGetProgramInfoLog, _program, infologLength, &charsWritten, &infoLog[0]);
 		infoLog.resize(charsWritten);
 
 		if (infoLog.size() > 0)
@@ -636,15 +591,19 @@ namespace gl
 #endif
 	}
 
-	void ShaderObject::ShaderFileChangeHandler(const std::string& changedShaderFile)
+	void ShaderObject::ShaderFileChangeHandler(const std::string& _changedShaderFile)
 	{
-		auto it = m_filesPerShaderType.find(changedShaderFile);
+		auto it = m_filesPerShaderType.find(_changedShaderFile);
 		if (it != m_filesPerShaderType.end())
 		{
-			if (m_shader[static_cast<std::uint32_t>(it->second)].loaded)
+			auto& shader = m_shader[static_cast<std::uint32_t>(it->second)];
+
+			if (shader.loaded)
 			{
-				std::string origin(m_shader[static_cast<std::uint32_t>(it->second)].sOrigin);  // need to copy the string, since it could be deleted in the course of reloading..
-				if (AddShaderFromFile(it->second, origin) != Result::FAILURE && m_containsAssembledProgram)
+				// Need to copy these strings, since they could be deleted in the course of reloading..
+				std::string origin(shader.origin);
+				std::string prefix(shader.prefixCode);
+				if (AddShaderFromFile(it->second, origin, prefix) != Result::FAILURE && m_containsAssembledProgram)
 					CreateProgram();
 			}
 		}
