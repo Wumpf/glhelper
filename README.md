@@ -29,16 +29,17 @@ Contents
   * Can be used as Vertex/Index/Uniform/ShaderStorage/IndirectDraw/IndirectDispatch -Buffer
   * Memorizes creation information and bindings (avoids redundant ones)
   * Various checks for wrapped functionallity
-* TextureBufferView
-  * Wrapper for Buffer to use it as texture buffer
 * Persistent Ring-Buffer 
   * Helper class on top of buffer to provide an easy interface for a low driver overhead write-only ring buffer ("AZDO style")
   * Warns automatically if GPU-CPU syncs happen
 * Vertex Array Object
   * Comfortable abstraction for usage as vertex format declaration  
     (possible using ARB_vertex_attrib_binding, which is Core in OpenGL 4.3)
-* Texture (2D)
+* Textures
   * Memorizes creation information and bindings (avoids redundant ones)
+  * 2D, 3D, Views
+* TextureBufferView
+  * Wrapper for Buffer to use it as texture buffer
 * Sampler
   * Simplified creation
   * Reuse of already created sampler objects (all existing ones are hashed)
