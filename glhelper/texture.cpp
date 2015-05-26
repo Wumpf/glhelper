@@ -70,9 +70,9 @@ namespace gl
 			return _mipMapSetting;
 	}
 
-	void Texture::BindImage(GLuint _slotIndex, Texture::ImageAccess access, TextureFormat format) const
+	void Texture::BindImage(GLuint _slotIndex, Texture::ImageAccess _access, TextureFormat _format, GLint _level) const
 	{
-		GL_CALL(glBindImageTexture, _slotIndex, m_textureHandle, 0, GL_TRUE, 0, static_cast<GLenum>(access), gl::TextureFormatToGLSizedInternal[static_cast<unsigned int>(format)]);
+		GL_CALL(glBindImageTexture, _slotIndex, m_textureHandle, _level, GL_TRUE, 0, static_cast<GLenum>(_access), gl::TextureFormatToGLSizedInternal[static_cast<unsigned int>(_format)]);
 	}
 
 	void Texture::ResetImageBinding(GLuint _slotIndex)
