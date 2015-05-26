@@ -6,13 +6,15 @@ namespace gl
 	const SamplerObject* SamplerObject::s_samplerBindings[gl::Texture::s_numTextureBindings];
 
 	SamplerObject::Desc::Desc(Filter minFilter, Filter magFilter, Filter mipFilter,
-		Border borderHandling, unsigned int maxAnisotropy, const gl::Vec4& borderColor, CompareMode compareMode) :
-		Desc(minFilter, magFilter, mipFilter, borderHandling, borderHandling, borderHandling, maxAnisotropy, borderColor, compareMode)
+		Border borderHandling, unsigned int maxAnisotropy, const gl::Vec4& borderColor, CompareMode compareMode, 
+		float minLod, float maxLod) :
+		Desc(minFilter, magFilter, mipFilter, borderHandling, borderHandling, borderHandling, maxAnisotropy, borderColor, compareMode, minLod, maxLod)
 	{}
 
 	SamplerObject::Desc::Desc(Filter minFilter, Filter magFilter, Filter mipFilter,
 		Border borderHandlingU, Border borderHandlingV, Border m_borderHandlingW,
-		unsigned int maxAnisotropy, const gl::Vec4& borderColor, CompareMode compareMode) :
+		unsigned int maxAnisotropy, const gl::Vec4& borderColor, CompareMode compareMode, 
+		float minLod, float maxLod) :
 		minFilter(minFilter),
 		magFilter(magFilter),
 		mipFilter(mipFilter),
@@ -21,7 +23,9 @@ namespace gl
 		borderHandlingW(m_borderHandlingW),
 		maxAnisotropy(maxAnisotropy),
 		borderColor(borderColor),
-		compareMode(compareMode)
+		compareMode(compareMode),
+		minLod(minLod),
+		maxLod(maxLod)
 	{
 	}
 
@@ -49,6 +53,9 @@ namespace gl
 
 		GL_CALL(glSamplerParameteri, m_samplerId, GL_TEXTURE_MIN_FILTER, minFilterGl);
 		GL_CALL(glSamplerParameteri, m_samplerId, GL_TEXTURE_MAG_FILTER, desc.magFilter == Filter::NEAREST ? GL_NEAREST : GL_LINEAR);
+
+		GL_CALL(glSamplerParameterf, m_samplerId, GL_TEXTURE_MIN_LOD, desc.minLod);
+		GL_CALL(glSamplerParameterf, m_samplerId, GL_TEXTURE_MAX_LOD, desc.maxLod);
 
 		GL_CALL(glSamplerParameteri, m_samplerId, GL_TEXTURE_MAX_ANISOTROPY_EXT, desc.maxAnisotropy);
 

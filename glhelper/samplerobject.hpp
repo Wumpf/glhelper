@@ -45,12 +45,12 @@ namespace gl
 			/// Constructs a descriptor with the same border handling for all dimensions.
 			Desc(Filter minFilter, Filter magFilter, Filter mipFilter, Border borderHandling,
 				unsigned int maxAnisotropy = 1, const gl::Vec4& borderColor = gl::Vec4(1.0f, 1.0f, 1.0f, 1.0f),
-				CompareMode compareMode = CompareMode::NONE);
+				CompareMode compareMode = CompareMode::NONE, float minLod = -1000.0f, float maxLod = 1000.0f);
 
 			/// Constructs a descriptor with the different border handling for each dimension.
 			Desc(Filter minFilter, Filter magFilter, Filter mipFilter, Border borderHandlingU, Border borderHandlingV, Border m_borderHandlingW,
 				unsigned int maxAnisotropy = 1, const gl::Vec4& borderColor = gl::Vec4(1.0f, 1.0f, 1.0f, 1.0f),
-				CompareMode compareMode = CompareMode::NONE);
+				CompareMode compareMode = CompareMode::NONE, float minLod = -1000.0f, float maxLod = 1000.0f);
 
 			bool operator == (const Desc& other) const { return memcmp(this, &other, sizeof(Desc)) == 0; }
 
@@ -63,16 +63,21 @@ namespace gl
 			unsigned int maxAnisotropy;
 			gl::Vec4 borderColor;
 			CompareMode compareMode;
+			float minLod;
+			float maxLod;
 
 
 			struct GetHash
 			{
 				size_t operator()(const gl::SamplerObject::Desc& desc) const
 				{
-					size_t hash = (static_cast<size_t>(desc.minFilter) << 0) + (static_cast<size_t>(desc.magFilter) << 1) + (static_cast<size_t>(desc.mipFilter) << 2);
-					hash |= (static_cast<size_t>(desc.borderHandlingU) + static_cast<size_t>(desc.borderHandlingV) + static_cast<size_t>(desc.borderHandlingW) +
-						reinterpret_cast<const uint64_t*>(&desc.maxAnisotropy)[0] + reinterpret_cast<const uint64_t*>(&desc.maxAnisotropy)[1]) << 3;
-					return hash; // TODO: Add compare mode
+					// Super simple sdbm hash function.
+					size_t hash = 0;
+					int c;
+					const unsigned char* str = reinterpret_cast<const unsigned char*>(this);
+					for (int i = 0; i < sizeof(*this), c = *str++; ++i)
+						hash = c + (hash << 6) + (hash << 16) - hash;
+					return hash;
 				}
 			};
 		};
