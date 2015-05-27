@@ -14,7 +14,7 @@ namespace gl
 
 	void PersistentRingBuffer::AddBlock(void*& _outMemory, size_t& _outBlockIndex, unsigned int _sizeInBytes, unsigned int _alignment)
 	{
-		GLHELPER_ASSERT(_sizeInBytes < m_buffer.GetSize(), "Block is larger than the entire ring buffer!");
+		GLHELPER_ASSERT(_sizeInBytes < static_cast<unsigned int>(m_buffer.GetSize()), "Block is larger than the entire ring buffer!");
 
 		_outBlockIndex = m_blockList.size();
 
@@ -26,7 +26,7 @@ namespace gl
 		unsigned int startWithoutAlignment = m_nextWritePosition;
 
 		bool skippedMem = false;
-		GLsizeiptr remainingMem = m_buffer.GetSize() - newBlock.start;
+		unsigned int remainingMem = static_cast<unsigned int>(m_buffer.GetSize()) - newBlock.start;
 		if (remainingMem < _sizeInBytes)
 		{
 			newBlock.start = 0;
