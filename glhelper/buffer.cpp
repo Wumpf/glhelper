@@ -77,6 +77,9 @@ namespace gl
 			if (s_boundIndexBuffer == m_bufferObject)
 				s_boundIndexBuffer = 0;
 
+			if (s_boundIndirectDispatchBuffer == m_bufferObject)
+				s_boundIndirectDispatchBuffer = 0;
+
 			for (unsigned int i = 0; i < s_numVertexBufferBindings; ++i)
 			{
 				if (s_boundVertexBuffers[i].bufferObject == m_bufferObject)
@@ -93,7 +96,7 @@ namespace gl
 			{
 				if (s_boundSSBOs[i].bufferObject == m_bufferObject)
 					s_boundSSBOs[i].bufferObject = 0;
-			}
+			}			
 
 			GL_CALL(glDeleteBuffers, 1, &m_bufferObject);
 		}
