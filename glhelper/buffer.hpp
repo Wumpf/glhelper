@@ -13,16 +13,13 @@ namespace gl
 	///
 	/// Mapping behavior is slightly restricted: Persistent Map-bits are automatically used if specified at creation time.
 	///
-	/// \see ShaderStorageBufferView, UniformBufferView, TextureBufferView
+	/// \see TextureBufferView
 	///
 	/// \todo Better unbinding in destructor - very expensive atm.
 	/// \todo Add support for binding multiple vertex buffer at once (glBindVertexBuffers)
     class Buffer
     {
     public:
-		friend class UniformBufferView;
-		friend class ShaderStorageBufferView;
-
 		Buffer(const Buffer&) = delete;
 		void operator = (const Buffer&) = delete;
 		void operator = (Buffer&&) = delete;
