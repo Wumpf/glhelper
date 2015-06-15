@@ -70,7 +70,7 @@ namespace gl
 		if (m_blockList.size() > 1 && m_blockList.front().start >= newBlock.start && m_blockList.front().start < blockEndExclusive)
 		{
 			_outMemory = nullptr;
-			LOG_ERROR("The ring buffer does not contain enough memory to hold a single frame. Usually you should overprovise by a factor of 3!");
+			GLHELPER_LOG_ERROR("The ring buffer does not contain enough memory to hold a single frame. Usually you should overprovise by a factor of 3!");
 			return;
 		}
 

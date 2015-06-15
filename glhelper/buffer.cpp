@@ -39,7 +39,7 @@ namespace gl
 			else if (any(m_usageFlags & UsageFlag::MAP_READ) && any(m_usageFlags & UsageFlag::MAP_WRITE))
 				Map(MapType::READ_WRITE, mapWriteFlags);
 			else
-				LOG_ERROR("Persistently mapped buffers need to specify MAP_READ, MAP_WRITE or both.");
+				GLHELPER_LOG_ERROR("Persistently mapped buffers need to specify MAP_READ, MAP_WRITE or both.");
 		}
     }
 
