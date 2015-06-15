@@ -19,43 +19,47 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaderdatametainfo.inl" />
-    <None Include="uniformbuffer.inl" />
+    <ClInclude Include="buffer.hpp" />
+    <ClInclude Include="framebufferobject.hpp" />
+    <ClInclude Include="gl.hpp" />
+    <ClInclude Include="persistentringbuffer.hpp" />
+    <ClInclude Include="samplerobject.hpp" />
+    <ClInclude Include="screenalignedtriangle.hpp" />
+    <ClInclude Include="shaderdatametainfo.hpp" />
+    <ClInclude Include="shaderobject.hpp" />
+    <ClInclude Include="statemanagement.hpp" />
+    <ClInclude Include="texture.hpp" />
+    <ClInclude Include="texture2d.hpp" />
+    <ClInclude Include="texture3d.hpp" />
+    <ClInclude Include="texturebufferview.hpp" />
+    <ClInclude Include="textureformats.hpp" />
+    <ClInclude Include="textureview.hpp" />
+    <ClInclude Include="utils\flagoperators.hpp" />
+    <ClInclude Include="utils\pathutils.hpp" />
+    <ClInclude Include="vertexarrayobject.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="buffer.cpp" />
     <ClCompile Include="framebufferobject.cpp" />
     <ClCompile Include="gl.cpp" />
+    <ClCompile Include="persistentringbuffer.cpp" />
     <ClCompile Include="samplerobject.cpp" />
     <ClCompile Include="screenalignedtriangle.cpp" />
     <ClCompile Include="shaderobject.cpp" />
-    <ClCompile Include="shaderstoragebuffer.cpp" />
+    <ClCompile Include="statemanagement.cpp" />
     <ClCompile Include="texture.cpp" />
     <ClCompile Include="texture2d.cpp" />
     <ClCompile Include="texture3d.cpp" />
-    <ClCompile Include="texturebuffer.cpp" />
+    <ClCompile Include="texturebufferview.cpp" />
     <ClCompile Include="textureformats.cpp" />
-    <ClCompile Include="uniformbuffer.cpp" />
+    <ClCompile Include="textureview.cpp" />
     <ClCompile Include="utils\pathutils.cpp" />
+    <ClCompile Include="vertexarrayobject.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="buffer.hpp" />
-    <ClInclude Include="config.hpp" />
-    <ClInclude Include="flagoperators.hpp" />
-    <ClInclude Include="framebufferobject.hpp" />
-    <ClInclude Include="gl.hpp" />
-    <ClInclude Include="samplerobject.hpp" />
-    <ClInclude Include="screenalignedtriangle.hpp" />
-    <ClInclude Include="shaderdatametainfo.hpp" />
-    <ClInclude Include="shaderobject.hpp" />
-    <ClInclude Include="shaderstoragebuffer.hpp" />
-    <ClInclude Include="texture.hpp" />
-    <ClInclude Include="texture2d.hpp" />
-    <ClInclude Include="texture3d.hpp" />
-    <ClInclude Include="texturebuffer.hpp" />
-    <ClInclude Include="textureformats.hpp" />
-    <ClInclude Include="uniformbuffer.hpp" />
-    <ClInclude Include="utils\pathutils.hpp" />
+    <None Include="buffer.inl" />
+    <None Include="shaderdatametainfo.inl" />
+    <None Include="statemanagement.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{39218F8F-3C91-4A1D-8385-5B8D4DE5FE8D}</ProjectGuid>
