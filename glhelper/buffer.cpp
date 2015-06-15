@@ -1,5 +1,5 @@
 #include "buffer.hpp"
-#include "utilities/flagoperators.hpp"
+#include "utils/flagoperators.hpp"
 
 namespace gl
 {

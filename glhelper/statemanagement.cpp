@@ -72,7 +72,7 @@ namespace gl
 	{
 		if (_cap == Cap::BLEND)
 		{
-			Assert(_index < Details::MaxExpectedViewports, "Enable index exceeds expected maximum!");
+			GLHELPER_ASSERT(_index < Details::MaxExpectedViewports, "Enable index exceeds expected maximum!");
 
 			if (_force || Details::CapStates[static_cast<unsigned int>(_cap)] == CapState::DISABLED ||
 				(Details::CapStates[static_cast<unsigned int>(_cap)] == CapState::UNKOWN && Details::BlendStatePerViewPort[_index] != CapState::ENABLED))
@@ -84,7 +84,7 @@ namespace gl
 		}
 		else if (_cap == Cap::SCISSOR_TEST)
 		{
-			Assert(_index < Details::MaxExpectedDrawbuffers, "Enable index exceeds expected maximum!");
+			GLHELPER_ASSERT(_index < Details::MaxExpectedDrawbuffers, "Enable index exceeds expected maximum!");
 
 			if (_force || Details::CapStates[static_cast<unsigned int>(_cap)] == CapState::DISABLED ||
 				(Details::CapStates[static_cast<unsigned int>(_cap)] == CapState::UNKOWN && Details::ScissorTestPerViewPort[_index] != CapState::ENABLED))
@@ -104,7 +104,7 @@ namespace gl
 	{
 		if (_cap == Cap::BLEND)
 		{
-			Assert(_index < Details::MaxExpectedViewports, "Enable index exceeds expected maximum!");
+			GLHELPER_ASSERT(_index < Details::MaxExpectedViewports, "Enable index exceeds expected maximum!");
 
 			if (_force || Details::CapStates[static_cast<unsigned int>(_cap)] == CapState::ENABLED ||
 				(Details::CapStates[static_cast<unsigned int>(_cap)] == CapState::UNKOWN && Details::BlendStatePerViewPort[_index] != CapState::DISABLED))
@@ -116,7 +116,7 @@ namespace gl
 		}
 		else if (_cap == Cap::SCISSOR_TEST)
 		{
-			Assert(_index < Details::MaxExpectedDrawbuffers, "Enable index exceeds expected maximum!");
+			GLHELPER_ASSERT(_index < Details::MaxExpectedDrawbuffers, "Enable index exceeds expected maximum!");
 
 			if (_force || Details::CapStates[static_cast<unsigned int>(_cap)] == CapState::ENABLED ||
 				(Details::CapStates[static_cast<unsigned int>(_cap)] == CapState::UNKOWN && Details::ScissorTestPerViewPort[_index] != CapState::DISABLED))
