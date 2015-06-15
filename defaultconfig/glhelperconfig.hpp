@@ -54,6 +54,7 @@ namespace gl
 		template<typename T>
 		struct DefaultVec4
 		{
+			DefaultVec4(T x, T y, T z, T w) : x(x), y(y), z(z), w(w) {}
 			T x, y, z, w;
 		};
 		template<typename T>
