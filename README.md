@@ -10,12 +10,13 @@ Platform/Programming Language
 --------
 * Makes heavy use of some C++11 stuff like enum class, initializer lists, variadic templates...
 * Should be platform independent but I only tested win x64 NVIDIA.  
-(Simply because there are not may drives out there yet ;)
+(Also because there are not many drivers for GL4.5 out there yet ;)
 
 Development
 --------
-Used in some personal (experimental!) projects. Functionallity is extendend on personal necessity.  
-However, feedback from fellow OpenGL users is warmly welcome :)
+Used in some personal (experimental!) projects. Functionallity is mostly extendend on personal necessity.  
+However, feedback from fellow OpenGL users is warmly welcome :) 
+I am aware of the lack of unit tests. But since I lack time and motivation to write them, I just use the projects using this library as (bad-coverage) tests. (yesyesyes bad practice I now, but this is not meant for heavy production stuff)
 
 Contents
 --------
@@ -63,10 +64,10 @@ Todos
 --------
 (just notes, in no specific order)
 * multi bind-functions for vertex/index/uniform/shaderstorage buffers
-* better buffer destructor: Iterates currently over all possible bindings!
+* better buffer destructor: Iterates currently over all possible bindings to update intern binding tables
 * add support for cube textures
 * add support for 2d texture arrays
 * add support for 3d texture arrays
 * add wrapper for drawing and viewport settings
 * add wrapper for glGet
-  * at least for constant device properties etc.
+  * at least for constant device properties like texture size, UBO padding, ...
