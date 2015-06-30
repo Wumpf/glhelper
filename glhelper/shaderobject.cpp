@@ -518,8 +518,18 @@ namespace gl
 	void ShaderObject::Activate() const
 	{
 		GLHELPER_ASSERT(m_containsAssembledProgram, "No shader program ready yet for ShaderObject \"" + m_name + "\". Call CreateProgram first!");
-		GL_CALL(glUseProgram, m_program);
-		s_currentlyActiveShaderObject = this;
+		if(s_currentlyActiveShaderObject != this)
+		{
+			GL_CALL(glUseProgram, m_program);
+			s_currentlyActiveShaderObject = this;
+		}
+	}
+
+	void ShaderObject::Dispatch(int _numGroupsX, int _numGroupsY, int _numGroupsZ) const
+	{
+		GLHELPER_ASSERT(m_shader[int(ShaderType::COMPUTE)].loaded, "The program must be a compute shader to be dispatched!");
+		Activate();
+		GL_CALL(glDispatchCompute, _numGroupsX, _numGroupsY, _numGroupsZ);
 	}
 
 	Result ShaderObject::BindUBO(Buffer& _ubo, const std::string& _UBOName) const

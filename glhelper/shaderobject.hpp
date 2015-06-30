@@ -79,6 +79,11 @@ namespace gl
 		/// You can only activate one program at a time. Checks for redundant state changes.
 		void Activate() const;
 
+		/// Makes the program active and dispatces it as compute shader.
+		///
+		/// Checks for redundant state changes and program compability (must be a compute shader).
+		void Dispatch(int _numGroupsX, int _numGroupsY, int _numGroupsZ) const;
+
 
 
 		/// Binds an ubo by name.
