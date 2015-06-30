@@ -518,8 +518,12 @@ namespace gl
 	void ShaderObject::Activate() const
 	{
 		GLHELPER_ASSERT(m_containsAssembledProgram, "No shader program ready yet for ShaderObject \"" + m_name + "\". Call CreateProgram first!");
-		GL_CALL(glUseProgram, m_program);
-		s_currentlyActiveShaderObject = this;
+		
+		if(s_currentlyActiveShaderObject != this)
+		{
+			GL_CALL(glUseProgram, m_program);
+			s_currentlyActiveShaderObject = this;
+		}
 	}
 
 	Result ShaderObject::BindUBO(Buffer& _ubo, const std::string& _UBOName) const
