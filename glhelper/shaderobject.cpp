@@ -356,6 +356,11 @@ namespace gl
 			// already a program there? destroy old one!
 			if (m_containsAssembledProgram)
 			{
+				if(s_currentlyActiveShaderObject == this)
+				{
+					GL_CALL(glUseProgram, 0);
+					s_currentlyActiveShaderObject = nullptr;
+				}
 				GL_CALL(glDeleteProgram, m_program);
 
 				// clear meta information
