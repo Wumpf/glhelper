@@ -13,7 +13,7 @@ namespace gl
 	Texture2D::Texture2D(GLsizei _width, GLsizei _height, TextureFormat _format, GLsizei _numMipLevels, GLsizei _numMSAASamples) :
 		Texture(_width, _height, 1, _format, _numMipLevels, _numMSAASamples)
 	{
-		GL_CALL(glCreateTextures, GL_TEXTURE_2D, 1, &m_textureHandle);
+		GL_CALL(glCreateTextures, GetOpenGLTextureType(), 1, &m_textureHandle);
 		if(m_numMSAASamples == 0)
 			GL_CALL(glTextureStorage2D, m_textureHandle, m_numMipLevels, gl::TextureFormatToGLSizedInternal[static_cast<unsigned int>(_format)], m_width, m_height);
 		else
