@@ -619,6 +619,24 @@ namespace gl
 		}
 	}
 
+	Result ShaderObject::SettingsChangeHandler(const std::string& _newPrefixCode)
+	{
+		for (unsigned i = 0; i < (unsigned)ShaderType::NUM_SHADER_TYPES; ++i)
+		{
+			auto& shader = m_shader[i];
+			if (shader.loaded)
+			{
+				// Need to copy these strings, since they could be deleted in the course of reloading..
+				std::string origin(shader.origin);
+				if (AddShaderFromFile((ShaderType)i, origin, _newPrefixCode) == Result::FAILURE)
+					return Result::FAILURE;
+			}
+		}
+		if (m_containsAssembledProgram)
+			return CreateProgram();
+		return Result::SUCCEEDED;
+	}
+
 	std::vector<char> ShaderObject::GetProgramBinary(GLenum& _binaryFormat)
 	{
 		GLHELPER_ASSERT(m_program != 0, "Program not yet compiled.");

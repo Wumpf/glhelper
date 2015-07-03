@@ -137,6 +137,10 @@ namespace gl
 		/// If the file was loaded with a prefix code (see AddShaderFromFile) then this code will also be used again.
 		void ShaderFileChangeHandler(const std::string& _changedShaderFile);
 
+		/// Reload a program with new options.
+		/// This call will reload all shader files attached to the program.
+		Result SettingsChangeHandler(const std::string& _newPrefixCode);
+
 		/// Gets a list of all associated shader files (including resolved includes) and their usage.
 		const std::unordered_map<std::string, ShaderType>& GetShaderFilenames() { return m_filesPerShaderType; }
 
