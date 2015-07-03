@@ -17,7 +17,7 @@ namespace gl
 		ScreenAlignedTriangle();
 		~ScreenAlignedTriangle();
 
-		void Draw();
+		void Draw() const;
 
 	private:
 		Buffer* m_vertexBuffer;

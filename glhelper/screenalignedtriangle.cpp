@@ -30,7 +30,7 @@ namespace gl
 		delete m_vertexArrayObject;
 	}
 
-	void ScreenAlignedTriangle::Draw()
+	void ScreenAlignedTriangle::Draw() const
 	{
 		m_vertexArrayObject->Bind();
 		m_vertexBuffer->BindVertexBuffer(0, 0, m_vertexArrayObject->GetVertexStride(0));
