@@ -600,7 +600,7 @@ namespace gl
 #endif
 	}
 
-	void ShaderObject::ShaderFileChangeHandler(const std::string& _changedShaderFile)
+	Result ShaderObject::ReloadShaderFile(const std::string& _changedShaderFile)
 	{
 		auto it = m_filesPerShaderType.find(_changedShaderFile);
 		if (it != m_filesPerShaderType.end())
@@ -609,23 +609,30 @@ namespace gl
 
 			if (shader.loaded)
 			{
-				// Need to copy these strings, since they could be deleted in the course of reloading..
+				// Need to copy these strings, since they could be deleted during AddShaderFromFile.
 				std::string origin(shader.origin);
 				std::string prefix(shader.prefixCode);
-				if (AddShaderFromFile(it->second, origin, prefix) != Result::FAILURE && m_containsAssembledProgram)
-					CreateProgram();
+				if (AddShaderFromFile(it->second, origin, prefix) != Result::FAILURE)
+				{
+					if (m_containsAssembledProgram)
+						CreateProgram();
+				}
+				else
+					return Result::FAILURE;
 			}
 		}
+
+		return Result::SUCCEEDED;
 	}
 
-	Result ShaderObject::SettingsChangeHandler(const std::string& _newPrefixCode)
+	Result ShaderObject::ReloadAllShaderFiles(const std::string& _newPrefixCode)
 	{
 		for (unsigned i = 0; i < (unsigned)ShaderType::NUM_SHADER_TYPES; ++i)
 		{
 			auto& shader = m_shader[i];
 			if (shader.loaded)
 			{
-				// Need to copy these strings, since they could be deleted in the course of reloading..
+				// Need to copy this string, since it could be deleted during AddShaderFromFile.
 				std::string origin(shader.origin);
 				if (AddShaderFromFile((ShaderType)i, origin, _newPrefixCode) == Result::FAILURE)
 					return Result::FAILURE;
