@@ -1,4 +1,4 @@
-#include "SamplerObject.hpp"
+#include "samplerobject.hpp"
 
 namespace gl
 {

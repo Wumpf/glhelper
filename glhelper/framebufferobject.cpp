@@ -1,5 +1,5 @@
 #include "framebufferobject.hpp"
-#include "texture2D.hpp"
+#include "texture2d.hpp"
 
 namespace gl
 {
