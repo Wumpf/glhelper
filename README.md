@@ -9,14 +9,13 @@ This is **not** a complete API abstraction, rather a bunch of helper classes!
 Platform/Programming Language
 --------
 * Makes heavy use of some C++11 stuff like enum class, initializer lists, variadic templates...
-* Should be platform independent but I only tested win x64 NVIDIA.  
-(Also because there are not many drivers for GL4.5 out there yet ;)
+* Should be platform independent but I only tested win x64 NVIDIA. 
 
 Development
 --------
 Used in some personal (experimental!) projects. Functionallity is mostly extendend on personal necessity.  
 However, feedback from fellow OpenGL users is warmly welcome :) 
-I am aware of the lack of unit tests. But since I lack time and motivation to write them, I just use the projects using this library as (bad-coverage) tests. (yesyesyes bad practice I now, but this is not meant for heavy production stuff)
+I am aware of the lack of unit tests. But since I lack time and motivation to write them, I just use the projects using this library as (bad-coverage) tests.
 
 Contents
 --------
