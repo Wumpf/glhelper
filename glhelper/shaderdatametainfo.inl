@@ -101,8 +101,8 @@ inline void BufferInfoView<VariableType>::SetableVariable::Set(const void* _data
 }
 
 template<typename VariableType>
-inline MappedMemoryView<VariableType>::MappedMemoryView(const BufferInfo<VariableType>& _bufferInfo, void* _mappedMemory, GLsizei _mapOffset = 0) :
-	BufferInfoView(_bufferInfo, [_mappedMemory, _mapOffset](const void* _data, GLsizei _sizeInBytes, std::int32_t _offset) {
+inline MappedMemoryView<VariableType>::MappedMemoryView(const BufferInfo<VariableType>& _bufferInfo, void* _mappedMemory, GLsizei _mapOffset) :
+	BufferInfoView<VariableType>(_bufferInfo, [_mappedMemory, _mapOffset](const void* _data, GLsizei _sizeInBytes, std::int32_t _offset) {
 		GLHELPER_ASSERT(_offset >= _mapOffset, "Variable is outside of mapped memory area!");
 		// TODO: Overflow check!
 		memcpy(reinterpret_cast<char*>(_mappedMemory)+(_offset - _mapOffset), _data, _sizeInBytes);
