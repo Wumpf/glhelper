@@ -24,8 +24,8 @@
 /// \brief The INT_TYPE macro determines an integer type which has at least the
 ///		precision of the enum such that all enum-base types are supported
 #define INT_TYPE			typename std::conditional<sizeof(EnumT) == 1, uint_fast8_t, \
-									 std::conditional<sizeof(EnumT) == 2, uint_fast16_t, \
-									 std::conditional<sizeof(EnumT) == 4, uint_fast32_t, uint_fast64_t>::type>::type>::type
+									 typename std::conditional<sizeof(EnumT) == 2, uint_fast16_t, \
+									 typename std::conditional<sizeof(EnumT) == 4, uint_fast32_t, uint_fast64_t>::type>::type>::type
 
 /// \brief Operator to combine flags: Bitwise OR
 template<typename EnumT>
