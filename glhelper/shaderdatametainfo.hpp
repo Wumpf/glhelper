@@ -253,5 +253,5 @@ namespace gl
 	typedef MappedMemoryView<BufferVariableInfo> MappedBufferView;
 	typedef MappedMemoryView<UniformVariableInfo> MappedUBOView;
 
-#include "ShaderDataMetaInfo.inl"
+#include "shaderdatametainfo.inl"
 }
