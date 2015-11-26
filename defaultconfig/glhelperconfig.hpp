@@ -4,6 +4,10 @@
 #include <string>
 #include <cassert>
 #include <iostream>
+#include <limits>  // for std::numeric_limits in textureview.hpp
+#include <string.h> // for memcmp in samplerobject.h
+#include <vector> // for std::vector in shaderobject.cpp
+#include <algorithm> // for std::count in shaderobject.cpp
 
 // General settings.
 
